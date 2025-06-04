@@ -8,19 +8,19 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/config v1.29.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.3
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.80.0
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.45.0
-	github.com/bloom42/stdx-go v0.0.0-20250520071234-9d909ad16426
+	github.com/bloom42/stdx-go v0.0.0-20250604081759-1cd365121388
 	github.com/fxamacker/cbor/v2 v2.8.0
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/klauspost/compress v1.18.0
 	github.com/microcosm-cc/bluemonday v1.0.27
-	github.com/pdfcpu/pdfcpu v0.9.1
+	github.com/pdfcpu/pdfcpu v0.11.0
 	github.com/stripe/stripe-go/v81 v81.4.0
 	github.com/tetratelabs/wazero v1.9.0
 	github.com/yuin/goldmark v1.7.12
 	golang.org/x/crypto v0.38.0
-	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6
+	golang.org/x/exp v0.0.0-20250531010427-b6e5de432a8b
 	golang.org/x/net v0.40.0
 	golang.org/x/sync v0.14.0
 	golang.org/x/text v0.25.0
@@ -35,7 +35,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.34 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.7.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.7.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.25.3 // indirect
@@ -47,6 +47,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
+	github.com/hhrutter/pkcs7 v0.2.0 // indirect
 	github.com/hhrutter/tiff v1.0.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
