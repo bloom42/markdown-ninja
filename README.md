@@ -37,6 +37,6 @@ We take Markdown Ninja's security and our users' trust very seriously. If you be
 
 Copyright (c) 2025 Arcane Services
 
-Code is released under the MIT license. See `LICENSE.txt` for details.
+Code is released under the GNU Affero General Public License v3.0 (AGPL v3.0) license. See `LICENSE.txt` for details.
 
-Documentation and assets are released under the Creative Commons BY-SA 4.0 license (CC BY-SA 4.0) lciense. See `LICENSE_CC-BY-SA-4.txt` and [https://creativecommons.org/licenses/by-sa/4.0](https://creativecommons.org/licenses/by-sa/4.0) for details.
+Documentation and assets are released under the Creative Commons BY-SA 4.0 license (CC BY-SA 4.0) license. See `LICENSE_CC-BY-SA-4.txt` and [https://creativecommons.org/licenses/by-sa/4.0](https://creativecommons.org/licenses/by-sa/4.0) for details.
