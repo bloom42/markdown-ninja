@@ -40,3 +40,5 @@ Copyright (c) 2025 Arcane Services
 Code is released under the GNU Affero General Public License v3.0 (AGPL v3.0) license. See `LICENSE.txt` for details.
 
 Documentation and assets are released under the Creative Commons BY-SA 4.0 license (CC BY-SA 4.0) license. See `LICENSE_CC-BY-SA-4.txt` and [https://creativecommons.org/licenses/by-sa/4.0](https://creativecommons.org/licenses/by-sa/4.0) for details.
+
+If you have special licensing needs, please feel free to contact us: [https://markdown.ninja/contact](https://markdown.ninja/contact)
