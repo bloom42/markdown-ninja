@@ -246,6 +246,11 @@ let website: Ref<Website | null> = ref(null);
 const stats = computed((): Stat[] => {
   return [
     {
+      name: 'Subscribers',
+      value: (website.value?.subscribers ?? 0).toLocaleString('en-US'),
+      change: analyticsData.value?.new_subscribers ?? 0,
+    },
+    {
       name: 'Page Views',
       value: (analyticsData.value?.total_page_views ?? 0).toLocaleString('en-US'),
       change: null,
@@ -254,11 +259,6 @@ const stats = computed((): Stat[] => {
       name: 'Visitors',
       value: (analyticsData.value?.total_visitors ?? 0).toLocaleString('en-US'),
       change: null,
-    },
-    {
-      name: 'Subscribers',
-      value: (website.value?.subscribers ?? 0).toLocaleString('en-US'),
-      change: analyticsData.value?.new_subscribers ?? 0,
     },
   ]
 })
