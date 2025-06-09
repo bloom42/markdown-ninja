@@ -27,7 +27,7 @@
     <div v-if="success">
       <p>
         Thank you! <br />
-        You can now find your products in your account. <br />
+        You can now access your products by logging into your account. <br />
 
         <RouterLink to="/account">
           <span class="text-xl">Go to my account</span>
