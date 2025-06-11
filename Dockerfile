@@ -1,8 +1,7 @@
 ####################################################################################################
 ## Build webapp & themes
 ####################################################################################################
-# node:18
-FROM --platform=$BUILDPLATFORM node@sha256:867be01f97d45cb7d89a8ef0b328d23e8207412ebec4564441ed8cabc8cc4ecd AS builder_js
+FROM --platform=$BUILDPLATFORM node:18 AS builder_js
 
 RUN apt update && apt upgrade -y && \
     apt install -y libimage-exiftool-perl make
@@ -33,8 +32,7 @@ RUN make build
 ####################################################################################################
 ## Build mdninja and mdninja-server
 ####################################################################################################
-# golang:1.24
-FROM golang@sha256:39d9e7d9c5d9c9e4baf0d8fff579f06d5032c0f4425cdec9e86732e8e4e374dc AS go
+FROM golang:1.24 AS go
 
 FROM ubuntu:24.04 AS builder_go
 
