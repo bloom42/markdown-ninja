@@ -1,11 +1,13 @@
 package waf
 
 import (
+	"bytes"
 	"context"
 	cryptorand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"math/rand/v2"
 	"net"
@@ -29,7 +31,7 @@ import (
 	wazeroapi "github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/experimental"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"markdown.ninja/pingoo-go/assets"
+	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pingoo-go/wasm"
 	"markdown.ninja/pkg/server/httpctx"
 )
@@ -100,7 +102,7 @@ type lookupHostOutput struct {
 
 type empty struct{}
 
-func New(blockedCountries set.Set[string], logger *slog.Logger) (waf *Waf, err error) {
+func New(ctx context.Context, pingooClient *pingoo.Client, blockedCountries set.Set[string], logger *slog.Logger) (waf *Waf, err error) {
 	if logger == nil {
 		logger = slog.New(slog.DiscardHandler)
 	}
@@ -109,6 +111,18 @@ func New(blockedCountries set.Set[string], logger *slog.Logger) (waf *Waf, err e
 		memorycache.WithTTL[netip.Addr, bool](7*24*time.Hour), // 7 days
 		memorycache.WithCapacity[netip.Addr, bool](20_000),
 	)
+
+	pingooWasmDownload, err := pingooClient.DownloadPingooWasm(ctx, "")
+	if err != nil {
+		return nil, fmt.Errorf("waf: error downloading pingoo wasm: %w", err)
+	}
+	defer pingooWasmDownload.Data.Close()
+	pingooWasmBytes := bytes.NewBuffer(make([]byte, 0, 2_000_000)) // 2MB
+	_, err = io.Copy(pingooWasmBytes, pingooWasmDownload.Data)
+	if err != nil {
+		return nil, fmt.Errorf("waf: error downloading pingoo wasm: %w", err)
+	}
+	logger.Debug("waf: pingoo.wasm successfully downloaded", slog.Int("size", pingooWasmBytes.Len()))
 
 	wasmCtx := context.Background()
 	// wasmCtx = experimental.WithMemoryAllocator(wasmCtx, wazeroallocator.NewNonMoving())
@@ -143,7 +157,7 @@ func New(blockedCountries set.Set[string], logger *slog.Logger) (waf *Waf, err e
 		return nil, fmt.Errorf("waf: error instantiating wasm host module (env): %w", err)
 	}
 
-	compiledWasmModule, err := wasmRuntime.CompileModule(wasmCtx, assets.PingooWasm)
+	compiledWasmModule, err := wasmRuntime.CompileModule(wasmCtx, pingooWasmBytes.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("waf: error compiling wasm pingoo module: %w", err)
 	}

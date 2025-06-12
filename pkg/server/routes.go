@@ -27,7 +27,7 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	// api := NewApi(server.webappDomain, server.kernelService, server.websitesService, server.contactsService,
 	// 	server.emailsService, server.storeService, server.eventsService, server.contentService, server.organizationsService)
 
-	waf, err := waf.New(server.blockedCountries, server.logger)
+	waf, err := waf.New(ctx, server.pingooClient, server.blockedCountries, server.logger)
 	if err != nil {
 		return
 	}
