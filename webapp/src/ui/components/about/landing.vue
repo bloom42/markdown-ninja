@@ -28,7 +28,7 @@
         <p class="mt-6 text-pretty text-lg text-neutral-500 sm:text-xl/8">
           Markdown-first CMS for bloggers, minimalists and startups.
         </p>
-        <div class="mt-6 flex items-center gap-x-6">
+        <div class="mt-6 flex items-center gap-x-2 sm:gap-x-6">
           <a href="https://kerkour.com" target="_blank" rel="noopener">
             <sl-button outline class="items-center">
               View example blog
