@@ -683,7 +683,7 @@ export type Order = {
   total_amount: number;
   currency: string;
   status: OrderStatus;
-  billing_address: Address;
+  country: string;
   email: string;
   stripe_checkout_session_id: string;
   stripe_payment_intent_id?: string;
@@ -703,7 +703,7 @@ export type OrderMetadata = {
   total_amount: number;
   currency: string;
   status: OrderStatus;
-  billing_address: Address;
+  country: string;
   email: string;
   completed_at?: string;
   canceled_at?: string;

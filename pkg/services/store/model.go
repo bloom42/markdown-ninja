@@ -259,8 +259,8 @@ type Order struct {
 	CompletedAt *time.Time        `db:"completed_at" json:"completed_at"`
 	CanceledAt  *time.Time        `db:"canceled_at" json:"canceled_at"`
 
-	Email          string         `db:"email" json:"email"`
-	BillingAddress kernel.Address `db:"billing_address" json:"billing_address"`
+	Email   string `db:"email" json:"email"`
+	Country string `db:"country" json:"country"`
 
 	StripeCheckoutSessionID string  `db:"stripe_checkout_session_id" json:"stripe_checkout_session_id"`
 	StripPaymentItentID     *string `db:"stripe_payment_intent_id" json:"stripe_payment_intent_id"`
@@ -285,6 +285,7 @@ type OrderMetadata struct {
 	Status      OrderStatus       `db:"status" json:"status"`
 	CompletedAt *time.Time        `db:"completed_at" json:"completed_at"`
 	CanceledAt  *time.Time        `db:"canceled_at" json:"canceled_at"`
+	Country     string            `db:"country" json:"country"`
 
 	ContactID guid.GUID `db:"contact_id" json:"contact_id"`
 }

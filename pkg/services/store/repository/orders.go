@@ -14,13 +14,13 @@ import (
 func (repo *StoreRepository) CreateOrder(ctx context.Context, db db.Queryer, order store.Order) (err error) {
 	const query = `INSERT INTO orders
 			(id, created_at, updated_at, total_amount, currency, notes, status, completed_at, canceled_at,
-				email, billing_address, stripe_checkout_session_id, stripe_payment_intent_id, stripe_invoice_id, stripe_invoice_url,
+				email, country, stripe_checkout_session_id, stripe_payment_intent_id, stripe_invoice_id, stripe_invoice_url,
 				contact_id, website_id)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`
 
 	_, err = db.Exec(ctx, query, order.ID, order.CreatedAt, order.UpdatedAt, order.TotalAmount, order.Currency,
 		order.Notes, order.Status, order.CompletedAt, order.CanceledAt,
-		order.Email, order.BillingAddress, order.StripeCheckoutSessionID, order.StripPaymentItentID, order.StripeInvoiceID, order.StripeInvoiceUrl,
+		order.Email, order.Country, order.StripeCheckoutSessionID, order.StripPaymentItentID, order.StripeInvoiceID, order.StripeInvoiceUrl,
 		order.ContactID, order.WebsiteID)
 	if err != nil {
 		err = fmt.Errorf("store.CreateOrder: %w", err)
@@ -33,13 +33,13 @@ func (repo *StoreRepository) CreateOrder(ctx context.Context, db db.Queryer, ord
 func (repo *StoreRepository) UpdateOrder(ctx context.Context, db db.Queryer, order store.Order) (err error) {
 	const query = `UPDATE orders
 		SET updated_at = $1, notes = $2, status = $3, completed_at = $4, canceled_at = $5,
-			email = $6, billing_address = $7, stripe_invoice_id = $8, stripe_payment_intent_id = $9,
+			email = $6, country = $7, stripe_invoice_id = $8, stripe_payment_intent_id = $9,
 			stripe_checkout_session_id = $10, stripe_invoice_url = $11, total_amount = $12
 		WHERE id = $13
 `
 
 	_, err = db.Exec(ctx, query, order.UpdatedAt, order.Notes, order.Status, order.CompletedAt, order.CanceledAt,
-		order.Email, order.BillingAddress, order.StripeInvoiceID,
+		order.Email, order.Country, order.StripeInvoiceID,
 		order.StripPaymentItentID, order.StripeCheckoutSessionID, order.StripeInvoiceUrl, order.TotalAmount,
 		order.ID)
 	if err != nil {
@@ -52,7 +52,7 @@ func (repo *StoreRepository) UpdateOrder(ctx context.Context, db db.Queryer, ord
 
 func (repo *StoreRepository) FindOrdersMetadataForWebsite(ctx context.Context, db db.Queryer, websiteId guid.GUID, limit int64, after *guid.GUID) (ret []store.OrderMetadata, err error) {
 	ret = make([]store.OrderMetadata, 0)
-	query := `SELECT id, created_at, updated_at, email, total_amount, currency, status, completed_at, canceled_at, contact_id
+	query := `SELECT id, created_at, updated_at, email, total_amount, currency, status, completed_at, canceled_at, contact_id, country
 		FROM orders
 		WHERE website_id = $1`
 

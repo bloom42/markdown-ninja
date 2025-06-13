@@ -228,7 +228,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		CompletedAt:             nil,
 		CanceledAt:              nil,
 		Email:                   customer.Email,
-		BillingAddress:          customer.BillingAddress,
+		Country:                 httpCtx.Client.CountryCode,
 		StripeCheckoutSessionID: stripeCheckoutSession.ID,
 		StripPaymentItentID:     nil,
 		StripeInvoiceID:         nil,

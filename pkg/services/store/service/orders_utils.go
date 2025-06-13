@@ -31,5 +31,6 @@ func convertOrderToMetadata(order store.Order) store.OrderMetadata {
 		CompletedAt: order.CompletedAt,
 		CanceledAt:  order.CanceledAt,
 		ContactID:   order.ContactID,
+		Country:     order.Country,
 	}
 }

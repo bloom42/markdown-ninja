@@ -20,7 +20,6 @@ import (
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/events"
-	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/store"
 )
 
@@ -161,16 +160,10 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 		stripeCustomerID = &stripeCheckoutSession.Customer.ID
 	}
 
-	var billingAddress kernel.Address
-	if stripeCheckoutSession.CustomerDetails != nil && stripeCheckoutSession.CustomerDetails.Address != nil {
-		billingAddress = kernel.Address{
-			Line1:       stripeCheckoutSession.CustomerDetails.Address.Line1,
-			Line2:       stripeCheckoutSession.CustomerDetails.Address.Line2,
-			CountryCode: stripeCheckoutSession.CustomerDetails.Address.Country,
-			PostalCode:  stripeCheckoutSession.CustomerDetails.Address.PostalCode,
-			City:        stripeCheckoutSession.CustomerDetails.Address.City,
-			State:       stripeCheckoutSession.CustomerDetails.Address.State,
-		}
+	country := order.Country
+	if stripeCheckoutSession.CustomerDetails != nil && stripeCheckoutSession.CustomerDetails.Address != nil &&
+		stripeCheckoutSession.CustomerDetails.Address.Country != "" {
+		country = stripeCheckoutSession.CustomerDetails.Address.Country
 	} else {
 		if stripeCheckoutSession.CustomerDetails == nil {
 			logger.Warn("store.completeOrder: stripeCheckoutSession.CustomerDetails is null")
@@ -206,7 +199,7 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 	order.UpdatedAt = now
 	order.StripPaymentItentID = &stripeCheckoutSession.PaymentIntent.ID
 	order.TotalAmount = stripeCheckoutSession.PaymentIntent.Amount / 100
-	order.BillingAddress = billingAddress
+	order.Country = country
 	order.CompletedAt = &now
 	order.Status = store.OrderStatusCompleted
 	if stripeCheckoutSession.PaymentIntent.Invoice != nil {
@@ -251,7 +244,7 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 	updateContactInput := contacts.UpdateContactInput{
 		ID:               contact.ID,
 		Verified:         opt.Bool(true),
-		BillingAddress:   &billingAddress,
+		CountryCode:      &country,
 		StripeCustomerID: stripeCustomerID,
 	}
 	err = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)

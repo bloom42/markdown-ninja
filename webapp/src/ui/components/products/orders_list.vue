@@ -12,6 +12,9 @@
                 Date
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Country
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -31,6 +34,11 @@
               <td class="px-6 py-4 whitespace-nowrap w-1/4">
                 <div class="text-md font-medium text-gray-900 truncate">
                   {{ date(order.created_at) }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap w-1/8">
+                <div class="text-md font-medium text-gray-900 truncate">
+                  {{ order.country }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap w-1/8">

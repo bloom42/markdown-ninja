@@ -19,6 +19,9 @@
         <b>Date</b>: {{ order.created_at }}
       </div>
       <div class="flex">
+        <b>Country</b>: {{ order.country }}
+      </div>
+      <div class="flex">
         <b>Status</b>: <POrderStatus :status="order.status" class="ml-2" />
       </div>
       <div class="flex">
@@ -60,14 +63,6 @@
         <POrderLineItemsList :website-id="websiteId" :line-items="order.line_items!" />
       </div>
 
-      <div class="flex flex-col mt-5 space-y-5">
-        <div class="flex">
-          <h1 class="text-xl font-extrabold text-gray-900">Billing Address</h1>
-        </div>
-        <PAddress v-model="order.billing_address" readonly />
-      </div>
-
-
       <div class="flex flex-col mt-5 space-y-2">
         <div class="flex">
           <h1 class="text-xl font-extrabold text-gray-900">Refunds</h1>
@@ -96,7 +91,6 @@ import { OrderStatus, type Order, type Refund } from '@/api/model';
 import { useMdninja } from '@/api/mdninja';
 import { onBeforeMount, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
-import PAddress from '@/ui/components/kernel/address.vue';
 import POrderLineItemsList from '@/ui/components/products/order_line_items_list.vue';
 import POrderStatus from '@/ui/components/products/order_status.vue';
 import RefundsList from '@/ui/components/products/refunds_list.vue';
