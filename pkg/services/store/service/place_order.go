@@ -123,6 +123,10 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	if input.AdditionalInvoiceInformation != nil {
 		additionalInvoiceInformation := strings.TrimSpace(*input.AdditionalInvoiceInformation)
 		if additionalInvoiceInformation != "" {
+			err = validateAdditionalInvoiceInformation(additionalInvoiceInformation)
+			if err != nil {
+				return
+			}
 			invoiceData = &stripe.CheckoutSessionInvoiceCreationInvoiceDataParams{
 				Description: stripe.String(additionalInvoiceInformation),
 			}

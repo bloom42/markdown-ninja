@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -8,6 +9,15 @@ import (
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/store"
 )
+
+func validateAdditionalInvoiceInformation(additionalInformation string) error {
+	const ADDITIONAL_INVOICE_INFORMATION_MAX_LENGTH = 800
+	if len(additionalInformation) > ADDITIONAL_INVOICE_INFORMATION_MAX_LENGTH {
+		return errs.InvalidArgument(fmt.Sprintf("Additional invoice information is too long. Max: %d characters", ADDITIONAL_INVOICE_INFORMATION_MAX_LENGTH))
+	}
+
+	return nil
+}
 
 func (service *StoreService) validateProductName(name string) error {
 	if len(name) < store.ProductNameMinLength {
