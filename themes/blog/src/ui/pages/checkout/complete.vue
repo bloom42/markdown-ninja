@@ -30,7 +30,7 @@
         You can now access your products by logging into your account. <br />
 
         <RouterLink to="/account">
-          <span class="text-xl">Go to my account</span>
+          <span class="text-xl underline">Go to my account</span>
         </RouterLink>
       </p>
 

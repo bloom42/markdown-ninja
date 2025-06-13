@@ -37,8 +37,22 @@ export default defineConfig({
             }
           });
         },
+      },
+      '/assets': {
+        target: 'http://localhost:4080',
+        // changeOrigin: true,
+        secure: false,
+        ws: true,
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            // forward the authorization header for API calls
+            if (req.headers['authorization']) {
+              proxyReq.setHeader('authorization', req.headers['authorization']);
+            }
+          });
+        },
       }
-    }
+    },
   },
   esbuild: {
     legalComments: 'none',

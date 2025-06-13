@@ -216,6 +216,7 @@ export type PlaceOrderInput = {
   products: string[];
   email?: string;
   subscribe_to_newsletter: boolean;
+  additional_invoice_information?: string;
 }
 
 export type CompleteOrderInput = {

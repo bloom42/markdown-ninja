@@ -13,15 +13,29 @@
 
 
     <div v-if="askForEmail">
-      <div class="flex flex-col">
-        <input id="email" name="email" type="email" autocomplete="email" required placeholder="my@email.com"
-            v-model="email" @keyup="cleanupEmail"
-            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
-          />
+      <div class="flex flex-col gap-y-2">
+        <div>
+          <label for="email" class="block text-sm/6 font-medium text-gray-900">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="my@email.com"
+              v-model="email" @keyup="cleanupEmail"
+              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+            />
 
-        <small class="text-gray-400 font-small">
-          We will send your purchases to this email address.
-        </small>
+          <small class="text-gray-400 font-small">
+            We will send your purchases to this email address.
+          </small>
+        </div>
+
+        <div>
+          <label for="additional_invoice_information" class="block text-sm/6 font-medium text-gray-900">
+            Additional invoice information (optional, e.g. address, company name, tax ID...)
+          </label>
+          <div class="mt-2">
+            <textarea rows="4" id="additional_invoice_information" v-model="additionalInvoiceInformation"
+              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+            />
+          </div>
+        </div>
 
         <div>
           <PButton :loading="loading" @click="onPlaceOrderClicked()" class="mt-3">
@@ -96,6 +110,7 @@ let askForEmail = ref(false);
 let email = ref('');
 let loading = ref(false);
 let subscribeToNewsletter = ref(true);
+let additionalInvoiceInformation = ref('');
 
 // computed
 
@@ -109,13 +124,15 @@ function cleanupEmail() {
 async function onPlaceOrderClicked() {
   error.value = '';
   const emailInput = email.value.trim();
+  const additionalInvoiceInformationInput = additionalInvoiceInformation.value.trim();
   loading.value = true;
 
   let products = ($route.query.products as string ?? '').split(',').filter((p) => p != '');
   const input: PlaceOrderInput = {
     products: products,
-    email: emailInput === '' ? undefined: emailInput,
+    email: emailInput === '' ? undefined : emailInput,
     subscribe_to_newsletter: subscribeToNewsletter.value,
+    additional_invoice_information: additionalInvoiceInformationInput === '' ? undefined : additionalInvoiceInformationInput,
   };
 
   try {

@@ -483,9 +483,10 @@ type ListOrdersInput struct {
 }
 
 type PlaceOrderInput struct {
-	Products              []guid.GUID `json:"products"`
-	Email                 *string     `json:"email"`
-	SubscribeToNewsletter bool        `json:"subscribe_to_newsletter"`
+	Products                     []guid.GUID `json:"products"`
+	Email                        *string     `json:"email"`
+	SubscribeToNewsletter        bool        `json:"subscribe_to_newsletter"`
+	AdditionalInvoiceInformation *string     `json:"additional_invoice_information"`
 }
 
 type PlaceOrderOutput struct {

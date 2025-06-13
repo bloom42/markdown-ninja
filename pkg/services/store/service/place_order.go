@@ -118,6 +118,16 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	var customerCreation *string
 	var updateStripeCustomer *stripe.CheckoutSessionCustomerUpdateParams
 	var stripeCustomerID *string
+	var invoiceData *stripe.CheckoutSessionInvoiceCreationInvoiceDataParams
+
+	if input.AdditionalInvoiceInformation != nil {
+		additionalInvoiceInformation := strings.TrimSpace(*input.AdditionalInvoiceInformation)
+		if additionalInvoiceInformation != "" {
+			invoiceData = &stripe.CheckoutSessionInvoiceCreationInvoiceDataParams{
+				Description: stripe.String(additionalInvoiceInformation),
+			}
+		}
+	}
 
 	// TODO: if an account already exists for this email, make the user authenticate before redirecting
 	// to the payment page
@@ -154,11 +164,11 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	}
 
 	createStripeCheckoutSessionParams := &stripe.CheckoutSessionParams{
-		CustomerEmail:            customerEmail,
-		Customer:                 stripeCustomerID,
-		CustomerCreation:         customerCreation,
-		CustomerUpdate:           updateStripeCustomer,
-		BillingAddressCollection: stripe.String(string(stripe.CheckoutSessionBillingAddressCollectionRequired)),
+		CustomerEmail:    customerEmail,
+		Customer:         stripeCustomerID,
+		CustomerCreation: customerCreation,
+		CustomerUpdate:   updateStripeCustomer,
+		// BillingAddressCollection: stripe.String(string(stripe.CheckoutSessionBillingAddressCollection)),
 		// PaymentMethodTypes: []*string{
 		// 	stripe.String(string(stripe.PaymentMethodTypeCard)),
 		// 	// stripe.String(string(stripe.PaymentMethodTypePaypal)),
@@ -185,7 +195,8 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 			Enabled: stripe.Bool(false),
 		},
 		InvoiceCreation: &stripe.CheckoutSessionInvoiceCreationParams{
-			Enabled: stripe.Bool(true),
+			Enabled:     stripe.Bool(true),
+			InvoiceData: invoiceData,
 		},
 		// CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
 		// 	Address: stripe.String("auto"),
