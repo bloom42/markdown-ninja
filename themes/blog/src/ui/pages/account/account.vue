@@ -174,7 +174,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { Switch } from '@headlessui/vue';
 import type { Order, Product, UpdateMyAccountInput, VerifyEmailInput, VerifyEmailJwt } from '@/app/model';
 import PButton from '@/ui/components/p_button.vue';
-import PSelectCountry from '@/ui/components/p_select_country.vue';
 import OrdersList from '@/ui/components/orders_list.vue';
 import ProductsList from '@/ui/components/products_list.vue';
 import { jwtDecode } from '@/libs/jwt';
@@ -377,33 +376,6 @@ async function callVerifyEmail() {
     loading.value = false;
   }
 }
-
-async function updateBillingInformation() {
-  loading.value = true;
-  error.value = '';
-
-  const input: UpdateMyAccountInput = {
-    name: name.value,
-    billing_address: {
-      line1: billingAddressLine1.value,
-      line2: billingAddressLine2.value,
-      city: billingAddressCity.value,
-      postal_code: billingAddressPostalCode.value,
-      state: billingAddressState.value,
-      country_code: billingAddressCountryCode.value,
-    },
-  };
-
-  try {
-    const contact = await updateMyAccount(input);
-    $store.setContact(contact);
-  } catch (err: any) {
-    error.value = err.message;
-  } finally {
-    loading.value = false;
-  }
-}
-
 
 async function onDeleteMyAccountClicked() {
   if (!confirm("Do you really want to delete your account and all the associated data? This action is irreversible and you will lose access to your orders and invoices history.")) {
