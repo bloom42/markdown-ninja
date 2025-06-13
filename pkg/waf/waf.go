@@ -112,16 +112,24 @@ func New(ctx context.Context, pingooClient *pingoo.Client, blockedCountries set.
 		memorycache.WithCapacity[netip.Addr, bool](20_000),
 	)
 
-	pingooWasmDownload, err := pingooClient.DownloadPingooWasm(ctx, "")
-	if err != nil {
-		return nil, fmt.Errorf("waf: error downloading pingoo wasm: %w", err)
-	}
-	defer pingooWasmDownload.Data.Close()
+	logger.Debug("waf: downloading pingoo.wasm")
 	pingooWasmBytes := bytes.NewBuffer(make([]byte, 0, 2_000_000)) // 2MB
-	_, err = io.Copy(pingooWasmBytes, pingooWasmDownload.Data)
+	err = retry.Do(func() error {
+		pingooWasmDownload, retryErr := pingooClient.DownloadPingooWasm(ctx, "")
+		if retryErr != nil {
+			return fmt.Errorf("downloading file: %w", retryErr)
+		}
+		defer pingooWasmDownload.Data.Close()
+		_, retryErr = io.Copy(pingooWasmBytes, pingooWasmDownload.Data)
+		if retryErr != nil {
+			return fmt.Errorf("copying bytes: %w", retryErr)
+		}
+		return nil
+	}, retry.Context(ctx), retry.Attempts(15), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 	if err != nil {
-		return nil, fmt.Errorf("waf: error downloading pingoo wasm: %w", err)
+		return nil, fmt.Errorf("waf: error downloading pingoo.wasm: %w", err)
 	}
+
 	logger.Debug("waf: pingoo.wasm successfully downloaded", slog.Int("size", pingooWasmBytes.Len()))
 
 	wasmCtx := context.Background()

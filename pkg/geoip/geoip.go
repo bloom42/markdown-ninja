@@ -71,7 +71,7 @@ func Init(ctx context.Context, pingooClient *pingoo.Client, logger *slog.Logger)
 			resolver.logger.Warn("geoip: error downloading geoip database", slogx.Err(retryErr))
 		}
 		return retryErr
-	}, retry.Context(ctx), retry.Attempts(30), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
+	}, retry.Context(ctx), retry.Attempts(15), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 	if err != nil {
 		return nil, err
 	}
