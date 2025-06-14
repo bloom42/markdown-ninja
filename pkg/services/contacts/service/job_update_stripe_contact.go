@@ -26,12 +26,7 @@ func (service *ContactsService) JobUpdateStripeContact(ctx context.Context, data
 			Name:  stripe.String(contact.Name),
 			Email: stripe.String(contact.Email),
 			Address: &stripe.AddressParams{
-				Line1:      stripe.String(contact.BillingAddress.Line1),
-				Line2:      stripe.String(contact.BillingAddress.Line2),
-				City:       stripe.String(contact.BillingAddress.City),
-				PostalCode: stripe.String(contact.BillingAddress.PostalCode),
-				State:      stripe.String(contact.BillingAddress.State),
-				Country:    stripe.String(contact.BillingAddress.CountryCode),
+				Country: stripe.String(contact.Country),
 			},
 		}
 		_, err = stripecustomer.Update(

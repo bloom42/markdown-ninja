@@ -11,7 +11,6 @@ import (
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
-	"markdown.ninja/pkg/services/kernel"
 )
 
 func (service *ContactsService) CreateContact(ctx context.Context, input contacts.CreateContactInput) (contact contacts.Contact, err error) {
@@ -51,11 +50,11 @@ func (service *ContactsService) CreateContact(ctx context.Context, input contact
 	}
 
 	createContactInput := contacts.CreateContactInternalInput{
-		Name:        name,
-		Email:       email,
-		Verified:    true,
-		WebsiteID:   input.WebsiteID,
-		CountryCode: countries.CodeUnknown,
+		Name:      name,
+		Email:     email,
+		Verified:  true,
+		WebsiteID: input.WebsiteID,
+		Country:   countries.CodeUnknown,
 	}
 	contact, err = service.CreateContactInternal(ctx, service.db, createContactInput)
 	if err != nil {
@@ -77,14 +76,14 @@ func (service *ContactsService) CreateContactInternal(ctx context.Context, db db
 		subscribedToNewsletterAt = &now
 	}
 
-	if input.CountryCode == "" {
+	if input.Country == "" {
 		httpCtx := httpctx.FromCtx(ctx)
 		if httpCtx != nil {
-			input.CountryCode = httpCtx.Client.CountryCode
+			input.Country = httpCtx.Client.CountryCode
 		}
 	}
-	if input.CountryCode == "" {
-		input.CountryCode = countries.CodeUnknown
+	if input.Country == "" {
+		input.Country = countries.CodeUnknown
 	}
 
 	contactID := guid.NewTimeBased()
@@ -98,19 +97,11 @@ func (service *ContactsService) CreateContactInternal(ctx context.Context, db db
 		SubscribedToNewsletterAt:     subscribedToNewsletterAt,
 		SubscribedToProductUpdatesAt: &now,
 		Verified:                     input.Verified,
-		CountryCode:                  input.CountryCode,
+		Country:                      input.Country,
 		FailedSignupAttempts:         0,
 		SignupCodeHash:               input.SignupCodeHash,
-		BillingAddress: kernel.Address{
-			Line1:       "",
-			Line2:       "",
-			PostalCode:  "",
-			City:        "",
-			State:       "",
-			CountryCode: input.CountryCode,
-		},
-		StripeCustomerID: nil,
-		WebsiteID:        input.WebsiteID,
+		StripeCustomerID:             nil,
+		WebsiteID:                    input.WebsiteID,
 	}
 	err = service.repo.CreateContact(ctx, db, contact)
 	if err != nil {

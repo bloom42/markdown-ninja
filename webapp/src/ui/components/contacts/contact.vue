@@ -76,6 +76,10 @@
         :readonly="loading" :disabled="loading" placeholder="Email" label="Email"
         class="mt-5" />
 
+      <div class="flex mt-5" v-if="contact">
+        <b>Country</b>: {{ countryName(contact.country) }} ({{ contact.country }})
+      </div>
+
       <div v-if="blocked" class="flex mt-5">
         <div>
           <span  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
@@ -145,8 +149,6 @@
           <h1 class="text-xl font-extrabold text-gray-900">Billing</h1>
         </div>
 
-        <PAddress v-model="address" />
-
         <sl-input :value="stripeCustomerId" @input="stripeCustomerId = $event.target.value" type="text"
           readonly disabled placeholder="None" label="Stripe CustomerID" />
       </div>
@@ -174,7 +176,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Address, BlockContactInput, Contact, CreateContactInput, Order, Product, UnblockContactInput, UpdateContactInput } from '@/api/model';
+import type { BlockContactInput, Contact, CreateContactInput, Order, Product, UnblockContactInput, UpdateContactInput } from '@/api/model';
 import { ref, type PropType, watch, onBeforeMount, type Ref, computed } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { EllipsisVerticalIcon } from '@heroicons/vue/24/outline';
@@ -182,13 +184,12 @@ import DeleteDialog from '@/ui/components/mdninja/delete_dialog.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useMdninja } from '@/api/mdninja';
 import OrdersList from '@/ui/components/products/orders_list.vue';
-import PAddress from '@/ui/components/kernel/address.vue';
-import deepClone from 'mdninja-js/src/libs/deepclone';
 import date from 'mdninja-js/src/libs/date';
 import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch.js';
 import { oneRouteUp } from '@/libs/router_utils';
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input.js';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
+import { countryName } from '@/libs/countries';
 
 // props
 const props = defineProps({
@@ -230,7 +231,6 @@ let deleteContactDialogLoading = ref(false);
 let email = ref('');
 let name = ref('');
 
-let address: Ref<Address> = ref({} as Address);
 let stripeCustomerId = ref('');
 let subscribedToNewsletter = ref(false);
 
@@ -263,27 +263,14 @@ function resetValues(contact: Contact | null) {
     email.value = contact.email;
     name.value = contact.name;
     subscribedToNewsletter.value = contact.subscribed_to_newsletter_at ? true : false;
-
-    address.value =  deepClone(contact.billing_address);
     stripeCustomerId.value = contact.stripe_customer_id ?? '';
-
     products.value = contact.products ?? products.value;
     orders.value = contact.orders ?? orders.value;
   } else {
     email.value = '';
     name.value = '';
     subscribedToNewsletter.value = false;
-
-    address.value = {
-      line1: '',
-      line2: '',
-      postal_code: '',
-      city: '',
-      state: '',
-      country_code: '',
-    };
     stripeCustomerId.value = '';
-
     products.value = [];
     orders.value = [];
   }
@@ -298,7 +285,6 @@ async function updateContact() {
     email: email.value,
     name: name.value,
     subscribed_to_newsletter: subscribedToNewsletter.value,
-    billing_address: address.value,
   };
 
   try {

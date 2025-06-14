@@ -33,7 +33,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 
 	customer := service.contactsService.CurrentContact(ctx)
 	if customer == nil && input.Email == nil {
-		err = errs.InvalidArgument("email is missing")
+		err = errs.InvalidArgument("email is required")
 		return
 	} else if customer != nil && input.Email != nil {
 		err = errs.InvalidArgument("email should not be provided when authenticated")
@@ -119,9 +119,10 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	var updateStripeCustomer *stripe.CheckoutSessionCustomerUpdateParams
 	var stripeCustomerID *string
 	var invoiceData *stripe.CheckoutSessionInvoiceCreationInvoiceDataParams
+	var additionalInvoiceInformation string
 
 	if input.AdditionalInvoiceInformation != nil {
-		additionalInvoiceInformation := strings.TrimSpace(*input.AdditionalInvoiceInformation)
+		additionalInvoiceInformation = strings.TrimSpace(*input.AdditionalInvoiceInformation)
 		if additionalInvoiceInformation != "" {
 			err = validateAdditionalInvoiceInformation(additionalInvoiceInformation)
 			if err != nil {
@@ -131,6 +132,14 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 				Description: stripe.String(additionalInvoiceInformation),
 			}
 		}
+	}
+
+	// metdata for the different stripe entities to help customer support solving issues
+	stripeMetadata := map[string]string{
+		"markdown_ninja_website_id": website.ID.String(),
+		"markdown_ninja_order_id":   orderID.String(),
+		"markdown_ninja_contact_id": customer.ID.String(),
+		"country":                   httpCtx.Client.CountryCode,
 	}
 
 	// TODO: if an account already exists for this email, make the user authenticate before redirecting
@@ -148,12 +157,8 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 			// create customer
 			var stripeCustomer *stripe.Customer
 			newStripeCustomerParams := &stripe.CustomerParams{
-				Email: &customer.Email,
-				Metadata: map[string]string{
-					"markdown_ninja_website_id": website.ID.String(),
-					"markdown_ninja_order_id":   orderID.String(),
-					"markdown_ninja_contact_id": customer.ID.String(),
-				},
+				Email:    &customer.Email,
+				Metadata: stripeMetadata,
 			}
 			stripeCustomer, err = stripecustomer.New(newStripeCustomerParams)
 			if err != nil {
@@ -185,11 +190,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		// },
 
 		PaymentIntentData: &stripe.CheckoutSessionPaymentIntentDataParams{
-			Metadata: map[string]string{
-				"markdown_ninja_website_id": website.ID.String(),
-				"markdown_ninja_order_id":   orderID.String(),
-				"markdown_ninja_contact_id": customer.ID.String(),
-			},
+			Metadata: stripeMetadata,
 		},
 		LineItems:  stripeItems,
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
@@ -205,11 +206,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		// CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
 		// 	Address: stripe.String("auto"),
 		// },
-		Metadata: map[string]string{
-			"markdown_ninja_website_id": website.ID.String(),
-			"markdown_ninja_order_id":   orderID.String(),
-			"markdown_ninja_contact_id": customer.ID.String(),
-		},
+		Metadata: stripeMetadata,
 	}
 	createStripeCheckoutSessionParams.AddExpand("payment_intent")
 	stripeCheckoutSession, err := session.New(createStripeCheckoutSessionParams)
@@ -222,23 +219,24 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 
 	now := time.Now().UTC()
 	order := store.Order{
-		ID:                      orderID,
-		CreatedAt:               now,
-		UpdatedAt:               now,
-		TotalAmount:             totalAmount,
-		Currency:                website.Currency,
-		Notes:                   "",
-		Status:                  store.OrderStatusPending,
-		CompletedAt:             nil,
-		CanceledAt:              nil,
-		Email:                   customer.Email,
-		Country:                 httpCtx.Client.CountryCode,
-		StripeCheckoutSessionID: stripeCheckoutSession.ID,
-		StripPaymentItentID:     nil,
-		StripeInvoiceID:         nil,
-		StripeInvoiceUrl:        nil,
-		WebsiteID:               website.ID,
-		ContactID:               customer.ID,
+		ID:                           orderID,
+		CreatedAt:                    now,
+		UpdatedAt:                    now,
+		TotalAmount:                  totalAmount,
+		Currency:                     website.Currency,
+		Notes:                        "",
+		Status:                       store.OrderStatusPending,
+		CompletedAt:                  nil,
+		CanceledAt:                   nil,
+		Email:                        customer.Email,
+		Country:                      httpCtx.Client.CountryCode,
+		AdditionalInvoiceInformation: additionalInvoiceInformation,
+		StripeCheckoutSessionID:      stripeCheckoutSession.ID,
+		StripPaymentItentID:          nil,
+		StripeInvoiceID:              nil,
+		StripeInvoiceUrl:             nil,
+		WebsiteID:                    website.ID,
+		ContactID:                    customer.ID,
 	}
 	err = service.db.Transaction(ctx, func(tx db.Tx) (errTx error) {
 		errTx = service.repo.CreateOrder(ctx, tx, order)

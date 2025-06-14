@@ -82,9 +82,9 @@ func (service *SiteService) CompleteSubscription(ctx context.Context, input site
 		return
 	}
 
-	countryCode := httpCtx.Client.CountryCode
-	if countryCode == countries.CodeUnknown {
-		countryCode = contact.CountryCode
+	country := httpCtx.Client.CountryCode
+	if country == countries.CodeUnknown {
+		country = contact.Country
 	}
 
 	var sessionCookie *http.Cookie
@@ -92,7 +92,7 @@ func (service *SiteService) CompleteSubscription(ctx context.Context, input site
 		updateContactInput := contacts.UpdateContactInput{
 			ID:                     contact.ID,
 			SubscribedToNewsletter: opt.Bool(true),
-			CountryCode:            &countryCode,
+			Country:                &country,
 			FailedSignupAttempts:   opt.Int64(0),
 			SignupCodeHash:         opt.String(""),
 			Verified:               opt.Bool(true),

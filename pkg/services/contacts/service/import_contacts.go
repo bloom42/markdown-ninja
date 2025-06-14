@@ -14,7 +14,6 @@ import (
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/events"
-	"markdown.ninja/pkg/services/kernel"
 )
 
 func (service *ContactsService) ImportContacts(ctx context.Context, input contacts.ImportContactsInput) (ret []contacts.Contact, err error) {
@@ -104,19 +103,11 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 			SubscribedToNewsletterAt:     subscribedToNewsletterAt,
 			SubscribedToProductUpdatesAt: &now,
 			Verified:                     true,
-			CountryCode:                  countries.CodeUnknown,
+			Country:                      countries.CodeUnknown,
 			FailedSignupAttempts:         0,
 			SignupCodeHash:               "",
-			BillingAddress: kernel.Address{
-				Line1:       "",
-				Line2:       "",
-				PostalCode:  "",
-				City:        "",
-				State:       "",
-				CountryCode: countries.CodeUnknown,
-			},
-			StripeCustomerID: nil,
-			WebsiteID:        input.WebsiteID,
+			StripeCustomerID:             nil,
+			WebsiteID:                    input.WebsiteID,
 		}
 		importedContacts = append(importedContacts, importedContact)
 	}

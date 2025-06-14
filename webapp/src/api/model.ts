@@ -47,11 +47,10 @@ export type Contact = {
   updated_at: string;
   name: string;
   email: string;
-  country_code: string;
+  country: string;
   subscribed_to_newsletter_at: string | null;
   blocked_at: string | null;
 
-  billing_address: Address;
   stripe_customer_id: string | null;
 
   products: Product[] | null;
@@ -69,8 +68,6 @@ export type UpdateContactInput = {
   email?: string;
   name?: string;
   subscribed_to_newsletter?: boolean;
-
-  billing_address?: Address;
 }
 
 export type DeleteContactInput = {
@@ -685,6 +682,7 @@ export type Order = {
   status: OrderStatus;
   country: string;
   email: string;
+  additional_invoice_information: string;
   stripe_checkout_session_id: string;
   stripe_payment_intent_id?: string;
   stripe_invoice_id?: string;

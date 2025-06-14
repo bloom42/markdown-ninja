@@ -64,9 +64,9 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 	code := string(codeBytes)
 	codeHash := crypto.HashPassword(codeBytes, site.AuthCodeHashParams)
 
-	countryCode := httpCtx.Client.CountryCode
-	if countryCode == countries.CodeUnknown {
-		countryCode = contact.CountryCode
+	country := httpCtx.Client.CountryCode
+	if country == countries.CodeUnknown && unverifiedContactAlreadyExists {
+		country = contact.Country
 	}
 
 	err = service.db.Transaction(ctx, func(tx db.Tx) (txErr error) {
@@ -74,7 +74,7 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 			updateContactInput := contacts.UpdateContactInput{
 				ID:                     contact.ID,
 				SubscribedToNewsletter: opt.Bool(true),
-				CountryCode:            &countryCode,
+				Country:                &country,
 				FailedSignupAttempts:   opt.Int64(0),
 				SignupCodeHash:         opt.String(codeHash),
 			}
@@ -88,7 +88,7 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 				Email:                  email,
 				Verified:               false,
 				WebsiteID:              website.ID,
-				CountryCode:            httpCtx.Client.CountryCode,
+				Country:                country,
 				SignupCodeHash:         codeHash,
 				SubscribedToNewsletter: true,
 			}

@@ -223,13 +223,6 @@ let emailUpdated = ref(false);
 let updateEmailToken = $route.query['update-email-token'] as string | undefined;
 let newEmailVerified = ref(false);
 
-let billingAddressLine1 = ref('');
-let billingAddressLine2 = ref('');
-let billingAddressCity = ref('');
-let billingAddressPostalCode = ref('');
-let billingAddressState = ref('');
-let billingAddressCountryCode = ref('');
-
 let orders: Ref<Order[]> = ref([]);
 let products: Ref<Product[]> = ref([]);
 
@@ -243,22 +236,10 @@ function resetValues() {
     name.value = $store.contact.name;
     email.value = $store.contact.email;
     subscribedToNewsletter.value = $store.contact.subscribed_to_newsletter;
-    billingAddressLine1.value = $store.contact.billing_address.line1;
-    billingAddressLine2.value = $store.contact.billing_address.line2;
-    billingAddressCity.value = $store.contact.billing_address.city;
-    billingAddressPostalCode.value = $store.contact.billing_address.postal_code;
-    billingAddressState.value = $store.contact.billing_address.state;
-    billingAddressCountryCode.value = $store.contact.billing_address.country_code;
   } else {
     name.value = '';
     email.value = '';
     subscribedToNewsletter.value = false;
-    billingAddressLine1.value = '';
-    billingAddressLine2.value = '';
-    billingAddressCity.value = '';
-    billingAddressPostalCode.value = '';
-    billingAddressState.value = '';
-    billingAddressCountryCode.value = '';
   }
 }
 

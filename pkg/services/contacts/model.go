@@ -42,13 +42,13 @@ type Contact struct {
 	SubscribedToNewsletterAt     *time.Time `db:"subscribed_to_newsletter_at" json:"subscribed_to_newsletter_at"`
 	SubscribedToProductUpdatesAt *time.Time `db:"subscribed_to_product_updates_at" json:"-"`
 	Verified                     bool       `db:"verified" json:"-"`
-	CountryCode                  string     `db:"country_code" json:"country_code"`
-	FailedSignupAttempts         int64      `db:"failed_signup_attempts" json:"-"`
-	SignupCodeHash               string     `db:"signup_code_hash" json:"-"`
-	BlockedAt                    *time.Time `db:"blocked_at" json:"blocked_at"`
+	// 2-letter code of the country
+	Country              string     `db:"country" json:"country"`
+	FailedSignupAttempts int64      `db:"failed_signup_attempts" json:"-"`
+	SignupCodeHash       string     `db:"signup_code_hash" json:"-"`
+	BlockedAt            *time.Time `db:"blocked_at" json:"blocked_at"`
 
-	BillingAddress   kernel.Address `db:"billing_address" json:"billing_address"`
-	StripeCustomerID *string        `db:"stripe_customer_id" json:"stripe_customer_id"`
+	StripeCustomerID *string `db:"stripe_customer_id" json:"stripe_customer_id"`
 
 	WebsiteID guid.GUID `db:"website_id" json:"-"`
 
@@ -137,10 +137,11 @@ type CreateContactInput struct {
 }
 
 type CreateContactInternalInput struct {
-	Email                  string
-	Name                   string
-	Verified               bool
-	CountryCode            string
+	Email    string
+	Name     string
+	Verified bool
+	// 2-letter code of the country
+	Country                string
 	SubscribedToNewsletter bool
 	WebsiteID              guid.GUID
 	SignupCodeHash         string
@@ -155,8 +156,9 @@ type UpdateContactInput struct {
 	BillingAddress *kernel.Address `json:"billing_address"`
 
 	// TODO
-	Verified             *bool   `json:"-"`
-	CountryCode          *string `json:"country_code"`
+	Verified *bool `json:"-"`
+	// 2-letter code of the country
+	Country              *string `json:"country"`
 	SignupCodeHash       *string `json:"-"`
 	FailedSignupAttempts *int64  `json:"-"`
 	StripeCustomerID     *string `json:"-"`

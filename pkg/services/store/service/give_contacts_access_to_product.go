@@ -55,11 +55,11 @@ func (service *StoreService) GiveContactsAccessToProduct(ctx context.Context, in
 
 				// if contact is not found we create it
 				createContactInput := contacts.CreateContactInternalInput{
-					Email:       email,
-					Name:        "",
-					Verified:    true,
-					CountryCode: countries.CodeUnknown,
-					WebsiteID:   product.WebsiteID,
+					Email:     email,
+					Name:      "",
+					Verified:  true,
+					Country:   countries.CodeUnknown,
+					WebsiteID: product.WebsiteID,
 				}
 				contact, txErr = service.contactsService.CreateContactInternal(ctx, tx, createContactInput)
 				if txErr != nil {

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/bloom42/stdx-go/countries"
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/guid"
 	"markdown.ninja/pkg/errs"
@@ -22,7 +23,7 @@ func (service *ContactsService) FindOrCreateContact(ctx context.Context, db db.Q
 		Email:                  email,
 		Name:                   "",
 		Verified:               false,
-		CountryCode:            "",
+		Country:                countries.CodeUnknown,
 		SubscribedToNewsletter: subscribedToNewsletter,
 		WebsiteID:              websiteID,
 	}

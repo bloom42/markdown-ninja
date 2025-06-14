@@ -24,7 +24,6 @@ func (service *SiteService) convertContact(input contacts.Contact) site.Contact 
 		Name:                   input.Name,
 		Email:                  input.Email,
 		SubscribedToNewsletter: subscribedToNewsletter,
-		BillingAddress:         input.BillingAddress,
 	}
 }
 

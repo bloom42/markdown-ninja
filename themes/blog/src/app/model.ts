@@ -46,18 +46,7 @@ export type Contact = {
   name: string;
   email: string;
   subscribed_to_newsletter: boolean;
-
-  billing_address: Address;
 }
-
-export type ContactBillingInformation = {
-  address_country_code: string;
-  address_line1: string;
-  address_line2: string;
-  address_postal_code: string;
-  address_city: string;
-  address_state: string;
-};
 
 export type Website = {
   url: string;
@@ -199,8 +188,6 @@ export type CompleteSubscriptionInput = {
 export type UpdateMyAccountInput = {
   name?: string;
   subscribed_to_newsletter?: boolean;
-
-  billing_address?: Address;
   email?: string;
 }
 

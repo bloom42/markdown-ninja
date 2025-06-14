@@ -19,7 +19,7 @@
         <b>Date</b>: {{ order.created_at }}
       </div>
       <div class="flex">
-        <b>Country</b>: {{ order.country }}
+        <b>Country</b>: {{ countryName(order.country) }} ({{ order.country }})
       </div>
       <div class="flex">
         <b>Status</b>: <POrderStatus :status="order.status" class="ml-2" />
@@ -54,6 +54,12 @@
           {{ order.stripe_invoice_id }}
         </a>
         <span v-else>-</span>
+      </div>
+
+      <div class="flex max-w-2xl flex flex-col">
+        <b>Additional invoice information:</b> <br />
+        <sl-textarea readonly placeholder="(empty)"
+          :value="order.additional_invoice_information" />
       </div>
 
       <div class="flex flex-col mt-5 space-y-5">
@@ -96,6 +102,8 @@ import POrderStatus from '@/ui/components/products/order_status.vue';
 import RefundsList from '@/ui/components/products/refunds_list.vue';
 import RefundDialog from '@/ui/components/products/refund_dialog.vue';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
+import SlTextarea from '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+import { countryName } from '@/libs/countries';
 
 // props
 

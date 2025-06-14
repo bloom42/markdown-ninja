@@ -85,14 +85,14 @@ func (service *ContactsService) UpdateContactInternal(ctx context.Context, db db
 		}
 	}
 
-	if input.CountryCode != nil {
-		countryCode := strings.TrimSpace(*input.CountryCode)
-		if contact.CountryCode != countryCode {
+	if input.Country != nil {
+		countryCode := strings.TrimSpace(*input.Country)
+		if contact.Country != countryCode {
 			_, err = countries.Name(countryCode)
 			if err != nil {
 				return countries.ErrCountryNotFound
 			}
-			contact.CountryCode = countryCode
+			contact.Country = countryCode
 		}
 	}
 
@@ -106,49 +106,6 @@ func (service *ContactsService) UpdateContactInternal(ctx context.Context, db db
 
 	if input.StripeCustomerID != nil {
 		contact.StripeCustomerID = input.StripeCustomerID
-	}
-
-	// TODO: validate?
-	if input.BillingAddress != nil {
-		billingAddressCountryCode := strings.TrimSpace(input.BillingAddress.CountryCode)
-		if contact.BillingAddress.CountryCode != billingAddressCountryCode {
-			_, err = countries.Name(billingAddressCountryCode)
-			if err != nil {
-				return countries.ErrCountryNotFound
-			}
-			contact.BillingAddress.CountryCode = billingAddressCountryCode
-			updateStripeContact = true
-		}
-
-		billingAddressLine1 := strings.TrimSpace(input.BillingAddress.Line1)
-		if contact.BillingAddress.Line1 != billingAddressLine1 {
-			contact.BillingAddress.Line1 = billingAddressLine1
-			updateStripeContact = true
-		}
-
-		billingAddressLine2 := strings.TrimSpace(input.BillingAddress.Line2)
-		if contact.BillingAddress.Line2 != billingAddressLine2 {
-			contact.BillingAddress.Line2 = billingAddressLine2
-			updateStripeContact = true
-		}
-
-		billingPostalCode := strings.TrimSpace(input.BillingAddress.PostalCode)
-		if billingPostalCode != contact.BillingAddress.PostalCode {
-			contact.BillingAddress.PostalCode = billingPostalCode
-			updateStripeContact = true
-		}
-
-		billingCity := strings.TrimSpace(input.BillingAddress.City)
-		if billingCity != contact.BillingAddress.City {
-			contact.BillingAddress.City = billingCity
-			updateStripeContact = true
-		}
-
-		billingState := strings.TrimSpace(input.BillingAddress.State)
-		if billingState != contact.BillingAddress.State {
-			contact.BillingAddress.State = billingState
-			updateStripeContact = true
-		}
 	}
 
 	contact.UpdatedAt = now

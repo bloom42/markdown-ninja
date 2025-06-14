@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 
+	"github.com/bloom42/stdx-go/guid"
 	"markdown.ninja/pkg/errs"
 )
 
@@ -26,7 +27,9 @@ var (
 	ErrCantDeleteProductWithOrders = errs.InvalidArgument("A product can't be deleted once orders have been placed.")
 
 	// Orders
-	ErrOrderNotFound       = errs.NotFound("Order not found")
+	ErrOrderNotFound = func(orderID guid.GUID) error {
+		return errs.NotFound(fmt.Sprintf("Order %s not found", orderID.String()))
+	}
 	ErrOrderIsNotCompleted = errs.NotFound("Order is not completed. Please make sure that the payment was successful or contact support if the problem persists.")
 
 	// Refunds

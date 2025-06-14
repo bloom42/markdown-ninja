@@ -261,6 +261,8 @@ type Order struct {
 
 	Email   string `db:"email" json:"email"`
 	Country string `db:"country" json:"country"`
+	// customer-provided additional information to show on the invoice e.g. company name, address, tax ID...
+	AdditionalInvoiceInformation string `db:"additional_invoice_information" json:"additional_invoice_information"`
 
 	StripeCheckoutSessionID string  `db:"stripe_checkout_session_id" json:"stripe_checkout_session_id"`
 	StripPaymentItentID     *string `db:"stripe_payment_intent_id" json:"stripe_payment_intent_id"`

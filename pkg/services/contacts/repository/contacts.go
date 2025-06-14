@@ -30,15 +30,15 @@ func (repo *ContactsRepository) FindContactByEmail(ctx context.Context, db db.Qu
 func (repo *ContactsRepository) CreateContact(ctx context.Context, db db.Queryer, contact contacts.Contact) (err error) {
 	const query = `INSERT INTO contacts
 				(id, created_at, updated_at, email, subscribed_to_newsletter_at, subscribed_to_product_updates_at,
-					verified, name, country_code, failed_signup_attempts, signup_code_hash,
-					billing_address, stripe_customer_id, blocked_at,
+					verified, name, country, failed_signup_attempts, signup_code_hash,
+					stripe_customer_id, blocked_at,
 					website_id)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
 
 	_, err = db.Exec(ctx, query, contact.ID, contact.CreatedAt, contact.UpdatedAt, contact.Email,
 		contact.SubscribedToNewsletterAt, contact.SubscribedToProductUpdatesAt, contact.Verified,
-		contact.Name, contact.CountryCode, contact.FailedSignupAttempts, contact.SignupCodeHash,
-		contact.BillingAddress, contact.StripeCustomerID,
+		contact.Name, contact.Country, contact.FailedSignupAttempts, contact.SignupCodeHash,
+		contact.StripeCustomerID,
 		contact.BlockedAt,
 		contact.WebsiteID)
 	if err != nil {
@@ -68,13 +68,13 @@ func (repo *ContactsRepository) FindContactByID(ctx context.Context, db db.Query
 func (repo *ContactsRepository) UpdateContact(ctx context.Context, db db.Queryer, contact contacts.Contact) (err error) {
 	const query = `UPDATE contacts
 		SET updated_at = $1, email = $2, subscribed_to_newsletter_at = $3, subscribed_to_product_updates_at = $4,
-			verified = $5, name = $6, country_code = $7, failed_signup_attempts = $8, signup_code_hash = $9,
-			billing_address = $10, stripe_customer_id = $11, blocked_at = $12
-		WHERE id = $13`
+			verified = $5, name = $6, country = $7, failed_signup_attempts = $8, signup_code_hash = $9,
+			stripe_customer_id = $10, blocked_at = $11
+		WHERE id = $12`
 
 	_, err = db.Exec(ctx, query, contact.UpdatedAt, contact.Email, contact.SubscribedToNewsletterAt,
-		contact.SubscribedToProductUpdatesAt, contact.Verified, contact.Name, contact.CountryCode,
-		contact.FailedSignupAttempts, contact.SignupCodeHash, contact.BillingAddress,
+		contact.SubscribedToProductUpdatesAt, contact.Verified, contact.Name, contact.Country,
+		contact.FailedSignupAttempts, contact.SignupCodeHash,
 		contact.StripeCustomerID, contact.BlockedAt,
 		contact.ID)
 	if err != nil {

@@ -7,7 +7,6 @@ import (
 
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/countries"
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/guid"
 	"github.com/bloom42/stdx-go/log/slogx"
@@ -44,11 +43,6 @@ func (service *StoreService) CompleteOrder(ctx context.Context, input store.Comp
 func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUID, websiteID guid.GUID) error {
 	now := time.Now().UTC()
 	logger := slogx.FromCtx(ctx).With(slog.String("order.id", orderID.String()), slog.String("website.id", websiteID.String()))
-	httpCtx := httpctx.FromCtx(ctx)
-	countryCode := countries.CodeUnknown
-	if httpCtx != nil {
-		countryCode = httpCtx.Client.CountryCode
-	}
 
 	tx, err := service.db.Begin(ctx)
 	if err != nil {
@@ -61,8 +55,10 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 		return err
 	}
 
+	country := order.Country
+
 	if !websiteID.Equal(order.WebsiteID) {
-		return store.ErrOrderNotFound
+		return store.ErrOrderNotFound(orderID)
 	}
 
 	contact, err := service.contactsService.FindContact(ctx, tx, order.ContactID)
@@ -149,7 +145,7 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 		service.eventsService.TrackOrderCanceled(ctx, events.TrackOrderCanceledInput{
 			OrderID:   order.ID,
 			WebsiteID: order.WebsiteID,
-			Country:   countryCode,
+			Country:   country,
 		})
 
 		return nil
@@ -160,7 +156,6 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 		stripeCustomerID = &stripeCheckoutSession.Customer.ID
 	}
 
-	country := order.Country
 	if stripeCheckoutSession.CustomerDetails != nil && stripeCheckoutSession.CustomerDetails.Address != nil &&
 		stripeCheckoutSession.CustomerDetails.Address.Country != "" {
 		country = stripeCheckoutSession.CustomerDetails.Address.Country
@@ -244,7 +239,7 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 	updateContactInput := contacts.UpdateContactInput{
 		ID:               contact.ID,
 		Verified:         opt.Bool(true),
-		CountryCode:      &country,
+		Country:          &country,
 		StripeCustomerID: stripeCustomerID,
 	}
 	err = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)

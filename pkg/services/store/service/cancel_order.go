@@ -27,7 +27,7 @@ func (service *StoreService) CancelOrder(ctx context.Context, input store.Cancel
 		}
 
 		if !order.WebsiteID.Equal(website.ID) {
-			return store.ErrOrderNotFound
+			return store.ErrOrderNotFound(input.OrderID)
 		}
 
 		if order.Status == store.OrderStatusCompleted {

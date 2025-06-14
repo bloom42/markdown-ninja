@@ -83,17 +83,17 @@ func (service *SiteService) CompleteLogin(ctx context.Context, input site.Comple
 		return
 	}
 
-	countryCode := httpCtx.Client.CountryCode
-	if countryCode == countries.CodeUnknown {
-		countryCode = contact.CountryCode
+	country := httpCtx.Client.CountryCode
+	if country == countries.CodeUnknown {
+		country = contact.Country
 	}
 
 	err = service.db.Transaction(ctx, func(tx db.Tx) (txErr error) {
 		// mark the contact as verified
 		updateContactInput := contacts.UpdateContactInput{
-			ID:          contact.ID,
-			CountryCode: &countryCode,
-			Verified:    opt.Bool(true),
+			ID:       contact.ID,
+			Country:  &country,
+			Verified: opt.Bool(true),
 		}
 		txErr = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)
 		if txErr != nil {

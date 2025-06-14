@@ -88,8 +88,6 @@ type Contact struct {
 	Name                   string `json:"name"`
 	Email                  string `json:"email"`
 	SubscribedToNewsletter bool   `json:"subscribed_to_newsletter"`
-
-	BillingAddress kernel.Address `json:"billing_address"`
 }
 
 // type ServeContentOutput struct {
