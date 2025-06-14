@@ -26,7 +26,7 @@
           </small>
         </div>
 
-        <div>
+        <!-- <div>
           <label for="additional_invoice_information" class="block text-sm/6 font-medium text-gray-900">
             Additional invoice information (e.g. company name, address, tax ID...)
           </label>
@@ -35,10 +35,32 @@
               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
             />
           </div>
+        </div> -->
+
+        <div>
+          <Disclosure as="div" v-slot="{ open }">
+            <dt>
+              <DisclosureButton  class="p-0 cursor-pointer flex w-full items-start justify-between text-left bg-[var(--mdninja-background)] text-[var(--mdninja-text)]">
+                <span class="text-sm/6 font-medium">
+                  Additional invoice information (optional, e.g. company name, address, tax ID...)
+                </span>
+                <span class="ml-6 flex h-7 items-center text-red">
+                  <ChevronDownIcon v-if="!open" class="size-6 text-red" aria-hidden="true" />
+                  <ChevronUpIcon v-else class="size-6" aria-hidden="true" />
+                </span>
+              </DisclosureButton>
+            </dt>
+            <DisclosurePanel as="div" class="mb-2">
+              <textarea rows="4" id="additional_invoice_information" v-model="additionalInvoiceInformation"
+                placeholder="Optional information you want on the invoice"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-xs placeholder-gray-400 focus:outline-hidden focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
+              />
+            </DisclosurePanel>
+          </Disclosure>
         </div>
 
         <div>
-          <PButton :loading="loading" @click="onPlaceOrderClicked()" class="mt-3">
+          <PButton :loading="loading" @click="onPlaceOrderClicked()">
             Continue to Payment
           </PButton>
         </div>
@@ -84,6 +106,8 @@ import { onBeforeMount, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import PButton from '@/ui/components/p_button.vue';
 import { placeOrder, trackPage } from '@/app/mdninja';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 // props
 
