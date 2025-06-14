@@ -38,7 +38,7 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap w-1/8">
                 <div class="text-md font-medium text-gray-900 truncate">
-                  {{ order.country }}
+                {{ countryName(order.country) }} ({{ order.country }})
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap w-1/8">
@@ -63,6 +63,7 @@ import { type PropType } from 'vue'
 import { useRoute } from 'vue-router';
 import date from 'mdninja-js/src/libs/date';
 import POrderStatus from '@/ui/components/products/order_status.vue';
+import { countryName } from '@/libs/countries';
 
 // props
 defineProps({
