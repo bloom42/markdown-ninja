@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/bloom42/stdx-go/httpx"
+	"github.com/bloom42/stdx-go/retry"
 )
 
 type ScalewayKms struct {
@@ -71,7 +73,9 @@ func (kms *ScalewayKms) EncryptDataKey(ctx context.Context, keyId string, plaint
 	}
 	url := fmt.Sprintf("https://api.scaleway.com/key-manager/v1alpha1/regions/%s/keys/%s/encrypt", kms.region, kms.masterKeyId)
 
-	err := kms.request(ctx, http.MethodPost, url, req, &res)
+	err := retry.Do(func() error {
+		return kms.request(ctx, http.MethodPost, url, req, &res)
+	}, retry.Context(ctx), retry.Attempts(3), retry.Delay(50*time.Millisecond))
 	if err != nil {
 		return nil, fmt.Errorf("scaleway: error encrypting data with KMS: %w", err)
 	}
@@ -86,7 +90,9 @@ func (kms *ScalewayKms) DecryptDataKey(ctx context.Context, keyId string, cipher
 	}
 	url := fmt.Sprintf("https://api.scaleway.com/key-manager/v1alpha1/regions/%s/keys/%s/decrypt", kms.region, kms.masterKeyId)
 
-	err := kms.request(ctx, http.MethodPost, url, req, &res)
+	err := retry.Do(func() error {
+		return kms.request(ctx, http.MethodPost, url, req, &res)
+	}, retry.Context(ctx), retry.Attempts(3), retry.Delay(50*time.Millisecond))
 	if err != nil {
 		return nil, fmt.Errorf("scaleway: error decrypting data with KMS: %w", err)
 	}
