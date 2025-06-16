@@ -76,7 +76,7 @@ func (service *ContactsService) UpdateContactInternal(ctx context.Context, db db
 	if input.Email != nil {
 		email := strings.ToLower(strings.TrimSpace(*input.Email))
 		if email != contact.Email {
-			err = service.ValidateContactEmail(ctx, email, false)
+			err = service.kernel.ValidateEmail(ctx, email, false)
 			if err != nil {
 				return err
 			}

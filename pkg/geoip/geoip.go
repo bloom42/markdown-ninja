@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha3"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -51,10 +50,6 @@ type database struct {
 }
 
 func Init(ctx context.Context, pingooClient *pingoo.Client, logger *slog.Logger) (resolver *Resolver, err error) {
-	if pingooClient == nil {
-		return nil, errors.New("geoip: Pingoo client is required")
-	}
-
 	if logger == nil {
 		logger = slog.New(slog.DiscardHandler)
 	}

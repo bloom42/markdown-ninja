@@ -45,7 +45,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	} else {
 		var contact contacts.Contact
 		email := strings.TrimSpace(strings.ToLower(*input.Email))
-		err = service.contactsService.ValidateContactEmail(ctx, email, false)
+		err = service.kernel.ValidateEmail(ctx, email, false)
 		if err != nil {
 			return
 		}

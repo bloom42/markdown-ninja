@@ -27,7 +27,7 @@ func (service *ContactsService) CreateContact(ctx context.Context, input contact
 	email := strings.ToLower(strings.TrimSpace(input.Email))
 	name := strings.TrimSpace(input.Name)
 
-	err = service.ValidateContactEmail(ctx, email, false)
+	err = service.kernel.ValidateEmail(ctx, email, false)
 	if err != nil {
 		return
 	}

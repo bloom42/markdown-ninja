@@ -71,9 +71,7 @@ func LoggingMiddleware(ctx context.Context, pingooClient *pingoo.Client, config 
 				ResponseSize: int64(responseSize),
 				HTTPVersion:  req.Proto,
 			}
-			if pingooClient != nil {
-				logsBuffer.Push(logRecord)
-			}
+			logsBuffer.Push(logRecord)
 
 			if config.Logging.GetLogger != nil {
 				logger = config.Logging.GetLogger(req.Context())

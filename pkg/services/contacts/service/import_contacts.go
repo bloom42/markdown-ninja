@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/csv"
+	"fmt"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/guid"
 	"github.com/bloom42/stdx-go/log/slogx"
+	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
@@ -57,6 +59,7 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 
 	now := time.Now().UTC()
 	importedContacts := make([]contacts.Contact, 0, len(csvRecords))
+	emails := make([]string, 0, len(csvRecords))
 
 	// we start at 1 because row 0 is for the CSV header
 	for i := 1; i < len(csvRecords); i += 1 {
@@ -66,11 +69,7 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 		}
 
 		email := strings.ToLower(strings.TrimSpace(csvRecords[i][0]))
-
-		err = service.ValidateContactEmail(ctx, email, false)
-		if err != nil {
-			return
-		}
+		emails = append(emails, email)
 
 		name := strings.TrimSpace(csvRecords[i][1])
 		if name == "" {
@@ -110,6 +109,21 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 			WebsiteID:                    input.WebsiteID,
 		}
 		importedContacts = append(importedContacts, importedContact)
+	}
+
+	validateEmailsRes, err := service.pingoo.LookupEmails(ctx, pingoo.LookupEmailsInput{
+		Emails: emails,
+	})
+	if err != nil {
+		err = fmt.Errorf("contacts.ImportContacts: error looking up emails: %w", err)
+		return
+	}
+
+	for _, emailInfo := range validateEmailsRes {
+		if !emailInfo.Valid {
+			err = errs.InvalidArgument(fmt.Sprintf("%s is not a valid email address", emailInfo.Email))
+			return
+		}
 	}
 
 	// we first buffer events to not save save them if an error happens during the transaction

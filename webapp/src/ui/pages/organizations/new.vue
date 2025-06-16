@@ -49,7 +49,7 @@
           </fieldset>
         </div>
 
-        <div class="flex" v-if="selectedPlan.id !== 'free'">
+        <div class="flex">
           <sl-input :value="billingEmail" @input="billingEmail = $event.target.value.trim()" type="email"
             :disabled="loading" placeholder="my@email.com" label="Billing Email"
           />
@@ -132,10 +132,8 @@ async function createOrganization() {
   const input: CreateOrganizationInput = {
     name: name.value.trim(),
     plan: selectedPlan.value.id,
+    billing_email: billingEmail.value.trim(),
   };
-  if (selectedPlan.value.id !== 'free') {
-    input.billing_email = billingEmail.value;
-  }
 
   try {
     const res = await $mdninja.createOrganization(input);

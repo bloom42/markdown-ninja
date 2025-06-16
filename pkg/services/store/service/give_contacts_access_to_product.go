@@ -2,13 +2,17 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/bloom42/stdx-go/countries"
 	"github.com/bloom42/stdx-go/db"
+	"github.com/bloom42/stdx-go/iterx"
 	"github.com/bloom42/stdx-go/opt"
 	"github.com/bloom42/stdx-go/slicesx"
+	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/store"
@@ -30,7 +34,24 @@ func (service *StoreService) GiveContactsAccessToProduct(ctx context.Context, in
 		return
 	}
 
-	emails := slicesx.Unique(input.Emails)
+	emails := slices.Collect(iterx.Map(slices.Values(slicesx.Unique(input.Emails)), func(email string) string {
+		return strings.TrimSpace(email)
+	}))
+
+	validateEmailsRes, err := service.pingoo.LookupEmails(ctx, pingoo.LookupEmailsInput{
+		Emails: emails,
+	})
+	if err != nil {
+		err = fmt.Errorf("store.GiveContactsAccessToProduct: error looking up emails: %w", err)
+		return
+	}
+
+	for _, emailInfo := range validateEmailsRes {
+		if !emailInfo.Valid {
+			err = errs.InvalidArgument(fmt.Sprintf("%s is not a valid email address", emailInfo.Email))
+			return
+		}
+	}
 
 	now := time.Now().UTC()
 
@@ -41,7 +62,7 @@ func (service *StoreService) GiveContactsAccessToProduct(ctx context.Context, in
 				continue
 			}
 
-			txErr = service.contactsService.ValidateContactEmail(ctx, email, false)
+			txErr = service.kernel.ValidateEmail(ctx, email, false)
 			if txErr != nil {
 				return txErr
 			}

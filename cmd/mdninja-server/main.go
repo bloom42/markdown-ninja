@@ -180,14 +180,14 @@ var rootCmd = &cobra.Command{
 		}
 
 		contactsService, err := contacts.NewContactsService(conf, dbPool, mailer, queue, jwtProvider,
-			kernelService, websitesService, eventsService, emailsService)
+			kernelService, websitesService, eventsService, emailsService, pingooClient)
 		if err != nil {
 			return err
 		}
 
 		storeService, err := store.NewStoreService(dbPool, queue, conf, mailer,
 			kernelService, websitesService, contentService, contactsService, eventsService, emailsService,
-			organizationsService,
+			organizationsService, pingooClient,
 		)
 		if err != nil {
 			return err

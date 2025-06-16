@@ -192,7 +192,7 @@ type CreateOrganizationInput struct {
 	Name string        `json:"name"`
 	Plan kernel.PlanID `json:"plan"`
 	// BillingInformation *BillingInformation `json:"billing_information"`
-	BillingEmail *string `json:"billing_email"`
+	BillingEmail string `json:"billing_email"`
 }
 
 type CreateOrganizationOutput struct {

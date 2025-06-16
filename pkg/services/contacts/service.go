@@ -26,7 +26,6 @@ type Service interface {
 	FindContact(ctx context.Context, db db.Queryer, contactID guid.GUID) (contact Contact, err error)
 	FindOrCreateContact(ctx context.Context, db db.Queryer, websiteID guid.GUID, email string, subscribedToNewsletter bool) (contact Contact, err error)
 	FindContactsByEmail(ctx context.Context, db db.Queryer, websiteID guid.GUID, emails []string) (contacts []Contact, err error)
-	ValidateContactEmail(ctx context.Context, email string, refejectBlockeDomains bool) (err error)
 	ValidateContactName(name string) (err error)
 	GenerateUnsubscribeLink(websiteDomain string, contactID guid.GUID) (url string, err error)
 	// VerifyUnsubscribeToken(contactID guid.GUID, contactMasterKey [crypto.Size256]byte, token string) (err error)

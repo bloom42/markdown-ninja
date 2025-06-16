@@ -29,7 +29,7 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 	unverifiedContactAlreadyExists := false
 	logger := slogx.FromCtx(ctx)
 
-	err = service.contactsService.ValidateContactEmail(ctx, email, true)
+	err = service.kernel.ValidateEmail(ctx, email, true)
 	if err != nil {
 		return
 	}

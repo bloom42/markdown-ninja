@@ -511,7 +511,7 @@ export type GetOrganizationsForUserInput = {
 export type CreateOrganizationInput = {
   name: string;
   plan: string;
-  billing_email?: string;
+  billing_email: string;
 }
 
 export type CreateOrganizationOutput = {

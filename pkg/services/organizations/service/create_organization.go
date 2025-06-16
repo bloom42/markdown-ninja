@@ -43,17 +43,10 @@ func (service *OrganizationsService) CreateOrganization(ctx context.Context, inp
 		return
 	}
 
-	if planID != kernel.PlanFree.ID && input.BillingEmail == nil {
-		err = errs.InvalidArgument("billing email is required")
+	billingEmail := strings.TrimSpace(input.BillingEmail)
+	err = service.kernel.ValidateEmail(ctx, billingEmail, true)
+	if err != nil {
 		return
-	}
-	billingEmail := httpCtx.AccessToken.Email
-	if input.BillingEmail != nil {
-		billingEmail = strings.TrimSpace(*input.BillingEmail)
-		err = service.kernel.ValidateEmail(ctx, billingEmail, true)
-		if err != nil {
-			return
-		}
 	}
 
 	if planID == kernel.PlanFree.ID {

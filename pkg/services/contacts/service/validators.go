@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"unicode/utf8"
 
@@ -12,10 +11,6 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Contacts
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (service *ContactsService) ValidateContactEmail(ctx context.Context, email string, refejectBlockeDomains bool) error {
-	return service.kernel.ValidateEmail(ctx, email, refejectBlockeDomains)
-}
 
 func (service *ContactsService) ValidateContactName(name string) error {
 	if name == "" {

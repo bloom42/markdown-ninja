@@ -11,7 +11,7 @@ import (
 type EmailInfo struct {
 	Email      string `json:"email"`
 	Disposable bool   `json:"disposable"`
-	MxRecords  bool   `json:"mx_records"`
+	MxRecords  *bool  `json:"mx_records"`
 	Valid      bool   `json:"valid"`
 }
 
@@ -52,4 +52,9 @@ type User struct {
 type Event struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
+}
+
+type LookupEmailsInput struct {
+	Emails    []string `json:"emails"`
+	MxRecords *bool    `json:"mx_records,omitempty"`
 }

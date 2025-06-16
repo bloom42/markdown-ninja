@@ -2,13 +2,19 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/bloom42/stdx-go/guid"
+	"github.com/bloom42/stdx-go/iterx"
 	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/bloom42/stdx-go/opt"
 	"github.com/bloom42/stdx-go/queue"
 	"github.com/bloom42/stdx-go/slicesx"
+	"markdown.ninja/pingoo-go"
+	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
 )
@@ -31,7 +37,9 @@ func (service *OrganizationsService) InviteStaffs(ctx context.Context, input org
 		return
 	}
 
-	emails := slicesx.Unique(input.Emails)
+	emails := slices.Collect(iterx.Map(slices.Values(slicesx.Unique(input.Emails)), func(email string) string {
+		return strings.TrimSpace(email)
+	}))
 
 	existingStaffs, err := service.getStaffsWithDetails(ctx, service.db, input.OrganizationID)
 	if err != nil {
@@ -56,6 +64,24 @@ func (service *OrganizationsService) InviteStaffs(ctx context.Context, input org
 		return
 	}
 
+	validateEmailsRes, err := service.pingoo.LookupEmails(ctx, pingoo.LookupEmailsInput{
+		Emails:    emails,
+		MxRecords: opt.Bool(true),
+	})
+	if err != nil {
+		err = fmt.Errorf("organizations.InviteStaffs: error looking up emails: %w", err)
+		return
+	}
+
+	for _, emailInfo := range validateEmailsRes {
+		if !emailInfo.Valid ||
+			emailInfo.Disposable ||
+			(emailInfo.MxRecords == nil || *emailInfo.MxRecords == false) {
+			err = errs.InvalidArgument(fmt.Sprintf("%s is not a valid email address", emailInfo.Email))
+			return
+		}
+	}
+
 	now := time.Now().UTC()
 
 	invitations = make([]organizations.StaffInvitation, 0, len(emails))
@@ -72,11 +98,6 @@ func (service *OrganizationsService) InviteStaffs(ctx context.Context, input org
 		email = strings.TrimSpace(email)
 		if email == "" {
 			continue
-		}
-
-		err = service.kernel.ValidateEmail(ctx, email, true)
-		if err != nil {
-			return
 		}
 
 		invitationID := guid.NewTimeBased()

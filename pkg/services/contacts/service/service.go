@@ -41,7 +41,7 @@ type ContactsService struct {
 func NewContactsService(conf config.Config, db db.DB, mailer mailer.Mailer, queue queue.Queue,
 	jwtProvider *jwt.Provider, kernel kernel.PrivateService,
 	websitesService websites.Service, eventsService events.Service,
-	emailsService emails.Service) (service *ContactsService, err error) {
+	emailsService emails.Service, pingoo *pingoo.Client) (service *ContactsService, err error) {
 	repo := repository.NewContactsRepository()
 
 	verifyEmailEmailTemplate, err := template.New("contacts.verifyEmailEmailTemplate").Parse(templates.VerifyEmailEmailTemplate)
@@ -62,6 +62,7 @@ func NewContactsService(conf config.Config, db db.DB, mailer mailer.Mailer, queu
 		storeService:    nil,
 		eventsService:   eventsService,
 		emailsService:   emailsService,
+		pingoo:          pingoo,
 
 		httpConfig:               conf.HTTP,
 		verifyEmailEmailTemplate: verifyEmailEmailTemplate,
