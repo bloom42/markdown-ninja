@@ -29,9 +29,7 @@ func (service *KernelService) ValidateEmail(ctx context.Context, emailAddress st
 	if err != nil {
 		return errs.Internal("error checking email address with Pingoo", err)
 	} else {
-		if !pingooRes.Valid ||
-			(pingooRes.MxRecords == nil || *pingooRes.MxRecords == false) ||
-			(rejectBlockedDomains && pingooRes.Disposable) {
+		if !pingooRes.Valid || len(pingooRes.MxRecords) == 0 || (rejectBlockedDomains && pingooRes.Disposable) {
 			return kernel.ErrEmailIsNotValid
 		}
 	}

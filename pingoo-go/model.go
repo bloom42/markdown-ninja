@@ -9,10 +9,10 @@ import (
 )
 
 type EmailInfo struct {
-	Email      string `json:"email"`
-	Disposable bool   `json:"disposable"`
-	MxRecords  *bool  `json:"mx_records"`
-	Valid      bool   `json:"valid"`
+	Email      string   `json:"email"`
+	Disposable bool     `json:"disposable"`
+	MxRecords  []string `json:"mx_records"`
+	Valid      bool     `json:"valid"`
 }
 
 type IpInfo struct {

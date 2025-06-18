@@ -2,13 +2,10 @@ package service
 
 import (
 	"context"
-	"net"
 	"strings"
 	"time"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/retry"
-	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/emails"
 	"markdown.ninja/pkg/services/kernel"
 )
@@ -69,18 +66,9 @@ func (service *EmailsService) validateSenderEmailAddress(ctx context.Context, em
 		return kernel.ErrEmailIsNotValid
 	}
 
-	var mxRecords []*net.MX
-	err = retry.Do(func() (retryErr error) {
-		mxRecords, retryErr = service.dnsResolver.LookupMX(ctx, domain)
-		return retryErr
-	}, retry.Context(ctx), retry.Attempts(3), retry.Delay(50*time.Millisecond))
-	if err != nil {
-		return kernel.ErrEmailIsNotValid
-	}
-
-	if len(mxRecords) == 0 {
-		return errs.InvalidArgument("MX records are required for the email sending domain")
-	}
+	// if len(mxRecords) == 0 {
+	// 	return errs.InvalidArgument("MX records are required for the email sending domain")
+	// }
 
 	return nil
 }

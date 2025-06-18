@@ -76,7 +76,7 @@ func (service *OrganizationsService) InviteStaffs(ctx context.Context, input org
 	for _, emailInfo := range validateEmailsRes {
 		if !emailInfo.Valid ||
 			emailInfo.Disposable ||
-			(emailInfo.MxRecords == nil || *emailInfo.MxRecords == false) {
+			len(emailInfo.MxRecords) == 0 {
 			err = errs.InvalidArgument(fmt.Sprintf("%s is not a valid email address", emailInfo.Email))
 			return
 		}
