@@ -14,8 +14,8 @@
           </sl-tooltip>
         </div>
         <RouterLink to="/organizations" class="flex flex-shrink-0 items-center">
-          <img class="h-9 w-auto" src="/webapp/markdown_ninja_logo.svg" alt="Markdown Ninja logo" />
-          <h1 class="text-base xs:text-xl font-medium  ml-3 hidden sm:inline">
+          <img class="h-9 w-auto hidden sm:flex" src="/webapp/markdown_ninja_logo.svg" alt="Markdown Ninja logo" />
+          <h1 class="text-base xs:text-xl font-medium  sm:ml-3 inline">
             Markdown Ninja
           </h1>
         </RouterLink>
@@ -28,7 +28,7 @@
             </RouterLink>
           </sl-breadcrumb-item>
           <sl-breadcrumb-item v-if="websiteLink">
-            <a  :href="websiteLink.url" target="_blank" rel="noopener"
+            <a :href="websiteLink.url" target="_blank" rel="noopener"
               class="flex flex-shrink-0 items-center text-base font-normal text-(--primary-color) hover:bg-neutral-100 rounded-md px-2.5 py-2">
               {{  websiteLink.name  }}
             </a>
@@ -74,7 +74,8 @@
           </sl-button>
         </div>
         <RouterLink to="/" class="flex flex-shrink-0 items-center">
-          <img class="flex h-9 w-auto" src="/webapp/markdown_ninja_logo.svg" alt="Markdown Ninja logo" />
+          <img :class="['h-9 w-auto', showSidebarButton ? 'hidden sm:flex': 'flex' ]"
+            src="/webapp/markdown_ninja_logo.svg" alt="Markdown Ninja logo" />
           <h1 class="text-base xs:text-xl font-medium ml-1 sm:ml-3">
             Markdown Ninja
           </h1>
