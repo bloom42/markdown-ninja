@@ -14,7 +14,7 @@
           <sl-button v-if="contact" variant="primary" @click="updateContact()" :loading="loading">
               Update
           </sl-button>
-          <sl-button v-else variant="primary" @click="onCreateClicked()" :loading="loading">
+          <sl-button v-else variant="primary" @click="createContact()" :loading="loading">
               Create
           </sl-button>
         </div>
@@ -205,7 +205,7 @@ const props = defineProps({
 });
 
 // events
-const $emit = defineEmits(['create', 'updated', 'deleted']);
+const $emit = defineEmits(['updated', 'deleted']);
 
 // composables
 const $router = useRouter();
@@ -248,16 +248,6 @@ function productUrl(product: Product): string {
   return `/websites/${props.websiteId}/products/${product.id}`;
 }
 
-function onCreateClicked() {
-  const data: CreateContactInput = {
-    website_id: props.websiteId,
-    email: email.value,
-    name: name.value,
-  };
-
-  $emit('create', data);
-}
-
 function resetValues(contact: Contact | null) {
   if (contact) {
     email.value = contact.email;
@@ -273,6 +263,25 @@ function resetValues(contact: Contact | null) {
     stripeCustomerId.value = '';
     products.value = [];
     orders.value = [];
+  }
+}
+
+async function createContact() {
+  loading.value = true;
+  error.value = '';
+  const input: CreateContactInput = {
+    website_id: props.websiteId,
+    email: email.value,
+    name: name.value,
+  };
+
+  try {
+    const newContact = await $mdninja.createContact(input);
+    $router.push(`/websites/${props.websiteId}/contacts/${newContact.id}`);
+  } catch (err: any) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
   }
 }
 
