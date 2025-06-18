@@ -57,10 +57,10 @@ const $emit = defineEmits(['update:modelValue', 'imported']);
 // lifecycle
 
 // variables
-const contactsPlaceholder = `email,name,subscribed_at
-email1@email.com,name,2023-01-01T01:01:01Z
-email2@email.com,Name2,
-email3@email.com,Name3,2023-01-03T01:01:01Z
+const contactsPlaceholder = `email,name,country,subscribed_at
+email1@email.com,name,XX,2023-01-01T01:01:01Z
+email2@email.com,Name2,FR,
+email3@email.com,Name3,US,2023-01-03T01:01:01Z
 ...
 `
 

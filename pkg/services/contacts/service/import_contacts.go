@@ -46,14 +46,15 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 		return []contacts.Contact{}, nil
 	}
 
-	if len(csvRecords[0]) != 3 {
+	if len(csvRecords[0]) != 4 {
 		return ret, contacts.ErrImportCsvHeaderisNotValid
 	}
 
 	headerEmail := strings.ToLower(strings.TrimSpace(csvRecords[0][0]))
 	headerName := strings.ToLower(strings.TrimSpace(csvRecords[0][1]))
-	headerSubscribedAt := strings.ToLower(strings.TrimSpace(csvRecords[0][2]))
-	if headerEmail != "email" || headerName != "name" || headerSubscribedAt != "subscribed_at" {
+	headerCountry := strings.ToLower(strings.TrimSpace(csvRecords[0][2]))
+	headerSubscribedAt := strings.ToLower(strings.TrimSpace(csvRecords[0][3]))
+	if headerEmail != "email" || headerName != "name" || headerCountry != "country" || headerSubscribedAt != "subscribed_at" {
 		return ret, contacts.ErrImportCsvHeaderisNotValid
 	}
 
@@ -63,7 +64,7 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 
 	// we start at 1 because row 0 is for the CSV header
 	for i := 1; i < len(csvRecords); i += 1 {
-		if len(csvRecords[i]) != 3 {
+		if len(csvRecords[i]) != 4 {
 			err = contacts.ErrImportingContacts
 			return
 		}
@@ -81,7 +82,14 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 			return
 		}
 
-		subscribedToNewsletterAtStr := strings.ToUpper(strings.TrimSpace(csvRecords[i][2]))
+		country := strings.TrimSpace(csvRecords[i][2])
+		_, err = countries.Name(country)
+		if err != nil && country != countries.CodeUnknown {
+			err = errs.InvalidArgument(fmt.Sprintf("Unknown country: %s", country))
+			return
+		}
+
+		subscribedToNewsletterAtStr := strings.ToUpper(strings.TrimSpace(csvRecords[i][3]))
 		var subscribedToNewsletterAt *time.Time
 		if subscribedToNewsletterAtStr != "" {
 			var subscribedAtTmp time.Time
@@ -102,7 +110,7 @@ func (service *ContactsService) ImportContacts(ctx context.Context, input contac
 			SubscribedToNewsletterAt:     subscribedToNewsletterAt,
 			SubscribedToProductUpdatesAt: &now,
 			Verified:                     true,
-			Country:                      countries.CodeUnknown,
+			Country:                      country,
 			FailedSignupAttempts:         0,
 			SignupCodeHash:               "",
 			StripeCustomerID:             nil,
