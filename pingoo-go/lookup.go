@@ -6,10 +6,18 @@ import (
 	"net/http"
 )
 
-func (client *Client) CheckEmailAddress(ctx context.Context, email string) (res EmailInfo, err error) {
+func (client *Client) LookupEmail(ctx context.Context, email string) (res EmailInfo, err error) {
 	err = client.request(ctx, requestParams{
 		Method: http.MethodGet,
-		Route:  fmt.Sprintf("/email/%s", email),
+		Route:  fmt.Sprintf("/lookup/email/%s", email),
+	}, &res)
+	return
+}
+
+func (client *Client) LookupIp(ctx context.Context, ipAddress string) (res IpInfo, err error) {
+	err = client.request(ctx, requestParams{
+		Method: http.MethodGet,
+		Route:  fmt.Sprintf("/lookup/ip/%s", ipAddress),
 	}, &res)
 	return
 }

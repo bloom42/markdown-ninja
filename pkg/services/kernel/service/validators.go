@@ -23,7 +23,7 @@ func (service *KernelService) ValidateEmail(ctx context.Context, emailAddress st
 
 	var pingooRes pingoo.EmailInfo
 	err = retry.Do(func() (retryErr error) {
-		pingooRes, retryErr = service.pingooClient.CheckEmailAddress(ctx, emailAddress)
+		pingooRes, retryErr = service.pingooClient.LookupEmail(ctx, emailAddress)
 		return retryErr
 	}, retry.Context(ctx), retry.Attempts(3), retry.Delay(100*time.Millisecond))
 	if err != nil {
