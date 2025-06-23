@@ -43,7 +43,7 @@ import (
 var flagServerConfigPath string
 
 func init() {
-	rootCmd.Flags().StringVarP(&flagServerConfigPath, "config", "c", config.DefaultConfigPath, fmt.Sprintf("Configuration file (default: %s)", config.DefaultConfigPath))
+	rootCmd.Flags().StringVar(&flagServerConfigPath, "config", config.DefaultConfigPath, fmt.Sprintf("Configuration file (default: %s)", config.DefaultConfigPath))
 
 	rootCmd.AddCommand(healthcheckCmd)
 }
