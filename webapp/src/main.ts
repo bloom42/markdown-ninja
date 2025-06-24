@@ -35,7 +35,7 @@ async function main() {
   const pingooClient = createPingooClient({
     endpoint: $store.pingooEndpoint,
     appId: $store.pingooAppId,
-    redirectUri: config.pingooRedirectUri,
+    redirectUri: config.oidcRedirectUri,
   });
   await pingooClient.init();
 

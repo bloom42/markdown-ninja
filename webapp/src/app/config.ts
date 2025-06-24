@@ -16,14 +16,15 @@ export function useConfig(): Config {
 export class Config {
   env: string;
   sitesPort: string;
-  pingooRedirectUri: string;
+  oidcRedirectUri: string;
   cmsBaseUrl: string;
   githubRepository: string;
 
   constructor() {
     this.env = import.meta.env.VITE_ENV as string | undefined ?? 'production';
     this.sitesPort = this.env === 'dev' ? ':4000' : '';
-    this.pingooRedirectUri = [location.href.replace(/\/$/, ""), 'auth'].join('/');
+    // get the OIDC redirect URI as protocol://domain/auth
+    this.oidcRedirectUri = `${window.location.protocol}//${window.location.host}/auth`;
     this.cmsBaseUrl = "https://cms.markdown.ninja";
     this.githubRepository = "https://github.com/bloom42/markdown-ninja";
   }
