@@ -23,7 +23,8 @@ export class Config {
   constructor() {
     this.env = import.meta.env.VITE_ENV as string | undefined ?? 'production';
     this.sitesPort = this.env === 'dev' ? ':4000' : '';
-    // get the OIDC redirect URI as protocol://domain/auth
+    // get the OIDC redirect URI as [protocol]//[host]/auth (e.g [https:]//[markdown.ninja]/auth)
+    // This is secure as redirect_uris need to be allowlisted on the OIDC server
     this.oidcRedirectUri = `${window.location.protocol}//${window.location.host}/auth`;
     this.cmsBaseUrl = "https://cms.markdown.ninja";
     this.githubRepository = "https://github.com/bloom42/markdown-ninja";
