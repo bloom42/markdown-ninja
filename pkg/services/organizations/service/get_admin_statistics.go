@@ -11,8 +11,9 @@ import (
 
 func (service *OrganizationsService) GetAdminStatistics(ctx context.Context, _ kernel.EmptyInput) (stats organizations.AdminStatistics, err error) {
 	httpCtx := httpctx.FromCtx(ctx)
+
 	accessToken := httpCtx.AccessToken
-	if !accessToken.IsAdmin {
+	if accessToken == nil || !accessToken.IsAdmin {
 		return stats, kernel.ErrPermissionDenied
 	}
 
