@@ -11,6 +11,8 @@ import (
 )
 
 type Service interface {
+	GetAdminStatistics(ctx context.Context, _ kernel.EmptyInput) (stats AdminStatistics, err error)
+
 	// Organizations
 	GetOrganization(ctx context.Context, input GetOrganizationInput) (org Organization, err error)
 	GetOrganizationsForUser(ctx context.Context, input GetOrganizationsForUserInput) (orgs []Organization, err error)

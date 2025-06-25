@@ -31,6 +31,7 @@ export const Routes = {
   organizationStripeCustomerPortal: '/organizations/stripe_customer_portal',
   organizationSyncStripe: '/organizations/sync_stripe',
   organizationBillingUsage: '/organizations/billing_usage',
+  organizationsAdminStatistics: '/organizations/admin-statistics',
 
   // staffs
   staffs: '/staffs',

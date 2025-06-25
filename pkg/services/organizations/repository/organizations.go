@@ -8,6 +8,7 @@ import (
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/guid"
 	"github.com/bloom42/stdx-go/uuid"
+	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
 )
 
@@ -125,4 +126,37 @@ func (repo *OrganizationsRepository) FindAllOrganizations(ctx context.Context, d
 	}
 
 	return
+}
+
+func (repo *OrganizationsRepository) GetOrganizationsCount(ctx context.Context, db db.Queryer) (count int64, err error) {
+	const query = "SELECT COUNT(*) FROM organizations"
+
+	err = db.Get(ctx, &count, query)
+	if err != nil {
+		return 0, fmt.Errorf("organizations.GetOrganizationsCount: %w", err)
+	}
+
+	return count, nil
+}
+
+func (repo *OrganizationsRepository) GetPayingOrganizationsCount(ctx context.Context, db db.Queryer) (count int64, err error) {
+	const query = "SELECT COUNT(*) FROM organizations WHERE plan = $1"
+
+	err = db.Get(ctx, &count, query, kernel.PlanPro.ID)
+	if err != nil {
+		return 0, fmt.Errorf("organizations.GePayingtOrganizationsCount: %w", err)
+	}
+
+	return count, nil
+}
+
+func (repo *OrganizationsRepository) GetTotalExtraSlotsCount(ctx context.Context, db db.Queryer) (count int64, err error) {
+	const query = "SELECT SUM(extra_slots) FROM organizations"
+
+	err = db.Get(ctx, &count, query)
+	if err != nil {
+		return 0, fmt.Errorf("organizations.GetTotalExtraSlotsCount: %w", err)
+	}
+
+	return count, nil
 }

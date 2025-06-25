@@ -321,3 +321,9 @@ type BillingUsage struct {
 	AllowedEmails  int64 `json:"allowed_emails"`
 	UsedEmails     int64 `json:"used_emails"`
 }
+
+type AdminStatistics struct {
+	Organizations       int64 `json:"organizations"`
+	PayingOrganizations int64 `json:"paying_organizations"`
+	MonthlyRevenue      int64 `json:"monthly_revenue"`
+}

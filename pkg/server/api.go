@@ -93,6 +93,7 @@ func (server *server) Api(apiRouter chi.Router) {
 	apiRouter.Post(api.RouteOrganizationStripeCustomerPortal, apiutil.JsonEndpoint(server.organizationsService.GetStripeCustomerPortalUrl))
 	apiRouter.Post(api.RouteOrganizationSyncStripe, apiutil.JsonEndpointOk(server.organizationsService.SyncStripe))
 	apiRouter.Post(api.RouteOrganizationBillingUsage, apiutil.JsonEndpoint(server.organizationsService.GetBillingUsage))
+	apiRouter.Post(api.RouteOrganizationsAdminStatistics, apiutil.JsonEndpoint(server.organizationsService.GetAdminStatistics))
 
 	// staffs
 	apiRouter.Post(api.RouteInviteStaffs, apiutil.JsonEndpoint(server.organizationsService.InviteStaffs))

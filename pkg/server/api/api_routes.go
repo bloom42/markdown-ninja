@@ -18,6 +18,7 @@ const (
 	RouteInit = "/init"
 
 	// organizations
+	RouteOrganizationsAdminStatistics     = "/organizations/admin-statistics"
 	RouteOrganizations                    = "/organizations/list"
 	RouteOrganization                     = "/organizations/get"
 	RouteCreateOrganization               = "/organizations/create"

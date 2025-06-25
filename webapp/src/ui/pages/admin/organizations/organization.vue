@@ -28,7 +28,7 @@
 
 
       <div class="flex">
-        <h3 class="font-bold">Plan:</h3> &nbsp; <span>{{ organization.plan }}</span>
+        <h3 class="font-bold">Plan:</h3> &nbsp; <span>{{ organization.plan }} ({{ organization.extra_slots }} extra slots)</span>
       </div>
 
       <div class="flex">
