@@ -7,6 +7,6 @@ authors: ["Markdown Ninja"]
 url: "/docs/feedback"
 ---
 
-We love feedbak! Feel free to join the discussion and ask your questions, report bugs or suggest ideas and improvments in GitHub issues: [https://github.com/bloom42/markdown-ninja/issues](https://github.com/bloom42/markdown-ninja/issues)
+We love feedbak! Feel free to join the discussion and ask your questions, report bugs or suggest ideas and improvments on GitHub: [https://github.com/bloom42/markdown-ninja](https://github.com/bloom42/markdown-ninja)
 
 Or, you can privately contact us [here](/contact).
