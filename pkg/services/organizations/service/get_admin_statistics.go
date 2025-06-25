@@ -37,7 +37,7 @@ func (service *OrganizationsService) GetAdminStatistics(ctx context.Context, _ k
 		if taskErr != nil {
 			return taskErr
 		}
-		stats.MonthlyRevenue = extraSlots * 10
+		stats.MonthlyRevenue = extraSlots * kernel.PlanPro.Price
 		return taskErr
 	})
 
@@ -46,7 +46,7 @@ func (service *OrganizationsService) GetAdminStatistics(ctx context.Context, _ k
 		return stats, err
 	}
 
-	stats.MonthlyRevenue += (stats.PayingOrganizations * 10)
+	stats.MonthlyRevenue += (stats.PayingOrganizations * kernel.PlanPro.Price)
 
 	return
 }
