@@ -72,14 +72,14 @@ func NewCertManager(db db.DB, kms *kms.Kms,
 		cache:              certsCache,
 	}
 
-	// TODO: find a way to inject logger into context, or give CertManager a logger
-	go func(ctx context.Context) {
-		for {
-
-			certManager.deleteOlderCertificates(ctx)
-			time.Sleep(12 * time.Hour)
-		}
-	}(context.Background())
+	// // TODO: find a way to inject logger into context, or give CertManager a logger
+	// go func(ctx context.Context) {
+	// 	for {
+	// 		// delete older certificate every 12 hours
+	// 		certManager.deleteOlderCertificates(ctx)
+	// 		time.Sleep(12 * time.Hour)
+	// 	}
+	// }(context.Background())
 
 	return certManager, nil
 }
