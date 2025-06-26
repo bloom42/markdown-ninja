@@ -193,6 +193,7 @@ func (server *server) run(ctx context.Context) (err error) {
 		certManager, err := certmanager.NewCertManager(
 			server.db, server.kms, autocertManager,
 			server.websitesService, server.httpConfig,
+			logger,
 		)
 		if err != nil {
 			return err

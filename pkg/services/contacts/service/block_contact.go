@@ -9,6 +9,15 @@ import (
 )
 
 func (service *ContactsService) BlockContact(ctx context.Context, input contacts.BlockContactInput) (contact contacts.Contact, err error) {
+	// httpCtx := httpctx.FromCtx(ctx)
+
+	// if httpCtx == nil || httpCtx.AccessToken == nil {
+	// 	err = kernel.ErrAuthenticationRequired
+	// 	return
+	// }
+
+	// actorID := httpCtx.AccessToken.UserID
+
 	actorID, err := service.kernel.CurrentUserID(ctx)
 	if err != nil {
 		return

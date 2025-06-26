@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -26,21 +27,24 @@ type CertManager struct {
 	websitesService    websites.Service
 	httpConfig         config.Http
 	kms                *kms.Kms
+	logger             *slog.Logger
 
 	cache           *memorycache.Cache[string, *tls.Certificate]
 	autocertManager *autocert.Manager
 }
 
 type cert struct {
-	Key            string `db:"key"`
-	EncryptedValue []byte `db:"encrypted_value"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+	Key            string    `db:"key"`
+	EncryptedValue []byte    `db:"encrypted_value"`
 }
 
 // Note that all hosts will be converted to Punycode via idna.Lookup.ToASCII so that
 // Manager.GetCertificate can handle the Unicode IDN and mixedcase hosts correctly.
 // Invalid hosts will be silently ignored.
 func NewCertManager(db db.DB, kms *kms.Kms,
-	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http) (certManager *CertManager, err error) {
+	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http, logger *slog.Logger) (certManager *CertManager, err error) {
 
 	selfSignedTlsCertificate, err := generateSelfSignedCert()
 	if err != nil {
@@ -67,6 +71,16 @@ func NewCertManager(db db.DB, kms *kms.Kms,
 		httpConfig:         httpConfig,
 		cache:              certsCache,
 	}
+
+	// TODO: find a way to inject logger into context, or give CertManager a logger
+	go func(ctx context.Context) {
+		for {
+
+			certManager.deleteOlderCertificates(ctx)
+			time.Sleep(12 * time.Hour)
+		}
+	}(context.Background())
+
 	return certManager, nil
 }
 
@@ -134,9 +148,6 @@ func (certManager *CertManager) Get(ctx context.Context, key string) ([]byte, er
 }
 
 func (certManager *CertManager) Put(ctx context.Context, key string, data []byte) error {
-	const query = `INSERT INTO tls_certificates (key, encrypted_value) VALUES ($1, $2)
-		ON CONFLICT (key) DO UPDATE SET encrypted_value = $2`
-
 	logger := slogx.FromCtx(ctx)
 
 	encryptedValue, err := certManager.kms.Encrypt(ctx, data, []byte(key))
@@ -146,7 +157,11 @@ func (certManager *CertManager) Put(ctx context.Context, key string, data []byte
 		return err
 	}
 
-	_, err = certManager.db.Exec(ctx, query, key, encryptedValue)
+	const query = `INSERT INTO tls_certificates (created_at, updated_at, key, encrypted_value) VALUES ($1, $1, $2, $3)
+		ON CONFLICT (key) DO UPDATE SET updated_at = $1, encrypted_value = $3`
+
+	now := time.Now().UTC()
+	_, err = certManager.db.Exec(ctx, query, now, key, encryptedValue)
 	if err != nil {
 		err = fmt.Errorf("certmanager.Put: error inserting tls_certificate in DB [%s]: %w", key, err)
 		logger.Error(err.Error())
@@ -167,4 +182,22 @@ func (certManager *CertManager) Delete(ctx context.Context, key string) error {
 	}
 
 	return nil
+}
+
+func (certManager *CertManager) deleteOlderCertificates(ctx context.Context) {
+	// if a certificate hasn't been renewed in the last 80 days it may means that there is a problem
+	// as certificates should be renewed 30 days before expiration.
+	// Deleting older certificates ensures that autocert will try to get a new certificate instead of
+	// serving an expired certificate.
+
+	// delete certificates older than 80 days
+	olderThan := time.Now().UTC().Add(-80 * 24 * time.Hour)
+	_, err := certManager.db.Exec(ctx, "DELETE FROM tls_certificates WHERE updated_at < $1", olderThan)
+	if err != nil {
+		err = fmt.Errorf("certmanager.deleteOlderCertificates: error deleting tls_certificates: %w", err)
+		certManager.logger.Error(err.Error())
+		return
+	}
+
+	certManager.logger.Debug("certmanager: older certificates successfully deleted")
 }
