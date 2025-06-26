@@ -190,10 +190,9 @@ func (server *server) run(ctx context.Context) (err error) {
 			// Cache: certManager,
 		}
 
-		certManager, err := certmanager.NewCertManager(
+		certManager, err := certmanager.NewCertManager(ctx,
 			server.db, server.kms, autocertManager,
 			server.websitesService, server.httpConfig,
-			logger,
 		)
 		if err != nil {
 			return err

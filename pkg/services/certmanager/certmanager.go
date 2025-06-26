@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 
@@ -27,7 +26,6 @@ type CertManager struct {
 	websitesService    websites.Service
 	httpConfig         config.Http
 	kms                *kms.Kms
-	logger             *slog.Logger
 
 	cache           *memorycache.Cache[string, *tls.Certificate]
 	autocertManager *autocert.Manager
@@ -43,8 +41,8 @@ type cert struct {
 // Note that all hosts will be converted to Punycode via idna.Lookup.ToASCII so that
 // Manager.GetCertificate can handle the Unicode IDN and mixedcase hosts correctly.
 // Invalid hosts will be silently ignored.
-func NewCertManager(db db.DB, kms *kms.Kms,
-	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http, logger *slog.Logger) (certManager *CertManager, err error) {
+func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
+	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http) (certManager *CertManager, err error) {
 
 	selfSignedTlsCertificate, err := generateSelfSignedCert()
 	if err != nil {
@@ -72,14 +70,17 @@ func NewCertManager(db db.DB, kms *kms.Kms,
 		cache:              certsCache,
 	}
 
-	// // TODO: find a way to inject logger into context, or give CertManager a logger
-	// go func(ctx context.Context) {
-	// 	for {
-	// 		// delete older certificate every 12 hours
-	// 		certManager.deleteOlderCertificates(ctx)
-	// 		time.Sleep(12 * time.Hour)
-	// 	}
-	// }(context.Background())
+	go func() {
+		for {
+			// delete older certificates every 12 hours
+			certManager.deleteOlderCertificates(ctx)
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(12 * time.Hour):
+			}
+		}
+	}()
 
 	return certManager, nil
 }
@@ -190,14 +191,16 @@ func (certManager *CertManager) deleteOlderCertificates(ctx context.Context) {
 	// Deleting older certificates ensures that autocert will try to get a new certificate instead of
 	// serving an expired certificate.
 
+	logger := slogx.FromCtx(ctx)
+
 	// delete certificates older than 80 days
 	olderThan := time.Now().UTC().Add(-80 * 24 * time.Hour)
 	_, err := certManager.db.Exec(ctx, "DELETE FROM tls_certificates WHERE updated_at < $1", olderThan)
 	if err != nil {
 		err = fmt.Errorf("certmanager.deleteOlderCertificates: error deleting tls_certificates: %w", err)
-		certManager.logger.Error(err.Error())
+		logger.Error(err.Error())
 		return
 	}
 
-	certManager.logger.Debug("certmanager: older certificates successfully deleted")
+	logger.Debug("certmanager: older certificates successfully deleted")
 }
