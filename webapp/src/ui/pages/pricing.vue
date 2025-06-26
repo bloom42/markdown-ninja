@@ -4,7 +4,7 @@
 
       <div class="mx-auto max-w-4xl text-center">
         <!-- <p class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Simple and Transparent Pricing</p> -->
-        <h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+        <h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           Simple and transparent pricing
         </h2>
       </div>
@@ -12,7 +12,7 @@
         <p>
           <!-- Building a Website and living off your passion has never been so simple. <br /> -->
           <!-- Save big with the all-in-one platform. <br /> -->
-           Made for Humans, not bean counters. <br />
+           <!-- Made for Humans, not bean counters. <br /> -->
           With Markdown Ninja you can focus on what matters, <br />
           <!-- Your audience.<br /> -->
           we take care of all the technical details.

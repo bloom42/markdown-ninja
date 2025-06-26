@@ -122,6 +122,7 @@ func (server *server) Api(apiRouter chi.Router) {
 	apiRouter.Post(api.RouteSaveRedirect, apiutil.JsonEndpoint(server.websitesService.SaveRedirects))
 	apiRouter.Post(api.RouteAllWebsites, apiutil.JsonEndpoint(server.websitesService.ListWebsites))
 	apiRouter.Post(api.RouteWebsiteUpdateIcon, server.websiteUpdateIcon)
+	apiRouter.Post(api.RouteWebsitesAdminStatistics, apiutil.JsonEndpoint(server.websitesService.GetAdminStatistics))
 
 	// snippets
 	apiRouter.Post(api.RouteCreateSnippet, apiutil.JsonEndpoint(server.contentService.CreateSnippet))

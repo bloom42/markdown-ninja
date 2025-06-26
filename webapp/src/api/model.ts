@@ -1039,3 +1039,7 @@ export type UpdateWebsiteIconInput = {
   file: File,
   website_id: string;
 }
+
+export type WebsitesAdminStatistics = {
+  websites: number,
+}

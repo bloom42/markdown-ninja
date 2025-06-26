@@ -1,10 +1,10 @@
 <template>
   <div class="flex">
 
-    <div class="flex w-full" v-if="organizationsStatistics.length !== 0">
+    <div class="flex w-full" v-if="adminStatistics.length !== 0">
       <div class="w-full mt-2 rounded-md border border-gray-900/10">
-        <dl class="mx-auto grid grid-cols-1 sm:grid-cols-3 lg:px-2 xl:px-0">
-          <div v-for="(stat, statIdx) in organizationsStatistics" :key="stat.name" :class="[statIdx % 2 === 1 ? 'sm:border-l' : statIdx === 2 ? 'lg:border-l' : '', 'flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-gray-900/5 px-4 py-5 sm:px-6 lg:border-t-0 xl:px-8']">
+        <dl class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:px-2 xl:px-0">
+          <div v-for="stat in adminStatistics" :key="stat.name" class="sm:border-l flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-gray-900/5 px-4 py-5 sm:px-6 lg:border-t-0 xl:px-8">
             <dt class="text-md">{{ stat.name }}</dt>
             <dd class="w-full flex-none text-3xl font-medium tracking-tight">
               {{ stat.value }}
@@ -38,7 +38,7 @@ onBeforeMount(() => fetchData());
 
 
 // variables
-let organizationsStatistics: Ref<Stat[]> = ref([]);
+let adminStatistics: Ref<Stat[]> = ref([]);
 let loading = ref(false);
 let error = ref('');
 // computed
@@ -51,19 +51,26 @@ async function fetchData() {
   error.value = '';
 
   try {
-    const res = await $mdninja.getOrganizationsAdminStatistics();
-    organizationsStatistics.value = [
+    const [organizationsStatistics, websitesStatistics] = await Promise.all([
+      $mdninja.getOrganizationsAdminStatistics(),
+      $mdninja.getWebsitessAdminStatistics(),
+    ]);
+    adminStatistics.value = [
+      {
+        name: 'Websites',
+        value: websitesStatistics.websites,
+      },
       {
         name: 'Organizations',
-        value: res.organizations,
+        value: organizationsStatistics.organizations,
       },
       {
         name: 'Paying Organizations',
-        value: res.paying_organizations,
+        value: organizationsStatistics.paying_organizations,
       },
       {
         name: 'Monthly Revenue',
-        value: res.monthly_revenue,
+        value: organizationsStatistics.monthly_revenue,
       }
     ]
   } catch (err: any) {

@@ -30,6 +30,7 @@ type Service interface {
 	GetWebsitesCountForOrganization(ctx context.Context, db db.Queryer, organizationID guid.GUID) (websitesCount int64, err error)
 	UpdateWebsiteIcon(ctx context.Context, input UpdateWebsiteIconInput) (err error)
 	GetWebsiteIcon(ctx context.Context, websiteID guid.GUID, size int) (icon io.ReadCloser, err error)
+	GetAdminStatistics(ctx context.Context, _ kernel.EmptyInput) (stats AdminStatistics, err error)
 
 	// Redirects
 	SaveRedirects(ctx context.Context, input SaveRedirectsInput) (redirects []Redirect, err error)

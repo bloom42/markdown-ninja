@@ -40,14 +40,15 @@ const (
 	RouteUserInvitations       = "/user_invitations"
 	RouteAcceptStaffInvitation = "/accept_staff_invitation"
 
-	// website
-	RouteCreateWebsite     = "/create_website"
-	RouteWebsite           = "/website"
-	RouteUpdateWebsite     = "/update_website"
-	RouteDeleteWebsite     = "/delete_website"
-	RouteWebsites          = "/websites"
-	RouteAllWebsites       = "/all_websites"
-	RouteWebsiteUpdateIcon = "/websites/update_icon"
+	// websites
+	RouteCreateWebsite           = "/create_website"
+	RouteWebsite                 = "/website"
+	RouteUpdateWebsite           = "/update_website"
+	RouteDeleteWebsite           = "/delete_website"
+	RouteWebsites                = "/websites"
+	RouteAllWebsites             = "/all_websites"
+	RouteWebsiteUpdateIcon       = "/websites/update_icon"
+	RouteWebsitesAdminStatistics = "/websites/admin-statistics"
 
 	// domains
 	RouteAddDomain                    = "/add_domain"

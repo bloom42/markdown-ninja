@@ -61,6 +61,7 @@ export const Routes = {
   saveRedirects: '/save_redirects',
   allWebsites: '/all_websites',
   websiteUpdateIcon: '/websites/update_icon',
+  websitesAdminStatistics: '/websites/admin-statistics',
 
   // tags
   createTag: '/create_tag',

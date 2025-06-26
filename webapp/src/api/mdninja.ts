@@ -795,6 +795,10 @@ export class MdninjaService {
 
     await upload(Routes.websiteUpdateIcon, formData);
   }
+
+  async getWebsitessAdminStatistics(): Promise<model.WebsitesAdminStatistics> {
+    return await post(Routes.websitesAdminStatistics, {});
+  }
 }
 
 export async function getInitData() {

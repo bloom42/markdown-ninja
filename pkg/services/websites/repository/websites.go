@@ -187,3 +187,14 @@ func (repo *WebsitesRepository) SearchWebsites(ctx context.Context, db db.Querye
 
 	return
 }
+
+func (repo *WebsitesRepository) GetWebsitesCount(ctx context.Context, db db.Queryer) (count int64, err error) {
+	const query = "SELECT COUNT(*) FROM websites"
+
+	err = db.Get(ctx, &count, query)
+	if err != nil {
+		return 0, fmt.Errorf("websites.GetWebsitesCount: %w", err)
+	}
+
+	return count, nil
+}
