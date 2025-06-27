@@ -428,6 +428,7 @@ var websiteSlugBlocklist = []string{
 	"admin",
 	"administrator",
 	"api",
+	"app",
 	"audio",
 	"blog",
 	"bot",

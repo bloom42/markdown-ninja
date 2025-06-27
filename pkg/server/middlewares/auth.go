@@ -93,7 +93,8 @@ func (middleware *authMiddleware) handleWebappAuth(ctx context.Context, w http.R
 			return err
 		}
 
-		if tokenType == "apikey" {
+		switch tokenType {
+		case "apikey":
 			apiKey, err := middleware.organizationsService.VerifyApiKey(ctx, token)
 			if err != nil {
 				apiutil.SendError(ctx, w, err)
@@ -102,7 +103,7 @@ func (middleware *authMiddleware) handleWebappAuth(ctx context.Context, w http.R
 
 			httpCtx.ApiKey = &apiKey
 			return nil
-		} else if tokenType == "bearer" {
+		case "bearer":
 			var accessToken auth.AccessToken
 			err = middleware.pingooClient.VerifyJWT(token, &accessToken)
 			if err != nil {
@@ -110,7 +111,7 @@ func (middleware *authMiddleware) handleWebappAuth(ctx context.Context, w http.R
 				return err
 			}
 			httpCtx.AccessToken = &accessToken
-		} else {
+		default:
 			err = errs.InvalidArgument("Authorization header is not valid")
 			apiutil.SendError(ctx, w, err)
 			return err

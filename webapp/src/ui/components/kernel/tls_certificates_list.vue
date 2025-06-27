@@ -17,7 +17,7 @@
             </tr>
           </thead>
           <tbody class="min-w-full bg-white divide-y divide-gray-200">
-            <tr v-for="certificate in tlsCertificates" :key="certificate.key" class="table-row min-w-full cursor-pointer">
+            <tr v-for="certificate in tlsCertificates" :key="certificate.key" class="table-row min-w-full">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-md font-medium text-gray-900 truncate">
                   {{ certificate.key }}
