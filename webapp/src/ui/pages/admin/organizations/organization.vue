@@ -37,18 +37,33 @@
         </sl-button>
       </div>
 
-      <div class="flex">
-        <sl-button variant="primary" @click="addStaff" :loading="loading">
-          Add Staff
-        </sl-button>
+
+      <div class="flex flex-col mt-5 space-y-2">
+        <h2 class="text-2xl font-bold">Usage</h2>
+
+        <BillingUsage :billing-usage="billingUsage!" />
       </div>
 
-      <StaffsList :staffs="organization.staffs!" @remove="removeStaff" />
+
+      <div class="flex flex-col mt-5 space-y-2">
+        <h2 class="text-2xl font-bold">Staffs</h2>
+
+        <div>
+          <sl-button variant="primary" @click="addStaff" :loading="loading">
+            Add Staff
+          </sl-button>
+        </div>
+
+        <StaffsList :staffs="organization.staffs!" @remove="removeStaff" />
+      </div>
+
+
     </div>
 
-    <div class="flex flex-col mt-3">
-      <h2 class="text-xl font-bold">Websites</h2>
-      <WebsitesList :websites="websites" class="w-full mt-3" />
+    <div class="flex flex-col mt-3 space-y-2">
+      <h2 class="text-2xl font-bold">Websites</h2>
+
+      <WebsitesList :websites="websites" />
     </div>
 
   </div>
@@ -56,12 +71,13 @@
 
 <script lang="ts" setup>
 import { useMdninja } from '@/api/mdninja';
-import type { Organization, RemoveStaffInput, Staff, Website } from '@/api/model';
+import type { Organization, OrganizationBillingUsage, RemoveStaffInput, Staff, Website } from '@/api/model';
 import { onBeforeMount, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import StaffsList from '@/ui/components/organizations/staffs_list.vue';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
 import WebsitesList from '@/ui/components/admin/websites_list.vue';
+import BillingUsage from '@/ui/components/organizations/billing_usage.vue';
 
 // props
 
@@ -82,6 +98,7 @@ let loading = ref(false);
 let error = ref('');
 let organization: Ref<Organization | null> = ref(null);
 let websites: Ref<Website[]> = ref([]);
+let billingUsage: Ref<OrganizationBillingUsage | null> = ref(null);
 
 
 // computed
@@ -94,12 +111,14 @@ async function fetchData() {
   error.value = '';
 
   try {
-    const [organizationRes, websitesRes] = await Promise.all([
+    const [organizationRes, websitesRes, billingUsageRes] = await Promise.all([
       $mdninja.getOrganization({ id: organizationId, staffs: true }),
       $mdninja.listWebsites({ organization_id: organizationId }),
+      $mdninja.getorganizationBillingUsage(organizationId),
     ]);
     organization.value = organizationRes;
     websites.value = websitesRes;
+    billingUsage.value = billingUsageRes;
   } catch (err: any) {
     error.value = err.message;
   } finally {

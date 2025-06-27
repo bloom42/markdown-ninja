@@ -98,37 +98,16 @@
 
 
 
-      <div class="px-4 sm:px-6 md:px-0 mt-5">
+      <div class="flex flex-col mt-5 space-y-3">
         <h2 class="text-2xl font-bold text-gray-900">Usage</h2>
-      </div>
 
-      <div class="flex mt-5">
-        <!-- <h3 class="text-base font-semibold text-gray-900">Last 30 days</h3> -->
-        <dl class="grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white border border-gray-300 md:grid-cols-4 md:divide-x md:divide-y-0">
-          <div v-for="metric in usageMetrics" :key="metric.name" class="px-4 py-5 sm:p-6">
-            <dt class="text-base font-normal text-gray-900">{{ metric.name }}</dt>
-            <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
-              <div class="flex items-baseline text-2xl font-semibold text-gray-800">
-                {{ +parseFloat((metric.used).toFixed(4)) }}
-                <span class="ml-2 text-sm font-medium text-gray-500">/ {{ metric.allowed }}</span>
-              </div>
-
-              <!-- <div :class="[item.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800', 'inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0']">
-                <ArrowUpIcon v-if="item.changeType === 'increase'" class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500" aria-hidden="true" />
-                <ArrowDownIcon v-else class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500" aria-hidden="true" />
-                <span class="sr-only"> {{ item.changeType === 'increase' ? 'Increased' : 'Decreased' }} by </span>
-                {{ item.change }}
-              </div> -->
-            </dd>
-          </div>
-        </dl>
-
+        <BillingUsage :billing-usage="billingUsage!" />
       </div>
 
 
       <div class="flex flex-col">
         <div class="flex my-5">
-          <h2 class="text-2xl font-bold text-gray-900">Billing information</h2>
+          <h2 class="text-2xl font-bold">Billing information</h2>
         </div>
 
         <div v-if="editingBillingInformation" class="flex flex-col">
@@ -147,7 +126,7 @@
         </div>
         <div v-else class="flex w-fit border border-gray-300 rounded-md max-w-4xl px-3 py-2">
           <div class="ml-3 flex flex-col">
-            <div class="block text-base font-medium text-gray-900">
+            <div class="block text-base font-medium">
               {{ billingInformation.name }}
             </div>
             <div class="block text-sm text-gray-500">
@@ -178,7 +157,7 @@
 
       <div v-if="organization.stripe_customer" class="flex flex-col px-4 sm:px-6 md:px-0 mt-5">
         <div class="flex">
-          <h2 class="text-2xl font-bold text-gray-900">Payment Method & Invoices</h2>
+          <h2 class="text-2xl font-bold">Payment Methods & Invoices</h2>
         </div>
 
         <div class="flex mt-5">
@@ -203,15 +182,9 @@ import { useStore } from '@/app/store';
 import SelectPlan from '@/ui/components/organizations/select_plan.vue';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input.js';
-
-interface UsageMetric {
-  name: string;
-  allowed: number;
-  used: number;
-}
+import BillingUsage from '@/ui/components/organizations/billing_usage.vue';
 
 // props
-
 
 // events
 
@@ -245,16 +218,7 @@ let billingInformation: Ref<BillingInformation> = ref({
     country_code: '',
     tax_id: '',
 });
-let billingUsage: Ref<OrganizationBillingUsage> = ref({
-  used_websites: 0,
-  allowed_websites: 0,
-  used_storage: 0,
-  allowed_storage: 0,
-  used_staffs: 0,
-  allowed_staffs: 0,
-  allowed_emails: 0,
-  used_emails: 0,
-});
+let billingUsage: Ref<OrganizationBillingUsage | null> = ref(null);
 let plan = ref('');
 let extraSlots = ref(0);
 
@@ -273,30 +237,7 @@ const subscriptionTotalPrice = computed(() => {
 
   return total;
 });
-const usageMetrics = computed((): UsageMetric[] => {
-  return [
-    {
-      name: 'Emails',
-      allowed: billingUsage.value.allowed_emails,
-      used: billingUsage.value.used_emails,
-    },
-    {
-      name: 'Websites',
-      allowed: billingUsage.value.allowed_websites,
-      used: billingUsage.value.used_websites,
-    },
-    {
-      name: 'Storage (GB)',
-      allowed: billingUsage.value.allowed_storage / 1_000_000_000,
-      used: billingUsage.value.used_storage / 1_000_000_000,
-    },
-    {
-      name: 'Staffs',
-      allowed: billingUsage.value.allowed_staffs,
-      used: billingUsage.value.used_staffs,
-    },
-  ];
-});
+
 const canUpdateSubscription = computed(() => {
   return organization.value?.plan !== 'enterprise';
 });
@@ -326,14 +267,13 @@ async function fetchData() {
   };
 
   try {
-    const res = await Promise.all([
+    const [org, resBillingUsage] = await Promise.all([
       $mdninja.getOrganization(input),
       $mdninja.getorganizationBillingUsage(organizationId),
     ])
-    const org = res[0];
     $store.addOrUpdateOrganization(org);
     organization.value = org;
-    billingUsage.value = res[1];
+    billingUsage.value = resBillingUsage;
     resetValues();
   } catch (err: any) {
     error.value = err.message;
