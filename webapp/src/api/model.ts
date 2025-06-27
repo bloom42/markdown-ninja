@@ -402,6 +402,12 @@ export enum TwoFaMethod {
   Totp = "totp",
 };
 
+export type TlsCertificates = {
+  created_at: string,
+  updated_at: string,
+  key: string,
+}
+
 export type PricingPlan = {
   id: string,
   name: string,

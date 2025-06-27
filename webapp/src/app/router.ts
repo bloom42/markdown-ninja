@@ -75,6 +75,7 @@ import AdminOrganization from '@/ui/pages/admin/organizations/organization.vue';
 import AdminWebsites from '@/ui/pages/admin/websites/websites.vue';
 import AdminWebsite from '@/ui/pages/admin/websites/website.vue';
 import AdminQueue from '@/ui/pages/admin/queue/queue.vue';
+import AdminTls from '@/ui/pages/admin/tls.vue';
 
 export function newRouter(config: Config): Router {
   const router = createRouter({
@@ -167,6 +168,7 @@ export function newRouter(config: Config): Router {
       { path: '/admin/websites/:website_id/contacts', component: WebsiteContacts },
       { path: '/admin/websites/:website_id/contacts/:contact_id', component: WebsiteContact },
       { path: '/admin/queue', component: AdminQueue },
+      { path: '/admin/tls', component: AdminTls },
 
 
       // 404

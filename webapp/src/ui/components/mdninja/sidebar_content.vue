@@ -60,6 +60,7 @@ import {
   ArrowUturnLeftIcon,
   PresentationChartLineIcon,
   SparklesIcon,
+  ShieldCheckIcon,
 } from '@heroicons/vue/24/outline';
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
 import FeatherIcon from '@/ui/icons/feather.vue';
@@ -111,6 +112,7 @@ function onRouteChanged() {
       { name: 'Organizations', to: '/admin/organizations', icon: UserGroupIcon },
       { name: 'Websites', to: '/admin/websites', icon: GlobeAltIcon },
       { name: 'Background Jobs', to: '/admin/queue', icon: ClockIcon },
+      { name: 'TLS Certificates', to: '/admin/tls', icon: ShieldCheckIcon },
     ];
   } else if ($route.path.startsWith('/websites')) {
     const nav = [

@@ -455,6 +455,10 @@ export class MdninjaService {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // Kernel
   //////////////////////////////////////////////////////////////////////////////////////////////////
+  async listTlsCertificates(): Promise<model.PaginatedResult<model.TlsCertificates>> {
+    return await post(Routes.listTlsCertificates, {});
+  }
+
   async listFailedBackgroundJobs(): Promise<model.PaginatedResult<model.BackgroundJob>> {
     const res: model.PaginatedResult<model.BackgroundJob> = await post(Routes.failedBackgroundJobs, {});
     return res;

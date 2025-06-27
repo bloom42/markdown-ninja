@@ -73,6 +73,9 @@ type server struct {
 	emailsConfig            config.Emails
 	websitesBaseUrl         *url.URL
 
+	autocertManager *autocert.Manager
+	certManager     *certmanager.CertManager
+
 	webappFs      fs.FS
 	webappHandler func(res http.ResponseWriter, req *http.Request)
 }
@@ -100,6 +103,22 @@ func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Res
 	if err != nil {
 		return fmt.Errorf("server: error parsing webapp/index.html template: %w", err)
 	}
+
+	autocertManager := &autocert.Manager{
+		// Email:  "",
+		Prompt: autocert.AcceptTOS,
+		// HostPolicy: certManager.HostPolicy,
+		// Cache: certManager,
+	}
+
+	certManager, err := certmanager.NewCertManager(ctx,
+		db, kms, autocertManager, websitesService, conf.HTTP,
+	)
+	if err != nil {
+		return fmt.Errorf("server: error creating Certmanager: %w", err)
+	}
+	// it's okay to do that after creating certManager because autocertManager is a pointer
+	autocertManager.Cache = certManager
 
 	server := server{
 		db: db,
@@ -129,6 +148,9 @@ func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Res
 		webappIndexHtmlHash:     webappIndexHtmlHash[:],
 		emailsConfig:            conf.Emails,
 		websitesBaseUrl:         conf.HTTP.WebsitesBaseUrl,
+
+		autocertManager: autocertManager,
+		certManager:     certManager,
 
 		webappFs:      webappFs,
 		webappHandler: webappHandler,
@@ -183,26 +205,8 @@ func (server *server) run(ctx context.Context) (err error) {
 	}()
 
 	if server.httpConfig.Tls {
-		autocertManager := &autocert.Manager{
-			// Email:  "",
-			Prompt: autocert.AcceptTOS,
-			// HostPolicy: certManager.HostPolicy,
-			// Cache: certManager,
-		}
-
-		certManager, err := certmanager.NewCertManager(ctx,
-			server.db, server.kms, autocertManager,
-			server.websitesService, server.httpConfig,
-		)
-		if err != nil {
-			return err
-		}
-
-		// it's okay to do that after creating certManager because autocertManager is a pointer
-		autocertManager.Cache = certManager
-
-		tlsConfig := autocertManager.TLSConfig()
-		tlsConfig.GetCertificate = certManager.GetCertificate
+		tlsConfig := server.autocertManager.TLSConfig()
+		tlsConfig.GetCertificate = server.certManager.GetCertificate
 		tlsConfig.MinVersion = tls.VersionTLS13
 		httpServer.TLSConfig = tlsConfig
 	}

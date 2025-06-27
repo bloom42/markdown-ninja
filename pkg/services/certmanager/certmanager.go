@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/kms"
+	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/websites"
 )
 
@@ -31,11 +33,11 @@ type CertManager struct {
 	autocertManager *autocert.Manager
 }
 
-type cert struct {
-	CreatedAt      time.Time `db:"created_at"`
-	UpdatedAt      time.Time `db:"updated_at"`
-	Key            string    `db:"key"`
-	EncryptedValue []byte    `db:"encrypted_value"`
+type TlsCertificate struct {
+	CreatedAt      time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
+	Key            string    `db:"key" json:"key"`
+	EncryptedValue []byte    `db:"encrypted_value" json:"-"`
 }
 
 // Note that all hosts will be converted to Punycode via idna.Lookup.ToASCII so that
@@ -124,7 +126,7 @@ func (certManager *CertManager) GetCertificate(clientHello *tls.ClientHelloInfo)
 }
 
 func (certManager *CertManager) Get(ctx context.Context, key string) ([]byte, error) {
-	var cert cert
+	var cert TlsCertificate
 	logger := slogx.FromCtx(ctx)
 
 	err := certManager.db.Get(ctx, &cert, "SELECT * FROM tls_certificates WHERE key = $1", key)
@@ -203,4 +205,17 @@ func (certManager *CertManager) deleteOlderCertificates(ctx context.Context) {
 	}
 
 	logger.Debug("certmanager: older certificates successfully deleted")
+}
+
+func (certManager *CertManager) ListCertificates(ctx context.Context, _ kernel.EmptyInput) (ret kernel.PaginatedResult[TlsCertificate], err error) {
+	limit := math.MaxInt64
+	certs := make([]TlsCertificate, 0, 10)
+
+	err = certManager.db.Select(ctx, &certs, "SELECT * FROM tls_certificates ORDER BY updated_at LIMIT $1", limit)
+	if err != nil {
+		return ret, fmt.Errorf("certmanager: error listing certificates: %w", err)
+	}
+
+	ret.Data = certs
+	return ret, nil
 }
