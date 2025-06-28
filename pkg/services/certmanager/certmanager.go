@@ -211,7 +211,7 @@ func (certManager *CertManager) ListCertificates(ctx context.Context, _ kernel.E
 	limit := math.MaxInt64
 	certs := make([]TlsCertificate, 0, 10)
 
-	err = certManager.db.Select(ctx, &certs, "SELECT * FROM tls_certificates ORDER BY updated_at LIMIT $1", limit)
+	err = certManager.db.Select(ctx, &certs, "SELECT * FROM tls_certificates ORDER BY updated_at DESC LIMIT $1", limit)
 	if err != nil {
 		return ret, fmt.Errorf("certmanager: error listing certificates: %w", err)
 	}
