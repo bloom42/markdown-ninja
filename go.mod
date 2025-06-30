@@ -8,9 +8,9 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.36.5
 	github.com/aws/aws-sdk-go-v2/config v1.29.17
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.70
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.81.0
-	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.45.2
-	github.com/bloom42/stdx-go v0.0.0-20250624083055-0833b49f1030
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.82.0
+	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.46.0
+	github.com/bloom42/stdx-go v0.0.0-20250630064620-a4346a303bad
 	github.com/fxamacker/cbor/v2 v2.8.0
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/klauspost/compress v1.18.0
@@ -54,7 +54,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.5 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.11 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
