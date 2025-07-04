@@ -74,6 +74,7 @@ type analyzeRequestInput struct {
 	UserAgent        string     `json:"user_agent"`
 	IpAddress        netip.Addr `json:"ip_address"`
 	Asn              int64      `json:"asn"`
+	Country          string     `json:"country"`
 	Path             string     `json:"path"`
 	HttpVersionMajor int64      `json:"http_version_major"`
 	HttpVersionMinor int64      `json:"http_version_minor"`
@@ -286,6 +287,7 @@ func (waf *Waf) analyzeRequest(req *http.Request, wasmModule *wasmModule, userAg
 		UserAgent:        userAgent,
 		IpAddress:        httpCtx.Client.IP,
 		Asn:              httpCtx.Client.ASN,
+		Country:          httpCtx.Client.CountryCode,
 		Path:             req.URL.Path,
 		HttpVersionMajor: int64(req.ProtoMajor),
 		HttpVersionMinor: int64(req.ProtoMinor),

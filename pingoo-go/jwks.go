@@ -243,6 +243,10 @@ func (client *Client) fetchJkws() error {
 
 	ed25519Keys := make([]Ed25519VerifyingKey, 0, len(jwksRes.Keys))
 	for _, key := range jwksRes.Keys {
+		if key.Algorithm != AlgorithmEdDsa {
+			client.logger.Error(fmt.Sprintf("pingoo: unsuported JWK algorithm (keyID: %s): %s", key.KeyID, key.Algorithm))
+			continue
+		}
 		verifyingKey, err := NewEd25519VerifyingKey(key.KeyID, key.X)
 		if err != nil {
 			return err
