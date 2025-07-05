@@ -3,21 +3,41 @@ package pingoo
 import (
 	"bytes"
 	"context"
+	cryptorand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"math/rand/v2"
+	"net"
 	"net/http"
+	"os"
+	"runtime"
 	"sync"
 	"time"
 
 	"github.com/bloom42/stdx-go/httpx"
+	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/bloom42/stdx-go/retry"
 	"github.com/bloom42/stdx-go/uuid"
 	"github.com/klauspost/compress/zstd"
+	"github.com/tetratelabs/wazero"
+	wazeroapi "github.com/tetratelabs/wazero/api"
+	"github.com/tetratelabs/wazero/experimental"
+	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"markdown.ninja/pingoo-go/wasm"
 )
 
 const userAgent = "Pingoo/GoSDK (https://pingoo.io)"
+
+var dnsServers = []string{
+	"8.8.8.8:53",
+	"1.0.0.1:53",
+	"8.8.4.4:53",
+	"1.1.1.1:53",
+	// "9.9.9.9:53",
+}
 
 type ClientConfig struct {
 	Url        *string
@@ -35,8 +55,14 @@ type Client struct {
 
 	jwksFetchInterval time.Duration
 	// a map of verifying keys, by KeyID
-	jwksKeys     map[string]VerifyingKey
-	jwksKeysLock sync.RWMutex
+	// jwksKeys     map[string]VerifyingKey
+	jwks        Jwks
+	jwksLock    sync.RWMutex
+	dnsResolver *net.Resolver
+
+	wasmRuntime        wazero.Runtime
+	compiledWasmModule wazero.CompiledModule
+	wasmModulePool     *sync.Pool
 }
 
 type ApiError struct {
@@ -49,7 +75,7 @@ func (err ApiError) Error() string {
 }
 
 // TODO: wrap errors with errs
-func NewClient(apiKey string, projectID string, config *ClientConfig) (client *Client, err error) {
+func NewClient(ctx context.Context, apiKey string, projectID string, config *ClientConfig) (client *Client, err error) {
 	url := "https://pingoo.io"
 	httpClient := httpx.DefaultClient()
 
@@ -72,6 +98,17 @@ func NewClient(apiKey string, projectID string, config *ClientConfig) (client *C
 		logger = slog.New(slog.DiscardHandler)
 	}
 
+	dnsResolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			dialer := net.Dialer{
+				Timeout: 5 * time.Second,
+			}
+			dnsServer := dnsServers[rand.IntN(len(dnsServers))]
+			return dialer.DialContext(ctx, network, dnsServer)
+		},
+	}
+
 	client = &Client{
 		pingooURL:         url,
 		apiBaseUrl:        url + "/api",
@@ -80,10 +117,101 @@ func NewClient(apiKey string, projectID string, config *ClientConfig) (client *C
 		httpClient:        httpClient,
 		logger:            logger,
 		jwksFetchInterval: time.Minute,
-		jwksKeys:          make(map[string]VerifyingKey),
-		jwksKeysLock:      sync.RWMutex{},
+		// jwksKeys:          make(map[string]VerifyingKey),
+		jwks:        Jwks{Keys: []Jwk{}},
+		jwksLock:    sync.RWMutex{},
+		dnsResolver: dnsResolver,
 	}
 	go client.periodicallyFetchJkws()
+
+	logger.Debug("pingoo: downloading pingoo.wasm")
+	pingooWasmBytes := bytes.NewBuffer(make([]byte, 0, 2_000_000)) // 2MB
+	err = retry.Do(func() error {
+		pingooWasmDownload, retryErr := client.DownloadPingooWasm(ctx, "")
+		if retryErr != nil {
+			return fmt.Errorf("downloading file: %w", retryErr)
+		}
+		defer pingooWasmDownload.Data.Close()
+		_, retryErr = io.Copy(pingooWasmBytes, pingooWasmDownload.Data)
+		if retryErr != nil {
+			return fmt.Errorf("copying bytes: %w", retryErr)
+		}
+		return nil
+	}, retry.Context(ctx), retry.Attempts(15), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
+	if err != nil {
+		return nil, fmt.Errorf("pingoo: error downloading pingoo.wasm: %w", err)
+	}
+
+	logger.Debug("pingoo: pingoo.wasm successfully downloaded", slog.Int("size", pingooWasmBytes.Len()))
+
+	wasmCtx := context.Background()
+	// wasmCtx = experimental.WithMemoryAllocator(wasmCtx, wazeroallocator.NewNonMoving())
+
+	// See https://github.com/tetratelabs/wazero/issues/2156
+	// and https://github.com/wasilibs/go-re2/blob/main/internal/re2_wazero.go
+	// for imformation about how to configure wazero to use a WASM lib using WASM memory
+
+	// More wazero docs:
+	// How to use HostFunctionBuilder with multiple goroutines? https://github.com/tetratelabs/wazero/issues/2217
+	// Clarification on concurrency semantics for invocations https://github.com/tetratelabs/wazero/issues/2292
+	// Improve InstantiateModule concurrency performance https://github.com/tetratelabs/wazero/issues/602
+	// Add option to change Memory capacity https://github.com/tetratelabs/wazero/issues/500
+	// Document best practices around invoking a wasi module multiple times https://github.com/tetratelabs/wazero/issues/985
+	// API shape https://github.com/tetratelabs/wazero/issues/425
+
+	wasmRuntime := wazero.NewRuntimeWithConfig(wasmCtx, wazero.NewRuntimeConfigCompiler().WithCoreFeatures(wazeroapi.CoreFeaturesV2|experimental.CoreFeaturesThreads).WithMemoryLimitPages(65536))
+
+	wasi_snapshot_preview1.MustInstantiate(wasmCtx, wasmRuntime)
+
+	// _, err = wasmRuntime.InstantiateWithConfig(wasmCtx, assets.MemoryWasm, wazero.NewModuleConfig().WithName("env"))
+	// if err != nil {
+	// 	return nil, fmt.Errorf("waf: error instantiating wasm memory module: %w", err)
+	// }
+
+	_, err = wasmRuntime.NewHostModuleBuilder("env").
+		NewFunctionBuilder().WithFunc(func(ctx context.Context, input wasm.Buffer) wasm.Buffer {
+		return wasm.HandleHostFunctionCall(ctx, client.resolveHostForIp, input)
+	}).Export("dns_lookup_ip_address").
+		Instantiate(wasmCtx)
+	if err != nil {
+		return nil, fmt.Errorf("waf: error instantiating wasm host module (env): %w", err)
+	}
+
+	compiledWasmModule, err := wasmRuntime.CompileModule(wasmCtx, pingooWasmBytes.Bytes())
+	if err != nil {
+		return nil, fmt.Errorf("waf: error compiling wasm pingoo module: %w", err)
+	}
+
+	// as recommended in https://github.com/tetratelabs/wazero/issues/2217
+	// we use a sync.Pool of wasm modules in order to handle concurrency
+	client.wasmModulePool = &sync.Pool{
+		New: func() any {
+			poolObjectCtx := context.Background()
+			instantiatedWasmModule, err := wasmRuntime.InstantiateModule(poolObjectCtx, compiledWasmModule, wazero.NewModuleConfig().
+				WithStartFunctions("_initialize").WithSysNanosleep().WithSysNanotime().WithSysWalltime().WithName("").WithRandSource(cryptorand.Reader).WithStdout(os.Stdout).WithStderr(os.Stderr),
+			// for debugging
+			// .WithStdout(os.Stdout).WithStderr(os.Stderr),
+			)
+			if err != nil {
+				logger.Error("waf.wasmModulePool.New: error instantiating WASM module", slogx.Err(err))
+				return nil
+			}
+
+			poolObject, err := wasm.NewModule(instantiatedWasmModule)
+			if err != nil {
+				logger.Error("waf.wasmModulePool.New: error instantiating WASM module", slogx.Err(err))
+				return nil
+			}
+
+			// use a finalizer to Close the module, as recommended in https://github.com/golang/go/issues/23216
+			runtime.SetFinalizer(poolObject, func(module *wasm.Module) {
+				module.Close(poolObjectCtx)
+			})
+
+			return poolObject
+		},
+	}
+
 	return client, nil
 }
 

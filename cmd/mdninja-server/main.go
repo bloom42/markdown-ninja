@@ -126,7 +126,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		pingooClient, err := pingoo.NewClient(conf.Pingoo.ApiKey, conf.Pingoo.ProjectID, &pingoo.ClientConfig{
+		pingooClient, err := pingoo.NewClient(ctx, conf.Pingoo.ApiKey, conf.Pingoo.ProjectID, &pingoo.ClientConfig{
 			Url:    conf.Pingoo.Url,
 			Logger: logger,
 		})

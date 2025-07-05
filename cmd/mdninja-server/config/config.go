@@ -25,7 +25,6 @@ import (
 )
 
 type Config struct {
-	BlockedCountries []string `json:"blocked_countries" yaml:"blocked_countries"`
 	// True if running as Saas and billing is required
 	Saas     bool     `json:"saas" yaml:"saas"`
 	HTTP     Http     `json:"http" yaml:"http"`

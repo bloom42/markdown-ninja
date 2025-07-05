@@ -104,8 +104,7 @@ func (middleware *authMiddleware) handleWebappAuth(ctx context.Context, w http.R
 			httpCtx.ApiKey = &apiKey
 			return nil
 		case "bearer":
-			var accessToken auth.AccessToken
-			err = middleware.pingooClient.VerifyJWT(token, &accessToken)
+			accessToken, err := pingoo.VerifyJWT[auth.AccessToken](ctx, middleware.pingooClient, token)
 			if err != nil {
 				apiutil.SendError(ctx, w, err)
 				return err

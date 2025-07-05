@@ -22,7 +22,6 @@ import (
 	"github.com/bloom42/stdx-go/httpx"
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/bloom42/stdx-go/proxyproto"
-	"github.com/bloom42/stdx-go/set"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -61,7 +60,6 @@ type server struct {
 	webappDomain            string
 	websitesRootDomain      string
 	geoip                   *geoip.Resolver
-	blockedCountries        set.Set[string]
 	stripeWebhookSecret     string
 	stripePublicKey         string
 	httpConfig              config.Http
@@ -85,8 +83,6 @@ func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Res
 	storeService store.Service, eventsService events.Service, siteService site.Service, contentService content.Service,
 	organizationsService organizations.Service, logger *slog.Logger, kms *kms.Kms,
 ) (err error) {
-	blockedCountries := set.NewFromSlice(conf.BlockedCountries)
-
 	webappFs := webapp.FS()
 	webappHandler, err := httpx.WebappHandler(webapp.FS(), nil)
 	if err != nil {
@@ -137,7 +133,6 @@ func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Res
 		webappDomain:            conf.HTTP.WebappDomain,
 		websitesRootDomain:      conf.HTTP.WebsitesRootDomain,
 		geoip:                   geoipDb,
-		blockedCountries:        blockedCountries,
 		stripeWebhookSecret:     conf.Stripe.WebhookSecret,
 		stripePublicKey:         conf.Stripe.PublicKey,
 		httpConfig:              conf.HTTP,

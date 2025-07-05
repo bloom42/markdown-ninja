@@ -5,7 +5,6 @@ import (
 
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/queue"
-	"github.com/bloom42/stdx-go/set"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/geoip"
@@ -15,11 +14,10 @@ import (
 )
 
 type KernelService struct {
-	config           config.Config
-	db               db.DB
-	queue            queue.Queue
-	mailer           mailer.Mailer
-	blockedCountries set.Set[string]
+	config config.Config
+	db     db.DB
+	queue  queue.Queue
+	mailer mailer.Mailer
 
 	pingooClient    *pingoo.Client
 	geoipResolver   *geoip.Resolver
@@ -41,14 +39,11 @@ func NewKernelService(conf config.Config, db db.DB, queue queue.Queue, mailer ma
 	loginAlertEmailTemplate := template.Must(template.New("kernel.loginAlertEmailTemplate").Parse(templates.LoginAlertEmailTemplate))
 	twoFaDisabledAlertEmailTemplate := template.Must(template.New("kernel.twoFaDisabledAlertEmailTemplate").Parse(templates.TwoFaDisabledEmailTemplate))
 
-	blockedCountries := set.NewFromSlice(conf.BlockedCountries)
-
 	return &KernelService{
-		config:           conf,
-		db:               db,
-		queue:            queue,
-		mailer:           mailer,
-		blockedCountries: blockedCountries,
+		config: conf,
+		db:     db,
+		queue:  queue,
+		mailer: mailer,
 
 		pingooClient:    pingooClient,
 		geoipResolver:   geoipResolver,
