@@ -7,7 +7,6 @@ import (
 	"github.com/bloom42/stdx-go/queue"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
-	"markdown.ninja/pkg/geoip"
 	"markdown.ninja/pkg/mailer"
 	"markdown.ninja/pkg/services/kernel/templates"
 	"markdown.ninja/pkg/services/organizations"
@@ -20,7 +19,6 @@ type KernelService struct {
 	mailer mailer.Mailer
 
 	pingooClient    *pingoo.Client
-	geoipResolver   *geoip.Resolver
 	stripePublicKey string
 	emailsConfig    config.Emails
 	// pingooAppId                  string
@@ -34,7 +32,7 @@ type KernelService struct {
 }
 
 func NewKernelService(conf config.Config, db db.DB, queue queue.Queue, mailer mailer.Mailer,
-	pingooClient *pingoo.Client, geoipResolver *geoip.Resolver) *KernelService {
+	pingooClient *pingoo.Client) *KernelService {
 	signupEmailTemplate := template.Must(template.New("kernel.signupEmailTemplate").Parse(templates.SignupEmailTemplate))
 	loginAlertEmailTemplate := template.Must(template.New("kernel.loginAlertEmailTemplate").Parse(templates.LoginAlertEmailTemplate))
 	twoFaDisabledAlertEmailTemplate := template.Must(template.New("kernel.twoFaDisabledAlertEmailTemplate").Parse(templates.TwoFaDisabledEmailTemplate))
@@ -46,7 +44,6 @@ func NewKernelService(conf config.Config, db db.DB, queue queue.Queue, mailer ma
 		mailer: mailer,
 
 		pingooClient:    pingooClient,
-		geoipResolver:   geoipResolver,
 		stripePublicKey: conf.Stripe.PublicKey,
 		emailsConfig:    conf.Emails,
 		// pingooAppId:                  conf.Pingoo.AppID,

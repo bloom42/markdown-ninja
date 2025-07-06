@@ -24,7 +24,6 @@ import (
 	"markdown.ninja/migrations"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/buildinfo"
-	"markdown.ninja/pkg/geoip"
 	"markdown.ninja/pkg/jwt"
 	"markdown.ninja/pkg/scheduler"
 	"markdown.ninja/pkg/server"
@@ -134,11 +133,6 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		geoip, err := geoip.Init(ctx, pingooClient, logger)
-		if err != nil {
-			return err
-		}
-
 		stripe.Key = conf.Stripe.SecretKey
 		stripe.EnableTelemetry = false
 
@@ -154,7 +148,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		// init services
-		kernelService := kernel.NewKernelService(conf, dbPool, queue, mailer, pingooClient, geoip)
+		kernelService := kernel.NewKernelService(conf, dbPool, queue, mailer, pingooClient)
 
 		organizationsService := organizations.NewOrganizationsService(conf, dbPool, mailer, queue, kernelService, pingooClient)
 
@@ -234,7 +228,7 @@ var rootCmd = &cobra.Command{
 			}
 		}()
 
-		err = server.Start(ctx, conf, dbPool, geoip, pingooClient, kernelService, websitesService, contactsService, emailsService,
+		err = server.Start(ctx, conf, dbPool, pingooClient, kernelService, websitesService, contactsService, emailsService,
 			storeService, eventsService, siteService, contentService, organizationsService, logger, kms)
 		if err != nil {
 			logger.Error("cli.server: error running server", slogx.Err(err))

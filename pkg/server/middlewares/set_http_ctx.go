@@ -15,7 +15,8 @@ import (
 	"github.com/bloom42/stdx-go/httpx"
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/bloom42/stdx-go/uuid"
-	"markdown.ninja/pkg/geoip"
+	"markdown.ninja/pingoo-go"
+	"markdown.ninja/pkg/server/apiutil"
 	"markdown.ninja/pkg/server/httpctx"
 )
 
@@ -32,10 +33,11 @@ import (
 // }
 
 // SetHTTPContext injects `httpctx.Context` in requests' context
-func SetHTTPContext(geoipResolver *geoip.Resolver) func(next http.Handler) http.Handler {
+func SetHTTPContext(pingooClient *pingoo.Client) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, req *http.Request) {
 			var err error
+			isApiRequest := strings.HasPrefix(req.URL.Path, "/api")
 
 			ctx := req.Context()
 			logger := slogx.FromCtx(ctx)
@@ -61,15 +63,24 @@ func SetHTTPContext(geoipResolver *geoip.Resolver) func(next http.Handler) http.
 			// IP address
 			httpCtx.Client.IPStr, httpCtx.Client.IP, err = extractClientIpAddress(req)
 			if err != nil {
-				logger.Error(err.Error())
-				httpx.ServerErrorInternal(w)
+				if isApiRequest {
+					apiutil.SendError(ctx, w, err)
+				} else {
+					logger.Error(err.Error())
+					httpx.ServerErrorInternal(w)
+				}
 				return
 			}
 			// Country and ASN
 			httpCtx.Client.CountryCode, httpCtx.Client.ASN, err =
-				getCountryCodeAndAsnFromClientIP(logger, geoipResolver, httpCtx.Client.IP)
+				getCountryCodeAndAsnFromClientIP(ctx, logger, pingooClient, httpCtx.Client.IP)
 			if err != nil {
-				httpx.ServerErrorInternal(w)
+				if isApiRequest {
+					apiutil.SendError(ctx, w, err)
+				} else {
+					logger.Error(err.Error())
+					httpx.ServerErrorInternal(w)
+				}
 				return
 			}
 			httpCtx.Client.ASNStr = strconv.FormatInt(httpCtx.Client.ASN, 10)
@@ -95,10 +106,10 @@ func SetHTTPContext(geoipResolver *geoip.Resolver) func(next http.Handler) http.
 	}
 }
 
-func getCountryCodeAndAsnFromClientIP(logger *slog.Logger, geoipResolver *geoip.Resolver, clientIP netip.Addr) (countryCode string, asn int64, err error) {
-	geoipInfo, err := geoipResolver.Lookup(clientIP)
+func getCountryCodeAndAsnFromClientIP(ctx context.Context, logger *slog.Logger, pingooClient *pingoo.Client, clientIP netip.Addr) (countryCode string, asn int64, err error) {
+	geoipInfo, err := pingooClient.GeoipLookup(ctx, clientIP)
 	if err != nil {
-		err = fmt.Errorf("middleware.SetHTTPContext: error looking up for geoIP information for IP address: %s", clientIP)
+		err = fmt.Errorf("middleware.SetHTTPContext: error looking up for GeoIP information for IP address: %s", clientIP)
 		return
 	}
 
@@ -111,7 +122,6 @@ func getCountryCodeAndAsnFromClientIP(logger *slog.Logger, geoipResolver *geoip.
 		if countryCode != "" && countryCode != countries.CodeUnknown {
 			logger.Warn("middleware.SetHTTPContext: Country not found", slog.String("country_code", countryCode))
 		}
-		countryCode = countries.CodeUnknown
 	}
 
 	return

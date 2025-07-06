@@ -36,7 +36,6 @@ func Start(ctx context.Context, logger *slog.Logger, concurrencyMax uint32, queu
 	}
 
 	// kernel
-	workerpool.AddHandler(workerPool, kernelService.JobRefreshGeoipDatabase)
 
 	// organizations
 	workerpool.AddHandler(workerPool, organizationsService.JobSendStaffInvitations)

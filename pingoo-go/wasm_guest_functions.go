@@ -3,8 +3,6 @@ package pingoo
 import (
 	"context"
 	"errors"
-	"fmt"
-	"net/netip"
 
 	"markdown.ninja/pingoo-go/wasm"
 )
@@ -26,39 +24,15 @@ func callWasmGuestFunction[I, O any](ctx context.Context, client *Client, functi
 	return output, err
 }
 
-type verifyJwtInput struct {
-	JWKS  Jwks   `json:"jwks"`
-	Token string `json:"token"`
-}
-
-type verifyJwtOutput[C any] struct {
-	Claims C `json:"claims"`
-	// header
-	// signature
-}
-
-func VerifyJWT[C any](ctx context.Context, client *Client, token string) (claims C, err error) {
-	wasmInput := verifyJwtInput{
-		JWKS:  client.jwks,
-		Token: token,
-	}
-	wasmOutput, err := callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "verify_jwt", wasmInput)
-	if err != nil {
-		return claims, fmt.Errorf("pingoo.VerifyJWT: error calling verify_jwt wasm function: %w", err)
-	}
-
-	return wasmOutput.Claims, nil
-}
-
 type AnalyzeRequestInput struct {
-	HttpMethod       string     `json:"http_method"`
-	UserAgent        string     `json:"user_agent"`
-	IpAddress        netip.Addr `json:"ip_address"`
-	Asn              int64      `json:"asn"`
-	Country          string     `json:"country"`
-	Path             string     `json:"path"`
-	HttpVersionMajor int64      `json:"http_version_major"`
-	HttpVersionMinor int64      `json:"http_version_minor"`
+	HttpMethod       string `json:"http_method"`
+	UserAgent        string `json:"user_agent"`
+	IpAddress        string `json:"ip_address"`
+	Asn              int64  `json:"asn"`
+	Country          string `json:"country"`
+	Path             string `json:"path"`
+	HttpVersionMajor int64  `json:"http_version_major"`
+	HttpVersionMinor int64  `json:"http_version_minor"`
 }
 
 type AnalyzeRequestOutcome string
@@ -73,6 +47,6 @@ type AnalyzeRequestOutput struct {
 	Outcome AnalyzeRequestOutcome `json:"outcome"`
 }
 
-func AnalyzeRequest(ctx context.Context, client *Client, input AnalyzeRequestInput) (ret AnalyzeRequestOutput, err error) {
+func (client *Client) AnalyzeRequest(ctx context.Context, input AnalyzeRequestInput) (ret AnalyzeRequestOutput, err error) {
 	return callWasmGuestFunction[AnalyzeRequestInput, AnalyzeRequestOutput](ctx, client, "analyze_request", input)
 }

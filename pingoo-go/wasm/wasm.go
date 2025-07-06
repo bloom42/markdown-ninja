@@ -2,11 +2,12 @@ package wasm
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/fxamacker/cbor/v2"
 	wazeroapi "github.com/tetratelabs/wazero/api"
 )
 
@@ -90,6 +91,9 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	var emptyOutput O
 	logger := slogx.FromCtx(ctx)
 
+	logger.Debug("wasm: calling function: " + functionName)
+	functionStartedAt := time.Now()
+
 	ctx = context.WithValue(ctx, ModuleCtxKey, wasmModule)
 
 	input := Request[I]{
@@ -107,7 +111,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	// then we deserialize the output buffer content from JSON
 
 	// serialize input to JSON
-	inputBytes, err := json.Marshal(input)
+	inputBytes, err := cbor.Marshal(input)
 	if err != nil {
 		return emptyOutput, fmt.Errorf("error marshalling input data to JSON: %w", err)
 	}
@@ -155,14 +159,17 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	}
 
 	var wasmResult Result[O]
-	err = json.Unmarshal(outputBytes, &wasmResult)
+	err = cbor.Unmarshal(outputBytes, &wasmResult)
 	if err != nil {
 		return emptyOutput, fmt.Errorf("error unmarshalling JSON output: %w", err)
 	}
 
 	if wasmResult.Error != nil {
+		logger.Debug("wasm: function " + functionName + " completed in " + time.Since(functionStartedAt).String() + " with error: " + wasmResult.Error.Message)
 		return emptyOutput, errors.New(wasmResult.Error.Message)
 	}
+
+	logger.Debug("wasm: function " + functionName + " successfully completed in " + time.Since(functionStartedAt).String())
 
 	return *wasmResult.Ok, nil
 }
@@ -178,7 +185,7 @@ func HandleHostFunctionCall[I, O any](ctx context.Context, hostFunction func(con
 	}
 
 	var input I
-	err := json.Unmarshal(inputBytes, &input)
+	err := cbor.Unmarshal(inputBytes, &input)
 	if err != nil {
 		return newWasmError(ctx, module, fmt.Errorf("error unmarshalling host function call input data from JSON: %w", err))
 	}
@@ -191,7 +198,7 @@ func HandleHostFunctionCall[I, O any](ctx context.Context, hostFunction func(con
 	outputResult := Result[O]{
 		Ok: &output,
 	}
-	outputBytes, err := json.Marshal(outputResult)
+	outputBytes, err := cbor.Marshal(outputResult)
 	if err != nil {
 		return newWasmError(ctx, module, fmt.Errorf("error marshalling host function call output data to JSON: %w", err))
 	}
@@ -223,7 +230,7 @@ func newWasmError(ctx context.Context, wasmModule *Module, err error) Buffer {
 			Message: err.Error(),
 		},
 	}
-	outputBytes, err := json.Marshal(wasmErr)
+	outputBytes, err := cbor.Marshal(wasmErr)
 	if err != nil {
 		// TODO: log error?
 		return Buffer(0)

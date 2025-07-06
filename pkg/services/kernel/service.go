@@ -45,8 +45,6 @@ type PrivateService interface {
 	// AdminFindUser(ctx context.Context, userID guid.GUID) (user User, err error)
 
 	// Jobs
-	JobRefreshGeoipDatabase(ctx context.Context, input JobRefreshGeoipDatabase) (err error)
 
 	// Tasks
-	TaskRefreshGeoipDatabase(ctx context.Context)
 }

@@ -1,9 +1,11 @@
-package pingoo
+package jwt
 
 import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+
+	"github.com/fxamacker/cbor/v2"
 )
 
 // BytesBase64RawUrl is a simple []byte that encodes to base64RawUrl when marshaling to JSONs
@@ -33,6 +35,24 @@ func (b *BytesBase64RawUrl) UnmarshalJSON(data []byte) (err error) {
 	}
 
 	data = bytes.Trim(data, `"`)
+	decodedData, err := base64.RawURLEncoding.DecodeString(string(data))
+	if err != nil {
+		return
+	}
+
+	*b = decodedData
+	return nil
+}
+
+func (b BytesBase64RawUrl) MarshalCBOR() ([]byte, error) {
+	return cbor.Marshal(b.String())
+}
+
+func (b *BytesBase64RawUrl) UnmarshalCBOR(data []byte) (err error) {
+	if data == nil {
+		return nil
+	}
+
 	decodedData, err := base64.RawURLEncoding.DecodeString(string(data))
 	if err != nil {
 		return

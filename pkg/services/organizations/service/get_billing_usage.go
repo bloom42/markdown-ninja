@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/bloom42/stdx-go/db"
@@ -72,8 +71,6 @@ func (service *OrganizationsService) getOrganizationBillingUsage(ctx context.Con
 		usage.AllowedEmails = kernel.PlanEnterprise.AllowedEmails
 		usage.AllowedStorage += kernel.PlanEnterprise.AllowedStorage + (organization.ExtraSlots * kernel.StoragePerSlot)
 	}
-
-	fmt.Println(usage.AllowedEmails)
 
 	usage.AllowedWebsites += 1 + organization.ExtraSlots
 	usage.AllowedStaffs += 1 + organization.ExtraSlots

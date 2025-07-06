@@ -18,10 +18,8 @@ import (
 )
 
 type Waf struct {
-	logger *slog.Logger
-
-	pingooClient *pingoo.Client
-
+	logger        *slog.Logger
+	pingooClient  *pingoo.Client
 	allowedBotIps *memorycache.Cache[netip.Addr, bool]
 }
 
@@ -63,14 +61,14 @@ func (waf *Waf) Middleware(next http.Handler) http.Handler {
 		analyzeRequestInput := pingoo.AnalyzeRequestInput{
 			HttpMethod:       req.Method,
 			UserAgent:        userAgent,
-			IpAddress:        httpCtx.Client.IP,
+			IpAddress:        httpCtx.Client.IP.String(),
 			Asn:              httpCtx.Client.ASN,
 			Country:          httpCtx.Client.CountryCode,
 			Path:             req.URL.Path,
 			HttpVersionMajor: int64(req.ProtoMajor),
 			HttpVersionMinor: int64(req.ProtoMinor),
 		}
-		analyzeRequestOutput, err := pingoo.AnalyzeRequest(ctx, waf.pingooClient, analyzeRequestInput)
+		analyzeRequestOutput, err := waf.pingooClient.AnalyzeRequest(ctx, analyzeRequestInput)
 		if err != nil {
 			// fail open
 			waf.logger.Error(err.Error(), slog.String("user_agent", userAgent),

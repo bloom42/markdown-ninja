@@ -27,7 +27,6 @@ import (
 	"golang.org/x/net/http2/h2c"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
-	"markdown.ninja/pkg/geoip"
 	"markdown.ninja/pkg/kms"
 	"markdown.ninja/pkg/services/certmanager"
 	"markdown.ninja/pkg/services/contacts"
@@ -59,7 +58,6 @@ type server struct {
 	// env                config.Env
 	webappDomain            string
 	websitesRootDomain      string
-	geoip                   *geoip.Resolver
 	stripeWebhookSecret     string
 	stripePublicKey         string
 	httpConfig              config.Http
@@ -78,7 +76,7 @@ type server struct {
 	webappHandler func(res http.ResponseWriter, req *http.Request)
 }
 
-func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Resolver, pingooClient *pingoo.Client, kernelService kernel.Service,
+func Start(ctx context.Context, conf config.Config, db db.DB, pingooClient *pingoo.Client, kernelService kernel.Service,
 	websitesService websites.Service, contactsService contacts.Service, emailsService emails.Service,
 	storeService store.Service, eventsService events.Service, siteService site.Service, contentService content.Service,
 	organizationsService organizations.Service, logger *slog.Logger, kms *kms.Kms,
@@ -132,7 +130,6 @@ func Start(ctx context.Context, conf config.Config, db db.DB, geoipDb *geoip.Res
 
 		webappDomain:            conf.HTTP.WebappDomain,
 		websitesRootDomain:      conf.HTTP.WebsitesRootDomain,
-		geoip:                   geoipDb,
 		stripeWebhookSecret:     conf.Stripe.WebhookSecret,
 		stripePublicKey:         conf.Stripe.PublicKey,
 		httpConfig:              conf.HTTP,

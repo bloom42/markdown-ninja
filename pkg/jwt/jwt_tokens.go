@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/fxamacker/cbor/v2"
 )
 
 type Algorithm string
 type Type string
 type Curve string
+type KeyType string
 
 const (
 	// algorithmNone Algorithm = "none"
 
 	// AlgorithmHS256 Algorithm = "HS256"
 	AlgorithmHS512 Algorithm = "HS512"
-	// AlgorithmEdDsa Algorithm = "EdDSA"
+	AlgorithmEdDsa Algorithm = "EdDSA"
 )
 
 const (
@@ -25,6 +28,10 @@ const (
 
 const (
 	CurveEd25519 Curve = "Ed25519"
+)
+
+const (
+	KeyTypeOKP KeyType = "OKP"
 )
 
 var (
@@ -72,6 +79,21 @@ func (t *Time) UnmarshalJSON(input []byte) error {
 	unixTimestamp, err := strconv.ParseInt(string(input), 10, 64)
 	if err != nil {
 		return fmt.Errorf("error parsing time: %w", err)
+	}
+
+	*t = Time(time.Unix(unixTimestamp, 0))
+	return nil
+}
+
+func (t Time) MarshalCBOR() (ret []byte, err error) {
+	return cbor.Marshal(time.Time(t).Unix())
+	// return []byte(strconv.Itoa(int(time.Time(t).Unix()))), nil
+}
+
+func (t *Time) UnmarshalCBOR(input []byte) error {
+	var unixTimestamp int64
+	if err := cbor.Unmarshal(input, &unixTimestamp); err != nil {
+		return err
 	}
 
 	*t = Time(time.Unix(unixTimestamp, 0))

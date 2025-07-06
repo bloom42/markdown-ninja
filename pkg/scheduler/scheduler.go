@@ -91,12 +91,6 @@ func Start(ctx context.Context, db db.DB, queue queue.Queue, jwtProvider *jwt.Pr
 		return err
 	}
 
-	// every day at 01:30
-	err = cronScheduler.Schedule("kernel.TaskRefreshGeoipDatabase", "0 30 1 * * *", kernelService.TaskRefreshGeoipDatabase)
-	if err != nil {
-		return err
-	}
-
 	// every day at 01:00
 	err = cronScheduler.Schedule("jwt.RotateKeys", "0 0 1 * * *", jwtProvider.RotateKeys)
 	if err != nil {

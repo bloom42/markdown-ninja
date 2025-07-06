@@ -94,7 +94,7 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	rootRouter.Use(pingoo.Middleware(&pingooMiddlewareConfig))
 	rootRouter.Use(middlewares.Redirects(server.webappDomain, server.websitesRootDomain))
 	// rootRouter.Use(chimiddleware.RedirectSlashes)
-	rootRouter.Use(middlewares.SetHTTPContext(server.geoip))
+	rootRouter.Use(middlewares.SetHTTPContext(server.pingooClient))
 	// rootRouter.Use(server.waf.BlockBots)
 	rootRouter.Use(waf.Middleware)
 	rootRouter.Use(middlewares.Auth(server.webappDomain, server.kernelService, server.organizationsService,
