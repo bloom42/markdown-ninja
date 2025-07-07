@@ -28,7 +28,6 @@ import (
 	wazeroapi "github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/experimental"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"markdown.ninja/pingoo-go/assets"
 	"markdown.ninja/pingoo-go/wasm"
 )
 
@@ -186,10 +185,10 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 
 	wasi_snapshot_preview1.MustInstantiate(wasmCtx, client.wasmRuntime)
 
-	_, err = client.wasmRuntime.InstantiateWithConfig(wasmCtx, assets.MemoryWasm, wazero.NewModuleConfig().WithName("env"))
-	if err != nil {
-		return nil, fmt.Errorf("pingoo: error instantiating wasm memory module: %w", err)
-	}
+	// _, err = client.wasmRuntime.InstantiateWithConfig(wasmCtx, assets.MemoryWasm, wazero.NewModuleConfig().WithName("env"))
+	// if err != nil {
+	// 	return nil, fmt.Errorf("pingoo: error instantiating wasm memory module: %w", err)
+	// }
 
 	_, err = client.wasmRuntime.NewHostModuleBuilder("host").
 		NewFunctionBuilder().WithFunc(func(ctx context.Context, input wasm.Buffer) wasm.Buffer {
