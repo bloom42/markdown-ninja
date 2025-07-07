@@ -185,6 +185,11 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 
 	wasi_snapshot_preview1.MustInstantiate(wasmCtx, client.wasmRuntime)
 
+	// enabling WASM memory leads to crashes in some Virtual Machines:
+	// fatal error: runtime: out of memory
+	// github.com/tetratelabs/wazero@v1.9.0/runtime.go:302
+	// ...
+	// github.com/tetratelabs/wazero@v1.9.0/internal/wasm/memory.go:92
 	// _, err = client.wasmRuntime.InstantiateWithConfig(wasmCtx, assets.MemoryWasm, wazero.NewModuleConfig().WithName("env"))
 	// if err != nil {
 	// 	return nil, fmt.Errorf("pingoo: error instantiating wasm memory module: %w", err)
