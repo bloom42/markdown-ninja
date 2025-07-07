@@ -127,7 +127,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				client.allowedBotIps.Set(clientIp, true, memorycache.DefaultTTL)
 			default:
 				// fail open
-				client.logger.Error("waf.analyzeRequest: unknown outcome", slog.String("outcome", string(analyzeRequestOutput.Outcome)))
+				client.logger.Error("pingoo.Middleware: unknown outcome", slog.String("outcome", string(analyzeRequestOutput.Outcome)))
 			}
 
 			next.ServeHTTP(res, req)
