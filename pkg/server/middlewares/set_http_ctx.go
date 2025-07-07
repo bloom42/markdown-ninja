@@ -2,16 +2,12 @@ package middlewares
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log/slog"
 	"net"
 	"net/http"
 	"net/netip"
-	"strconv"
 	"strings"
 
-	"github.com/bloom42/stdx-go/countries"
 	"github.com/bloom42/stdx-go/httpx"
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/bloom42/stdx-go/uuid"
@@ -42,6 +38,8 @@ func SetHTTPContext(pingooClient *pingoo.Client) func(next http.Handler) http.Ha
 			ctx := req.Context()
 			logger := slogx.FromCtx(ctx)
 
+			geoipInfo := ctx.Value(pingoo.CtxKeyGeoip).(pingoo.GeoipRecord)
+
 			httpCtx := httpctx.Context{
 				Client: httpctx.ClientData{},
 				Response: httpctx.Response{
@@ -71,20 +69,8 @@ func SetHTTPContext(pingooClient *pingoo.Client) func(next http.Handler) http.Ha
 				}
 				return
 			}
-			// Country and ASN
-			httpCtx.Client.CountryCode, httpCtx.Client.ASN, err =
-				getCountryCodeAndAsnFromClientIP(ctx, logger, pingooClient, httpCtx.Client.IP)
-			if err != nil {
-				if isApiRequest {
-					apiutil.SendError(ctx, w, err)
-				} else {
-					logger.Error(err.Error())
-					httpx.ServerErrorInternal(w)
-				}
-				return
-			}
-			httpCtx.Client.ASNStr = strconv.FormatInt(httpCtx.Client.ASN, 10)
-
+			httpCtx.Client.CountryCode = geoipInfo.Country
+			httpCtx.Client.ASN = geoipInfo.ASN
 			httpCtx.CfRayID = strings.TrimSpace(req.Header.Get("CF-ray"))
 
 			ifNoneMatchHeader := strings.TrimSpace(req.Header.Get(httpx.HeaderIfNoneMatch))
@@ -104,27 +90,6 @@ func SetHTTPContext(pingooClient *pingoo.Client) func(next http.Handler) http.Ha
 
 		return http.HandlerFunc(fn)
 	}
-}
-
-func getCountryCodeAndAsnFromClientIP(ctx context.Context, logger *slog.Logger, pingooClient *pingoo.Client, clientIP netip.Addr) (countryCode string, asn int64, err error) {
-	geoipInfo, err := pingooClient.GeoipLookup(ctx, clientIP)
-	if err != nil {
-		err = fmt.Errorf("middleware.SetHTTPContext: error looking up for GeoIP information for IP address: %s", clientIP)
-		return
-	}
-
-	asn = geoipInfo.ASN
-	countryCode = geoipInfo.Country
-
-	// sometimes the country code can be invalid
-	_, errCountryName := countries.Name(countryCode)
-	if errors.Is(errCountryName, countries.ErrCountryNotFound) {
-		if countryCode != "" && countryCode != countries.CodeUnknown {
-			logger.Warn("middleware.SetHTTPContext: Country not found", slog.String("country_code", countryCode))
-		}
-	}
-
-	return
 }
 
 func extractClientIpAddress(req *http.Request) (clientIpStr string, clientIp netip.Addr, err error) {

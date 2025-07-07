@@ -18,7 +18,6 @@ import (
 	"markdown.ninja/pkg/server/apiutil"
 	"markdown.ninja/pkg/server/middlewares"
 	"markdown.ninja/pkg/server/website"
-	"markdown.ninja/pkg/waf"
 )
 
 func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err error) {
@@ -26,11 +25,6 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	websiteRoutes := website.Routes(ctx, server.siteService, server.contactsService, server.storeService)
 	// api := NewApi(server.webappDomain, server.kernelService, server.websitesService, server.contactsService,
 	// 	server.emailsService, server.storeService, server.eventsService, server.contentService, server.organizationsService)
-
-	waf, err := waf.New(ctx, server.pingooClient, server.logger)
-	if err != nil {
-		return
-	}
 
 	compressionMiddleware := chimiddleware.NewCompressor(5, "application/*", "text/*", "image/svg+xml")
 	compressionMiddleware.SetEncoder("zstd", func(encoderRes io.Writer, encoderLevel int) io.Writer {
@@ -91,12 +85,10 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	rootRouter.Use(middlewares.SetServerHeader)
 	rootRouter.Use(middlewares.CleanupHostHeader())
 	rootRouter.Use(chimiddleware.CleanPath)
-	rootRouter.Use(pingoo.Middleware(&pingooMiddlewareConfig))
 	rootRouter.Use(middlewares.Redirects(server.webappDomain, server.websitesRootDomain))
 	// rootRouter.Use(chimiddleware.RedirectSlashes)
+	rootRouter.Use(server.pingooClient.Middleware(&pingooMiddlewareConfig))
 	rootRouter.Use(middlewares.SetHTTPContext(server.pingooClient))
-	// rootRouter.Use(server.waf.BlockBots)
-	rootRouter.Use(waf.Middleware)
 	rootRouter.Use(middlewares.Auth(server.webappDomain, server.kernelService, server.organizationsService,
 		server.contactsService, server.pingooClient))
 	rootRouter.Use(compressionMiddleware.Handler)

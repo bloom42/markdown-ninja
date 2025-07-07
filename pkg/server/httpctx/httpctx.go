@@ -39,7 +39,6 @@ type ClientData struct {
 	IPStr       string
 	IP          netip.Addr
 	ASN         int64
-	ASNStr      string
 	CountryCode string
 	UserAgent   string
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/netip"
 )
 
 func (client *Client) LookupEmail(ctx context.Context, email string) (res EmailInfo, err error) {
@@ -14,7 +15,7 @@ func (client *Client) LookupEmail(ctx context.Context, email string) (res EmailI
 	return
 }
 
-func (client *Client) LookupIp(ctx context.Context, ipAddress string) (res IpInfo, err error) {
+func (client *Client) LookupIp(ctx context.Context, ipAddress netip.Addr) (res IpInfo, err error) {
 	err = client.request(ctx, requestParams{
 		Method: http.MethodGet,
 		Route:  fmt.Sprintf("/lookup/ip/%s", ipAddress),

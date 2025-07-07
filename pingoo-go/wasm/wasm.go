@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/fxamacker/cbor/v2"
@@ -91,15 +90,19 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	var emptyOutput O
 	logger := slogx.FromCtx(ctx)
 
-	logger.Debug("wasm: calling function: " + functionName)
-	functionStartedAt := time.Now()
-
 	ctx = context.WithValue(ctx, ModuleCtxKey, wasmModule)
 
 	input := Request[I]{
 		Function:   functionName,
 		Parameters: parameters,
 	}
+
+	// callFunction := wasmModule.module.ExportedFunction("call_function")
+	// allocate := wasmModule.module.ExportedFunction("allocate")
+	// deallocate := wasmModule.module.ExportedFunction("deallocate")
+	callFunction := wasmModule.callFunction
+	allocate := wasmModule.allocate
+	deallocate := wasmModule.deallocate
 
 	// first we serialize the input ot JSON
 	// then we allocate WASM memory for this JSON using the module's exported alloc function.
@@ -117,7 +120,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	}
 
 	// allocate WASM memory for input data
-	allocateInputResults, err := wasmModule.allocate.Call(ctx, uint64(len(inputBytes)))
+	allocateInputResults, err := allocate.Call(ctx, uint64(len(inputBytes)))
 	if err != nil {
 		return emptyOutput, fmt.Errorf("error allocating wasm memory for function call input: %w", err)
 	}
@@ -125,7 +128,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	wasmInputBuffer := Buffer(allocateInputResults[0])
 	defer func() {
 		// this memory was allocated by the WASM module so we have to deallocate it when finished
-		if _, deallocateErr := wasmModule.deallocate.Call(ctx, uint64(wasmInputBuffer)); deallocateErr != nil {
+		if _, deallocateErr := deallocate.Call(ctx, uint64(wasmInputBuffer)); deallocateErr != nil {
 			logger.Error("error deallocating wasm memory for function call input", slogx.Err(deallocateErr))
 		}
 	}()
@@ -137,7 +140,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	}
 
 	// call WASM function
-	wasmResults, err := wasmModule.callFunction.Call(ctx, uint64(wasmInputBuffer))
+	wasmResults, err := callFunction.Call(ctx, uint64(wasmInputBuffer))
 	if err != nil {
 		return emptyOutput, fmt.Errorf("error calling wasm function: %w", err)
 	}
@@ -146,7 +149,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	// into an uint64. It needs to be freed after having been read.
 	wasmOutputBuffer := Buffer(wasmResults[0])
 	defer func() {
-		if _, deallocateErr := wasmModule.deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
+		if _, deallocateErr := deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
 			logger.Error("error deallocating wasm memory for function call output", slogx.Err(deallocateErr))
 		}
 	}()
@@ -165,66 +168,88 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	}
 
 	if wasmResult.Error != nil {
-		logger.Debug("wasm: function " + functionName + " completed in " + time.Since(functionStartedAt).String() + " with error: " + wasmResult.Error.Message)
 		return emptyOutput, errors.New(wasmResult.Error.Message)
 	}
-
-	logger.Debug("wasm: function " + functionName + " successfully completed in " + time.Since(functionStartedAt).String())
 
 	return *wasmResult.Ok, nil
 }
 
 func HandleHostFunctionCall[I, O any](ctx context.Context, hostFunction func(context.Context, I) (O, error), inputBuffer Buffer) Buffer {
 	logger := slogx.FromCtx(ctx)
-	module := ctx.Value(ModuleCtxKey).(*Module)
+	wasmModule := ctx.Value(ModuleCtxKey).(*Module)
 
-	inputBytes, readInputIp := module.module.Memory().Read(inputBuffer.Pointer(), inputBuffer.Size())
+	// allocate := wasmModule.module.ExportedFunction("allocate")
+	// deallocate := wasmModule.module.ExportedFunction("deallocate")
+	allocate := wasmModule.allocate
+	deallocate := wasmModule.deallocate
+
+	inputBytes, readInputIp := wasmModule.module.Memory().Read(inputBuffer.Pointer(), inputBuffer.Size())
 	if !readInputIp {
-		return newWasmError(ctx, module, fmt.Errorf("error reading host function call input data from wasm memory: Memory.Read(%d, %d) out of range of memory size %d",
-			inputBuffer.Pointer(), inputBuffer.Size(), module.module.Memory().Size()))
+		return newWasmError(ctx,
+			fmt.Errorf("error reading host function call input data from wasm memory: Memory.Read(%d, %d) out of range of memory size %d",
+				inputBuffer.Pointer(), inputBuffer.Size(), wasmModule.module.Memory().Size()),
+			wasmModule, allocate, deallocate)
 	}
 
 	var input I
 	err := cbor.Unmarshal(inputBytes, &input)
 	if err != nil {
-		return newWasmError(ctx, module, fmt.Errorf("error unmarshalling host function call input data from JSON: %w", err))
+		return newWasmError(ctx,
+			fmt.Errorf("error unmarshalling host function call input data from JSON: %w", err),
+			wasmModule,
+			allocate,
+			deallocate,
+		)
 	}
 
 	output, err := hostFunction(ctx, input)
 	if err != nil {
 		logger.Warn(err.Error())
-		return newWasmError(ctx, module, err)
+		return newWasmError(ctx, err, wasmModule, allocate, deallocate)
 	}
 	outputResult := Result[O]{
 		Ok: &output,
 	}
 	outputBytes, err := cbor.Marshal(outputResult)
 	if err != nil {
-		return newWasmError(ctx, module, fmt.Errorf("error marshalling host function call output data to JSON: %w", err))
+		return newWasmError(ctx,
+			fmt.Errorf("error marshalling host function call output data to JSON: %w", err),
+			wasmModule,
+			allocate,
+			deallocate,
+		)
 	}
 
-	allocateOutputRes, err := module.allocate.Call(ctx, uint64(len(outputBytes)))
+	allocateOutputRes, err := allocate.Call(ctx, uint64(len(outputBytes)))
 	if err != nil {
-		return newWasmError(ctx, module, fmt.Errorf("error allocating memory for host function call output data: %w", err))
+		return newWasmError(ctx,
+			fmt.Errorf("error allocating memory for host function call output data: %w", err),
+			wasmModule,
+			allocate,
+			deallocate)
 	}
 	wasmOutputBuffer := Buffer(allocateOutputRes[0])
 
-	if !module.module.Memory().Write(wasmOutputBuffer.Pointer(), outputBytes) {
+	if !wasmModule.module.Memory().Write(wasmOutputBuffer.Pointer(), outputBytes) {
 		// TODO: log error?
 
 		// deallocate := wazeroModule.ExportedFunction("deallocate")
-		if _, deallocateErr := module.deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
+		if _, deallocateErr := deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
 			logger.Error("error deallocating wasm memory for host function call output", slogx.Err(deallocateErr))
 		}
 
-		return newWasmError(ctx, module, fmt.Errorf("error writing host function call output data to wasm memory: Memory.Write(%d, %d) out of range of memory size %d",
-			wasmOutputBuffer.Pointer(), wasmOutputBuffer.Size(), module.module.Memory().Size()))
+		return newWasmError(ctx,
+			fmt.Errorf("error writing host function call output data to wasm memory: Memory.Write(%d, %d) out of range of memory size %d",
+				wasmOutputBuffer.Pointer(), wasmOutputBuffer.Size(), wasmModule.module.Memory().Size()),
+			wasmModule,
+			allocate,
+			deallocate)
 	}
 
 	return wasmOutputBuffer
 }
 
-func newWasmError(ctx context.Context, wasmModule *Module, err error) Buffer {
+func newWasmError(ctx context.Context, err error, wasmModule *Module, allocate wazeroapi.Function, deallocate wazeroapi.Function) Buffer {
 	wasmErr := Result[Empty]{
 		Error: &Error{
 			Message: err.Error(),
@@ -236,7 +261,7 @@ func newWasmError(ctx context.Context, wasmModule *Module, err error) Buffer {
 		return Buffer(0)
 	}
 
-	allocateOutputRes, err := wasmModule.allocate.Call(ctx, uint64(len(outputBytes)))
+	allocateOutputRes, err := allocate.Call(ctx, uint64(len(outputBytes)))
 	if err != nil {
 		// TODO: log error?
 		return Buffer(0)
@@ -247,7 +272,7 @@ func newWasmError(ctx context.Context, wasmModule *Module, err error) Buffer {
 		// TODO: log error?
 
 		// deallocate := wazeroModule.ExportedFunction("deallocate")
-		if _, deallocateErr := wasmModule.deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
+		if _, deallocateErr := deallocate.Call(ctx, uint64(wasmOutputBuffer)); deallocateErr != nil {
 			// TODO: log error?
 			// waf.logger.Error("error deallocating wasm memory for host function call output", slogx.Err(deallocateErr))
 		}

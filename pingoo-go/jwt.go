@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/bloom42/stdx-go/retry"
+	"markdown.ninja/pingoo-go/wasm"
 	"markdown.ninja/pkg/jwt"
 )
 
 type verifyJwtInput struct {
-	JWKS  jwt.Jwks `json:"jwks"`
-	Token string   `json:"token"`
+	// JWKS  jwt.Jwks `json:"jwks"`
+	Token string `json:"token"`
 }
 
 type verifyJwtOutput[C any] struct {
@@ -25,7 +26,7 @@ type verifyJwtOutput[C any] struct {
 // returns the unmarshalled Claims
 func VerifyJWT[C any](ctx context.Context, client *Client, token string) (claims C, err error) {
 	wasmInput := verifyJwtInput{
-		JWKS:  client.jwks,
+		// JWKS:  client.jwks,
 		Token: token,
 	}
 	wasmOutput, err := callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "jwt_verify", wasmInput)
@@ -65,12 +66,19 @@ func (client *Client) refreshJwks(ctx context.Context) error {
 		return err
 	}
 
-	client.jwksLock.Lock()
-	client.jwks = jwksRes
 	// TODO: validate JWKS?
-	client.jwksLock.Unlock()
+	client.setJwtKeys(ctx, jwksRes)
 
 	client.logger.Debug("pingoo: JWKS successfully refreshed")
+
+	return nil
+}
+
+func (client *Client) setJwtKeys(ctx context.Context, jwks jwt.Jwks) (err error) {
+	_, err = callWasmGuestFunction[jwt.Jwks, wasm.Empty](ctx, client, "jwt_set_keys", jwks)
+	if err != nil {
+		return fmt.Errorf("pingoo.VerifyJWT: error calling jwt_set_keys wasm function: %w", err)
+	}
 
 	return nil
 }
