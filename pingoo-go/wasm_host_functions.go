@@ -3,7 +3,6 @@ package pingoo
 import (
 	"context"
 	"fmt"
-	"net/netip"
 	"strings"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 )
 
 type lookupHostInput struct {
-	IpAddress netip.Addr `json:"ip_address"`
+	IpAddress string `json:"ip_address"`
 }
 
 type lookupHostOutput struct {
@@ -21,7 +20,7 @@ type lookupHostOutput struct {
 func (client *Client) resolveHostForIp(ctx context.Context, input lookupHostInput) (lookupHostOutput, error) {
 	var hosts []string
 	err := retry.Do(func() (retryErr error) {
-		hosts, retryErr = client.dnsResolver.LookupAddr(ctx, input.IpAddress.String())
+		hosts, retryErr = client.dnsResolver.LookupAddr(ctx, input.IpAddress)
 		if retryErr != nil {
 			return retryErr
 		}

@@ -24,6 +24,10 @@ func callWasmGuestFunction[I, O any](ctx context.Context, client *Client, functi
 	//
 	// error calling wasm function: wasm error: out of bounds memory access
 	//
+	// Also, using the WASM memory module, which seems to be required to use WASM threads,
+	// seems to lead to crashes in some Virtual Machines:
+	// fatal error: runtime: out of memory
+	//
 	// The other option is to use a `sync.Pool` of wasm module, but then the modules need to be stateless
 	// otherwise they will use too much memory (1 geoip database in memory per WASM module) and we need to
 	// push more logic in the Go SDK instead of the WASM SDK.
