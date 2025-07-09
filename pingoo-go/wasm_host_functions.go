@@ -17,14 +17,17 @@ type lookupHostOutput struct {
 	Hostname string `json:"hostname"`
 }
 
-func (client *Client) resolveHostForIp(ctx context.Context, input lookupHostInput) (lookupHostOutput, error) {
+func (client *Client) resolveHostForIp(ctx context.Context, ip string) (string, error) {
+	logger := client.getLogger(ctx)
+
 	var hosts []string
 	err := retry.Do(func() (retryErr error) {
-		hosts, retryErr = client.dnsResolver.LookupAddr(ctx, input.IpAddress)
+		hosts, retryErr = client.dnsResolver.LookupAddr(ctx, ip)
 		return retryErr
 	}, retry.Context(ctx), retry.Attempts(5), retry.Delay(10*time.Millisecond))
 	if err != nil {
-		return lookupHostOutput{}, fmt.Errorf("waf: error resolving hosts for IP address (%s): %w", input.IpAddress, err)
+		logger.Warn(fmt.Sprintf("pingoo: error resolving hostname for IP [%s]: %s", ip, err.Error()))
+		return "", nil
 	}
 
 	cleanedUpHosts := make([]string, 0, len(hosts))
@@ -37,8 +40,8 @@ func (client *Client) resolveHostForIp(ctx context.Context, input lookupHostInpu
 	hosts = cleanedUpHosts
 
 	if len(hosts) > 0 {
-		return lookupHostOutput{Hostname: hosts[0]}, nil
+		return hosts[0], nil
 	}
 
-	return lookupHostOutput{Hostname: ""}, nil
+	return "", nil
 }

@@ -21,7 +21,8 @@ type handleHttpRequestOutput struct {
 }
 
 func (client *Client) handleHttpRequest(ctx context.Context, ip netip.Addr, res http.ResponseWriter, req *http.Request) {
-	client.logger.Debug("pingoo.handleHttpRequest: " + req.URL.Path)
+	logger := client.getLogger(ctx)
+	logger.Debug("pingoo.handleHttpRequest: " + req.URL.Path)
 
 	switch req.URL.Path {
 	case "/__pingoo/challenge/api/init":

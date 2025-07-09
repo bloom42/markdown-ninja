@@ -54,7 +54,7 @@ type challengeVerifyResponseBody struct {
 }
 
 func (client *Client) handleChallengeInitRequest(ctx context.Context, ip netip.Addr, res http.ResponseWriter, req *http.Request) {
-	logger := client.getLogger(req)
+	logger := client.getLogger(ctx)
 
 	var result challengeInitOutput
 	input := challengeInitInput{
@@ -97,7 +97,7 @@ func (client *Client) handleChallengeInitRequest(ctx context.Context, ip netip.A
 }
 
 func (client *Client) handleChallengeVerifyRequest(ctx context.Context, ip netip.Addr, res http.ResponseWriter, req *http.Request) {
-	logger := client.getLogger(req)
+	logger := client.getLogger(ctx)
 
 	bodyBuffer := bytes.NewBuffer(make([]byte, 0, 2_000))
 	limitedBodyReader := http.MaxBytesReader(res, req.Body, 5_000_000) // 5 MB

@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/bloom42/stdx-go/opt"
 	"github.com/bloom42/stdx-go/retry"
 	"github.com/tetratelabs/wazero"
@@ -22,7 +21,7 @@ import (
 
 // callWasmGuestFunction calls the given WASM function using JSON to serialize/deserialize input/output
 func callWasmGuestFunction[I, O any](ctx context.Context, client *Client, functionName string, parameters I) (O, error) {
-	logger := slogx.FromCtx(ctx)
+	logger := client.getLogger(ctx)
 	logger.Debug("wasm: calling function: " + functionName)
 	functionStartedAt := time.Now()
 
@@ -56,7 +55,7 @@ func callWasmGuestFunction[I, O any](ctx context.Context, client *Client, functi
 	client.wasmModuleMutex.Lock()
 	defer client.wasmModuleMutex.Unlock()
 
-	output, err := wasm.CallGuestFunction[I, O](ctx, wasmModule, functionName, parameters)
+	output, err := wasm.CallGuestFunction[I, O](ctx, logger, wasmModule, functionName, parameters)
 	if err != nil {
 		logger.Debug("wasm: function " + functionName + " completed in " + time.Since(functionStartedAt).String() + " with error: " + err.Error())
 		return output, err
@@ -68,7 +67,8 @@ func callWasmGuestFunction[I, O any](ctx context.Context, client *Client, functi
 }
 
 func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
-	client.logger.Debug("pingoo: starting pingoo.wasm refresh")
+	logger := client.getLogger(ctx)
+	logger.Debug("pingoo: starting pingoo.wasm refresh")
 
 	currentPingooWasmEtag := client.wasmEtag.Load()
 	if currentPingooWasmEtag == nil {
@@ -82,7 +82,7 @@ func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
 	defer pingooWasmRes.Data.Close()
 
 	if pingooWasmRes.NotModified || pingooWasmRes.Etag == *currentPingooWasmEtag {
-		client.logger.Debug("pingoo: no new pingoo.wasm is available")
+		logger.Debug("pingoo: no new pingoo.wasm is available")
 		return nil
 	}
 
@@ -193,12 +193,14 @@ func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
 
 	client.wasmEtag.Store(&pingooWasmRes.Etag)
 
-	client.logger.Debug("pingoo: pingoo.wasm successfully downloaded")
+	logger.Debug("pingoo: pingoo.wasm successfully downloaded")
 
 	return nil
 }
 
 func (client *Client) refreshPingooWasmInBackground(ctx context.Context) {
+	logger := client.getLogger(ctx)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -211,7 +213,7 @@ func (client *Client) refreshPingooWasmInBackground(ctx context.Context) {
 			return retryErr
 		}, retry.Context(ctx), retry.Attempts(5), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 		if err != nil {
-			client.logger.Warn("pingoo: error refreshing pingoo.wasm: " + err.Error())
+			logger.Warn("pingoo: error refreshing pingoo.wasm: " + err.Error())
 		}
 	}
 }

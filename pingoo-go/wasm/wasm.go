@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/fxamacker/cbor/v2"
@@ -86,9 +87,8 @@ type Error struct {
 // }
 
 // CallFunction calls the given WASM function using JSON to serialize/deserialize input/output
-func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functionName string, parameters I) (O, error) {
+func CallGuestFunction[I, O any](ctx context.Context, logger *slog.Logger, wasmModule *Module, functionName string, parameters I) (O, error) {
 	var emptyOutput O
-	logger := slogx.FromCtx(ctx)
 
 	ctx = context.WithValue(ctx, ModuleCtxKey, wasmModule)
 
@@ -174,8 +174,7 @@ func CallGuestFunction[I, O any](ctx context.Context, wasmModule *Module, functi
 	return *wasmResult.Ok, nil
 }
 
-func HandleHostFunctionCall[I, O any](ctx context.Context, hostFunction func(context.Context, I) (O, error), inputBuffer Buffer) Buffer {
-	logger := slogx.FromCtx(ctx)
+func HandleHostFunctionCall[I, O any](ctx context.Context, logger *slog.Logger, hostFunction func(context.Context, I) (O, error), inputBuffer Buffer) Buffer {
 	wasmModule := ctx.Value(ModuleCtxKey).(*Module)
 
 	// allocate := wasmModule.module.ExportedFunction("allocate")

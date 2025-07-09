@@ -72,7 +72,7 @@ type verifyBotInput struct {
 }
 
 func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput) (ret analyzeRequestOutput, err error) {
-	ipHostnameRes, err := client.resolveHostForIp(ctx, lookupHostInput{IpAddress: input.Ip})
+	hostnameForIp, err := client.resolveHostForIp(ctx, input.Ip)
 	if err != nil {
 		return
 	}
@@ -83,7 +83,7 @@ func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput) 
 		Ip:         input.Ip,
 		Asn:        input.Asn,
 		Path:       input.Path,
-		IpHostname: ipHostnameRes.Hostname,
+		IpHostname: hostnameForIp,
 	}
 	return callWasmGuestFunction[verifyBotInput, analyzeRequestOutput](ctx, client, "verify_bot", verifyBotInputData)
 }

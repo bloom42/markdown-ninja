@@ -62,9 +62,8 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 			userAgent := strings.TrimSpace(req.UserAgent())
 			var err error
 			path := req.URL.Path
-			logger := client.getLogger(req)
-
 			ctx := req.Context()
+			logger := client.getLogger(ctx)
 
 			if len(userAgent) == 0 || len(userAgent) > 300 || !utf8.ValidString(userAgent) ||
 				len(path) > 1024 || !utf8.ValidString(path) ||
@@ -113,7 +112,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput)
 			if err != nil {
 				// fail open
-				client.logger.Error(err.Error(),
+				logger.Error(err.Error(),
 					slog.String("user_agent", userAgent),
 					slog.String("ip_address", clientIp.String()),
 					slog.Int64("asn", geoipInfo.ASN),
@@ -135,7 +134,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 
 			default:
 				// fail open
-				client.logger.Error("pingoo.Middleware: unknown outcome",
+				logger.Error("pingoo.Middleware: unknown outcome",
 					slog.String("outcome", string(analyzeRequestOutput.Outcome)),
 					slog.String("ip", clientIp.String()),
 					slog.String("user_agent", userAgent),

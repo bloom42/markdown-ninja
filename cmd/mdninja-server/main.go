@@ -128,6 +128,9 @@ var rootCmd = &cobra.Command{
 		pingooClient, err := pingoo.NewClient(ctx, conf.Pingoo.ApiKey, conf.Pingoo.ProjectID, &pingoo.ClientConfig{
 			Url:    conf.Pingoo.Url,
 			Logger: logger,
+			GetLogger: func(ctx context.Context) *slog.Logger {
+				return slogx.FromCtx(ctx)
+			},
 		})
 		if err != nil {
 			return err

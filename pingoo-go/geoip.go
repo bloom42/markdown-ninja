@@ -58,7 +58,8 @@ func (client *Client) geoipSetDatabase(ctx context.Context, database []byte) (re
 }
 
 func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
-	client.logger.Debug("pingoo: starting geoip database refresh")
+	logger := client.getLogger(ctx)
+	logger.Debug("pingoo: starting geoip database refresh")
 
 	currentGeoipDBEtag := client.geoipDBEtag.Load()
 	if currentGeoipDBEtag == nil {
@@ -72,7 +73,7 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 	defer geoipDbRes.Data.Close()
 
 	if geoipDbRes.NotModified || geoipDbRes.Etag == *currentGeoipDBEtag {
-		client.logger.Debug("pingoo: no new geoip database is available")
+		logger.Debug("pingoo: no new geoip database is available")
 		return nil
 	}
 
@@ -98,12 +99,14 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 
 	client.geoipDBEtag.Store(&geoipDbRes.Etag)
 
-	client.logger.Info("geoip: geoip database successfully refreshed")
+	logger.Info("geoip: geoip database successfully refreshed")
 
 	return nil
 }
 
 func (client *Client) refreshGeoipDatabaseInBackground(ctx context.Context) {
+	logger := client.getLogger(ctx)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -116,7 +119,7 @@ func (client *Client) refreshGeoipDatabaseInBackground(ctx context.Context) {
 			return retryErr
 		}, retry.Context(ctx), retry.Attempts(15), retry.Delay(time.Minute), retry.DelayType(retry.FixedDelay))
 		if err != nil {
-			client.logger.Warn("pingoo: error refreshing geoip database: " + err.Error())
+			logger.Warn("pingoo: error refreshing geoip database: " + err.Error())
 		}
 	}
 }

@@ -37,7 +37,7 @@ type ClientConfig struct {
 	Url        *string
 	HttpClient *http.Client
 	Logger     *slog.Logger
-	GetLogger  func(req *http.Request) *slog.Logger
+	GetLogger  func(context.Context) *slog.Logger
 }
 
 type Client struct {
@@ -46,7 +46,6 @@ type Client struct {
 	apiKey     string
 	apiBaseUrl string
 	httpClient *http.Client
-	logger     *slog.Logger
 
 	dnsResolver *net.Resolver
 
@@ -65,7 +64,7 @@ type Client struct {
 	geoipDBRefreshInterval time.Duration
 	geoipDBEtag            atomic.Pointer[string]
 
-	getLogger func(req *http.Request) *slog.Logger
+	getLogger func(context.Context) *slog.Logger
 }
 
 type ApiError struct {
@@ -112,11 +111,18 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 		},
 	}
 
-	getLogger := config.GetLogger
-	if getLogger == nil {
-		getLogger = func(req *http.Request) *slog.Logger {
+	getLoggerInner := config.GetLogger
+	if getLoggerInner == nil {
+		getLoggerInner = func(context.Context) *slog.Logger {
 			return logger
 		}
+	}
+	getLogger := func(context.Context) *slog.Logger {
+		loggerFromCtx := getLoggerInner(ctx)
+		if loggerFromCtx != nil {
+			return loggerFromCtx
+		}
+		return logger
 	}
 
 	client = &Client{
@@ -125,7 +131,6 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 		projectId:           projectId,
 		apiKey:              apiKey,
 		httpClient:          httpClient,
-		logger:              logger,
 		jwksRefreshInterval: time.Minute,
 		dnsResolver:         dnsResolver,
 

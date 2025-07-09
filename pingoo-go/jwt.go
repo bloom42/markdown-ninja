@@ -44,6 +44,8 @@ func VerifyJWT[C any](ctx context.Context, client *Client, token string) (claims
 }
 
 func (client *Client) refreshJwksInBackground(ctx context.Context) {
+	logger := client.getLogger(ctx)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -56,13 +58,14 @@ func (client *Client) refreshJwksInBackground(ctx context.Context) {
 			return retryErr
 		}, retry.Context(ctx), retry.Attempts(5), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 		if err != nil {
-			client.logger.Warn("pingoo: error refreshing JWKS: " + err.Error())
+			logger.Warn("pingoo: error refreshing JWKS: " + err.Error())
 		}
 	}
 }
 
 func (client *Client) refreshJwks(ctx context.Context) error {
 	var jwksRes jwt.Jwks
+	logger := client.getLogger(ctx)
 
 	err := client.request(ctx, requestParams{
 		Method: http.MethodGet,
@@ -75,7 +78,7 @@ func (client *Client) refreshJwks(ctx context.Context) error {
 	// TODO: validate JWKS?
 	client.setJwtKeys(ctx, jwksRes)
 
-	client.logger.Debug("pingoo: JWKS successfully refreshed")
+	logger.Debug("pingoo: JWKS successfully refreshed")
 
 	return nil
 }
