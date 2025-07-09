@@ -48,7 +48,7 @@ func convertHttpheaders(headers http.Header) []httpHeader {
 	return ret
 }
 
-func (client *Client) analyzeRequest(ctx context.Context, input analyzeRequestInput, res http.ResponseWriter) (ret analyzeRequestOutput, err error) {
+func (client *Client) analyzeRequest(ctx context.Context, input analyzeRequestInput) (ret analyzeRequestOutput, err error) {
 	analyzeRequestRes, err := callWasmGuestFunction[analyzeRequestInput, analyzeRequestOutput](ctx, client, "analyze_request", input)
 	if err != nil {
 		return
@@ -56,7 +56,7 @@ func (client *Client) analyzeRequest(ctx context.Context, input analyzeRequestIn
 
 	switch analyzeRequestRes.Outcome {
 	case AnalyzeRequestOutcomeVerifiedBot:
-		return client.verifyBot(ctx, input, res)
+		return client.verifyBot(ctx, input)
 	default:
 		return analyzeRequestRes, nil
 	}
@@ -71,10 +71,9 @@ type verifyBotInput struct {
 	IpHostname string `json:"ip_hostname"`
 }
 
-func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput, res http.ResponseWriter) (ret analyzeRequestOutput, err error) {
+func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput) (ret analyzeRequestOutput, err error) {
 	ipHostnameRes, err := client.resolveHostForIp(ctx, lookupHostInput{IpAddress: input.Ip})
 	if err != nil {
-		client.serveInternalError(res)
 		return
 	}
 

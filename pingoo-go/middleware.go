@@ -110,7 +110,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				HttpVersionMinor: int64(req.ProtoMinor),
 				Headers:          convertHttpheaders(req.Header),
 			}
-			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput, res)
+			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput)
 			if err != nil {
 				// fail open
 				client.logger.Error(err.Error(),
