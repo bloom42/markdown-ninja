@@ -15,10 +15,6 @@ import (
 	"markdown.ninja/pingoo-go/wasm"
 )
 
-const (
-	AsUnknown string = "AS0"
-)
-
 type GeoipRecord struct {
 	AsName  string `json:"as_name"`
 	ASN     int64  `json:"asn"`
