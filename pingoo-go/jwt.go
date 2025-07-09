@@ -33,10 +33,7 @@ func VerifyJWT[C any](ctx context.Context, client *Client, token string) (claims
 	wasmOutput, err := callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "jwt_verify", wasmInput)
 	if err != nil && strings.Contains(err.Error(), "key not found") {
 		// if key was not found, refresh keys and revalidate
-		err = client.refreshJwks(ctx)
-		if err != nil {
-			return
-		}
+		client.refreshJwks(ctx)
 		wasmOutput, err = callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "jwt_verify", wasmInput)
 	}
 	if err != nil {
