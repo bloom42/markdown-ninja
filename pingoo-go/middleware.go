@@ -132,7 +132,11 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 
 			default:
 				// fail open
-				client.logger.Error("pingoo.Middleware: unknown outcome", slog.String("outcome", string(analyzeRequestOutput.Outcome)))
+				client.logger.Error("pingoo.Middleware: unknown outcome",
+					slog.String("outcome", string(analyzeRequestOutput.Outcome)),
+					slog.String("ip", clientIp.String()),
+					slog.Int64("asn", geoipInfo.ASN),
+				)
 			}
 
 			nextMiddleware.ServeHTTP(res, req)
