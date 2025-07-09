@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bloom42/stdx-go/retry"
@@ -30,6 +31,14 @@ func VerifyJWT[C any](ctx context.Context, client *Client, token string) (claims
 		Token: token,
 	}
 	wasmOutput, err := callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "jwt_verify", wasmInput)
+	if err != nil && strings.Contains(err.Error(), "key not found") {
+		// if key was not found, refresh keys and revalidate
+		err = client.refreshJwks(ctx)
+		if err != nil {
+			return
+		}
+		wasmOutput, err = callWasmGuestFunction[verifyJwtInput, verifyJwtOutput[C]](ctx, client, "jwt_verify", wasmInput)
+	}
 	if err != nil {
 		return claims, fmt.Errorf("pingoo.VerifyJWT: error calling jwt_verify wasm function: %w", err)
 	}
