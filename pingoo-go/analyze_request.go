@@ -3,7 +3,6 @@ package pingoo
 import (
 	"context"
 	"net/http"
-	"net/netip"
 	"strings"
 )
 
@@ -37,7 +36,7 @@ const (
 	AnalyzeRequestOutcomeChallenge   AnalyzeRequestOutcome = "challenge"
 )
 
-type AnalyzeRequestOutput struct {
+type analyzeRequestOutput struct {
 	Outcome AnalyzeRequestOutcome `json:"outcome"`
 }
 
@@ -49,16 +48,15 @@ func convertHttpheaders(headers http.Header) []httpHeader {
 	return ret
 }
 
-func (client *Client) analyzeRequest(ctx context.Context, input analyzeRequestInput, clientIp netip.Addr, nextMiddleware http.Handler, res http.ResponseWriter, req *http.Request) (ret AnalyzeRequestOutput, err error) {
-	analyzeRequestRes, err := callWasmGuestFunction[analyzeRequestInput, AnalyzeRequestOutput](ctx, client, "analyze_request", input)
+func (client *Client) analyzeRequest(ctx context.Context, input analyzeRequestInput, res http.ResponseWriter) (ret analyzeRequestOutput, err error) {
+	analyzeRequestRes, err := callWasmGuestFunction[analyzeRequestInput, analyzeRequestOutput](ctx, client, "analyze_request", input)
 	if err != nil {
 		return
 	}
 
 	switch analyzeRequestRes.Outcome {
 	case AnalyzeRequestOutcomeVerifiedBot:
-		client.verifyBot(ctx, input, nextMiddleware, res, req)
-		return
+		return client.verifyBot(ctx, input, res)
 	default:
 		return analyzeRequestRes, nil
 	}
@@ -73,7 +71,7 @@ type verifyBotInput struct {
 	IpHostname string `json:"ip_hostname"`
 }
 
-func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput, nextMiddleware http.Handler, res http.ResponseWriter, req *http.Request) (ret AnalyzeRequestOutput, err error) {
+func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput, res http.ResponseWriter) (ret analyzeRequestOutput, err error) {
 	ipHostnameRes, err := client.resolveHostForIp(ctx, lookupHostInput{IpAddress: input.Ip})
 	if err != nil {
 		client.serveInternalError(res)
@@ -88,5 +86,5 @@ func (client *Client) verifyBot(ctx context.Context, input analyzeRequestInput, 
 		Path:       input.Path,
 		IpHostname: ipHostnameRes.Hostname,
 	}
-	return callWasmGuestFunction[verifyBotInput, AnalyzeRequestOutput](ctx, client, "verify_bot", verifyBotInputData)
+	return callWasmGuestFunction[verifyBotInput, analyzeRequestOutput](ctx, client, "verify_bot", verifyBotInputData)
 }

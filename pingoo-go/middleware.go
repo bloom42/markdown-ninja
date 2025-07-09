@@ -110,11 +110,14 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				HttpVersionMinor: int64(req.ProtoMinor),
 				Headers:          convertHttpheaders(req.Header),
 			}
-			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput, clientIp, nextMiddleware, res, req)
+			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput, res)
 			if err != nil {
 				// fail open
-				client.logger.Error(err.Error(), slog.String("user_agent", userAgent),
-					slog.String("ip_address", clientIp.String()), slog.Int64("asn", geoipInfo.ASN))
+				client.logger.Error(err.Error(),
+					slog.String("user_agent", userAgent),
+					slog.String("ip_address", clientIp.String()),
+					slog.Int64("asn", geoipInfo.ASN),
+				)
 				nextMiddleware.ServeHTTP(res, req)
 				return
 			}
