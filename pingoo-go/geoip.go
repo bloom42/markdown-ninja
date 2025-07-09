@@ -20,13 +20,9 @@ const (
 )
 
 type GeoipRecord struct {
-	// AsDomain string `maxminddb:"as_domain"`
-	AsName string `json:"as_name"`
-	ASN    int64  `json:"-"`
-	// Continent     string `maxminddb:"continent"`
-	// ContinentName string `maxminddb:"continent_name"`
+	AsName  string `json:"as_name"`
+	ASN     int64  `json:"asn"`
 	Country string `json:"country"`
-	// CountryName   string `maxminddb:"country_name"`
 }
 
 type geoipLookupInput struct {

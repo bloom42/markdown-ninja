@@ -87,7 +87,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 
 			geoipInfo, err := client.GeoipLookup(ctx, clientIp)
 			if err != nil {
-				logger.Error(fmt.Sprintf("pingoo.Middleware: looking up geip information [%s]: %s", clientIpStr, err))
+				logger.Error(fmt.Sprintf("pingoo.Middleware: looking up geoip information [%s]: %s", clientIpStr, err))
 			}
 
 			ctx = context.WithValue(ctx, CtxKeyGeoip, geoipInfo)
