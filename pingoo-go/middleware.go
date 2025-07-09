@@ -123,7 +123,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 			}
 
 			switch analyzeRequestOutput.Outcome {
-			case AnalyzeRequestOutcomeAllowed:
+			case AnalyzeRequestOutcomeAllowed, AnalyzeRequestOutcomeVerifiedBot:
 				break
 			case AnalyzeRequestOutcomeBlocked:
 				client.serveBlockedResponse(res)
