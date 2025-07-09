@@ -135,6 +135,8 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				client.logger.Error("pingoo.Middleware: unknown outcome",
 					slog.String("outcome", string(analyzeRequestOutput.Outcome)),
 					slog.String("ip", clientIp.String()),
+					slog.String("user_agent", userAgent),
+					slog.String("path", path),
 					slog.Int64("asn", geoipInfo.ASN),
 				)
 			}
