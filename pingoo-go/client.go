@@ -3,7 +3,6 @@ package pingoo
 import (
 	"bytes"
 	"context"
-	cryptorand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,22 +11,15 @@ import (
 	"math/rand/v2"
 	"net"
 	"net/http"
-	"net/netip"
-	"os"
-	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/memorycache"
 	"github.com/bloom42/stdx-go/retry"
 	"github.com/bloom42/stdx-go/uuid"
 	"github.com/klauspost/compress/zstd"
 	"github.com/tetratelabs/wazero"
-	wazeroapi "github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 	"markdown.ninja/pingoo-go/wasm"
 )
 
@@ -45,6 +37,7 @@ type ClientConfig struct {
 	Url        *string
 	HttpClient *http.Client
 	Logger     *slog.Logger
+	GetLogger  func(req *http.Request) *slog.Logger
 }
 
 type Client struct {
@@ -61,17 +54,18 @@ type Client struct {
 	// jwks                jwt.Jwks
 	// jwksMutex           sync.RWMutex
 
-	wasmRuntime        wazero.Runtime
-	compiledWasmModule wazero.CompiledModule
+	wasmRuntime wazero.Runtime
+	// compiledWasmModule wazero.CompiledModule
 	// wasmModulePool     *sync.Pool
-	wasmModule      *wasm.Module
-	wasmModuleMutex sync.Mutex
+	wasmModule          *wasm.Module
+	wasmModuleMutex     sync.Mutex
+	wasmRefreshInterval time.Duration
+	wasmEtag            atomic.Pointer[string]
 
 	geoipDBRefreshInterval time.Duration
-	// hex-encoded SHA3-256 hash of the geoip database
-	geoipDBHash atomic.Pointer[string]
+	geoipDBEtag            atomic.Pointer[string]
 
-	allowedBotIps *memorycache.Cache[netip.Addr, bool]
+	getLogger func(req *http.Request) *slog.Logger
 }
 
 type ApiError struct {
@@ -118,10 +112,12 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 		},
 	}
 
-	allowedBotIps := memorycache.New(
-		memorycache.WithTTL[netip.Addr, bool](7*24*time.Hour), // 7 days
-		memorycache.WithCapacity[netip.Addr, bool](20_000),
-	)
+	getLogger := config.GetLogger
+	if getLogger == nil {
+		getLogger = func(req *http.Request) *slog.Logger {
+			return logger
+		}
+	}
 
 	client = &Client{
 		pingooURL:           url,
@@ -133,129 +129,30 @@ func NewClient(ctx context.Context, apiKey string, projectID string, config *Cli
 		jwksRefreshInterval: time.Minute,
 		dnsResolver:         dnsResolver,
 
-		wasmRuntime:        nil,
-		compiledWasmModule: nil,
-		wasmModule:         nil,
-		wasmModuleMutex:    sync.Mutex{},
+		wasmRuntime: nil,
+		// compiledWasmModule:  nil,
+		wasmModule:          nil,
+		wasmModuleMutex:     sync.Mutex{},
+		wasmRefreshInterval: time.Minute,
+		wasmEtag:            atomic.Pointer[string]{},
 
 		geoipDBRefreshInterval: 12 * time.Hour,
-		geoipDBHash:            atomic.Pointer[string]{},
-		allowedBotIps:          allowedBotIps,
+		geoipDBEtag:            atomic.Pointer[string]{},
+
+		getLogger: getLogger,
 	}
 
 	// WASM
 
-	logger.Debug("pingoo: downloading pingoo.wasm")
-
-	pingooWasmBytes := bytes.NewBuffer(make([]byte, 0, 2_000_000)) // 2MB
 	err = retry.Do(func() error {
-		pingooWasmDownload, retryErr := client.DownloadPingooWasm(ctx, "")
-		if retryErr != nil {
-			return fmt.Errorf("downloading file: %w", retryErr)
-		}
-		defer pingooWasmDownload.Data.Close()
-		_, retryErr = io.Copy(pingooWasmBytes, pingooWasmDownload.Data)
-		if retryErr != nil {
-			return fmt.Errorf("copying bytes: %w", retryErr)
-		}
-		return nil
+		retryErr := client.refreshPingooWasm(ctx)
+		return retryErr
 	}, retry.Context(ctx), retry.Attempts(15), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 	if err != nil {
 		return nil, fmt.Errorf("pingoo: error downloading pingoo.wasm: %w", err)
 	}
 
-	logger.Debug("pingoo: pingoo.wasm successfully downloaded", slog.Int("size", pingooWasmBytes.Len()))
-
-	wasmCtx := context.Background()
-
-	// See https://github.com/tetratelabs/wazero/issues/2156
-	// and https://github.com/wasilibs/go-re2/blob/main/internal/re2_wazero.go
-	// for imformation about how to configure wazero to use a WASM lib using WASM memory
-	// wasmCtx = experimental.WithMemoryAllocator(wasmCtx, wazeroallocator.NewNonMoving())
-
-	// More wazero docs:
-	// How to use HostFunctionBuilder with multiple goroutines? https://github.com/tetratelabs/wazero/issues/2217
-	// Clarification on concurrency semantics for invocations https://github.com/tetratelabs/wazero/issues/2292
-	// Improve InstantiateModule concurrency performance https://github.com/tetratelabs/wazero/issues/602
-	// Add option to change Memory capacity https://github.com/tetratelabs/wazero/issues/500
-	// Document best practices around invoking a wasi module multiple times https://github.com/tetratelabs/wazero/issues/985
-	// API shape https://github.com/tetratelabs/wazero/issues/425
-
-	client.wasmRuntime = wazero.NewRuntimeWithConfig(wasmCtx, wazero.NewRuntimeConfigCompiler().WithCoreFeatures(wazeroapi.CoreFeaturesV2|experimental.CoreFeaturesThreads).WithMemoryLimitPages(65536))
-
-	wasi_snapshot_preview1.MustInstantiate(wasmCtx, client.wasmRuntime)
-
-	// enabling WASM memory leads to crashes in some Virtual Machines:
-	// fatal error: runtime: out of memory
-	// github.com/tetratelabs/wazero@v1.9.0/runtime.go:302
-	// ...
-	// github.com/tetratelabs/wazero@v1.9.0/internal/wasm/memory.go:92
-	// _, err = client.wasmRuntime.InstantiateWithConfig(wasmCtx, assets.MemoryWasm, wazero.NewModuleConfig().WithName("env"))
-	// if err != nil {
-	// 	return nil, fmt.Errorf("pingoo: error instantiating wasm memory module: %w", err)
-	// }
-
-	_, err = client.wasmRuntime.NewHostModuleBuilder("host").
-		NewFunctionBuilder().WithFunc(func(ctx context.Context, input wasm.Buffer) wasm.Buffer {
-		return wasm.HandleHostFunctionCall(ctx, client.resolveHostForIp, input)
-	}).Export("dns_lookup_ip_address").
-		Instantiate(wasmCtx)
-	if err != nil {
-		return nil, fmt.Errorf("pingoo: error instantiating wasm host module (host): %w", err)
-	}
-
-	client.compiledWasmModule, err = client.wasmRuntime.CompileModule(wasmCtx, pingooWasmBytes.Bytes())
-	if err != nil {
-		return nil, fmt.Errorf("pingoo: error compiling wasm pingoo module: %w", err)
-	}
-
-	instantiatedWasmModule, err := client.wasmRuntime.InstantiateModule(wasmCtx, client.compiledWasmModule, wazero.NewModuleConfig().
-		WithStartFunctions("_initialize").WithSysNanosleep().WithSysNanotime().WithSysWalltime().WithName("").WithRandSource(cryptorand.Reader).WithStdout(os.Stdout).WithStderr(os.Stderr),
-	// for debugging
-	// .WithStdout(os.Stdout).WithStderr(os.Stderr),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("pingoo: error instantiating WASM module: %w", err)
-	}
-
-	client.wasmModule, err = wasm.NewModule(instantiatedWasmModule)
-	if err != nil {
-		return nil, fmt.Errorf("pingoo: error instantiating WASM module: %w", err)
-	}
-
-	runtime.SetFinalizer(client.wasmModule, func(module *wasm.Module) {
-		module.Close(wasmCtx)
-	})
-
-	// as recommended in https://github.com/tetratelabs/wazero/issues/2217
-	// we use a sync.Pool of wasm modules in order to handle concurrent calls of WASM functions
-	// client.wasmModulePool = &sync.Pool{
-	// 	New: func() any {
-	// 		// poolObjectCtx := context.Background()
-	// 		instantiatedWasmModule, err := client.wasmRuntime.InstantiateModule(wasmCtx, client.compiledWasmModule, wazero.NewModuleConfig().
-	// 			WithStartFunctions("_initialize").WithSysNanosleep().WithSysNanotime().WithSysWalltime().WithName("").WithRandSource(cryptorand.Reader).WithStdout(os.Stdout).WithStderr(os.Stderr),
-	// 		// for debugging
-	// 		// .WithStdout(os.Stdout).WithStderr(os.Stderr),
-	// 		)
-	// 		if err != nil {
-	// 			logger.Error("waf.wasmModulePool.New: error instantiating WASM module", slogx.Err(err))
-	// 			return nil
-	// 		}
-
-	// 		poolObject, err := wasm.NewModule(instantiatedWasmModule)
-	// 		if err != nil {
-	// 			logger.Error("waf.wasmModulePool.New: error instantiating WASM module", slogx.Err(err))
-	// 			return nil
-	// 		}
-
-	// 		// use a finalizer to Close the module, as recommended in https://github.com/golang/go/issues/23216
-	// 		runtime.SetFinalizer(poolObject, func(module *wasm.Module) {
-	// 			module.Close(wasmCtx)
-	// 		})
-
-	// 		return poolObject
-	// 	},
-	// }
+	// go client.refreshPingooWasmInBackground(ctx)
 
 	// JWKS
 

@@ -3,8 +3,6 @@ package pingoo
 import (
 	"bytes"
 	"context"
-	"crypto/sha3"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/netip"
@@ -70,18 +68,18 @@ func (client *Client) geoipSetDatabase(ctx context.Context, database []byte) (re
 func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 	client.logger.Debug("pingoo: starting geoip database refresh")
 
-	currentGeoipDBHash := client.geoipDBHash.Load()
-	if currentGeoipDBHash == nil {
-		currentGeoipDBHash = opt.String("")
+	currentGeoipDBEtag := client.geoipDBEtag.Load()
+	if currentGeoipDBEtag == nil {
+		currentGeoipDBEtag = opt.String("")
 	}
 
-	geoipDbRes, err := client.DownloadLatestGeoipDatabase(ctx, *currentGeoipDBHash)
+	geoipDbRes, err := client.DownloadLatestGeoipDatabase(ctx, *currentGeoipDBEtag)
 	if err != nil {
 		return fmt.Errorf("pingoo: error downloading geoip database: %w", err)
 	}
 	defer geoipDbRes.Data.Close()
 
-	if geoipDbRes.NotModified || geoipDbRes.Etag == *currentGeoipDBHash {
+	if geoipDbRes.NotModified || geoipDbRes.Etag == *currentGeoipDBEtag {
 		client.logger.Debug("pingoo: no new geoip database is available")
 		return nil
 	}
@@ -94,8 +92,6 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 	}
 	err = nil
 
-	geoipDBHash := sha3.Sum256(geoipDbBuffer.Bytes())
-	geoipDBHashHex := hex.EncodeToString(geoipDBHash[:])
 	// if res.Etag != "" && res.Etag != geoipDbHashHex {
 	// 	logger.Error("geoip: downloaded geoip database hash doesn't match etag",
 	// 		slog.String("algorithm", "SHA3-256"), slog.String("encoding", "hex"),
@@ -103,17 +99,12 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 	// 	)
 	// }
 
-	// mmdbDBReader, err := openAndValidateGeoipDatabase(geoipDbBuffer.Bytes())
-	// if err != nil {
-	// 	return err
-	// }
-
 	_, err = client.geoipSetDatabase(ctx, geoipDbBuffer.Bytes())
 	if err != nil {
 		return fmt.Errorf("pingoo: error downloading geoip database: %w", err)
 	}
 
-	client.geoipDBHash.Store(&geoipDBHashHex)
+	client.geoipDBEtag.Store(&geoipDbRes.Etag)
 
 	client.logger.Info("geoip: geoip database successfully refreshed")
 

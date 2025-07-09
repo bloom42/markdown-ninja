@@ -14,7 +14,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/memorycache"
 	"markdown.ninja/pingoo-go/rules"
 )
 
@@ -46,7 +45,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 	if config == nil {
 		config = &MiddlewareConfig{}
 	}
-	return func(next http.Handler) http.Handler {
+	return func(nextMiddleware http.Handler) http.Handler {
 		fn := func(res http.ResponseWriter, req *http.Request) {
 
 			// we need to apply the response rules BEFORE forwarding to the other middlewares / response
@@ -63,6 +62,7 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 			userAgent := strings.TrimSpace(req.UserAgent())
 			var err error
 			path := req.URL.Path
+			logger := client.getLogger(req)
 
 			ctx := req.Context()
 
@@ -73,64 +73,69 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				return
 			}
 
-			if strings.HasPrefix(path, "/__pingoo/") {
-				client.handleHttpRequest(ctx, res, req)
-				return
-			}
-
 			clientIpStr, _, err := net.SplitHostPort(req.RemoteAddr)
 			if err != nil {
-				client.logger.Error(fmt.Sprintf("pingoo.Middleware: RemoteAddr (%s) is not valid: %s", clientIpStr, err))
+				logger.Error(fmt.Sprintf("pingoo.Middleware: RemoteAddr (%s) is not valid: %s", clientIpStr, err))
 				clientIpStr = "0.0.0.0"
 			}
 
 			clientIp, err := netip.ParseAddr(clientIpStr)
 			if err != nil {
-				client.logger.Error(fmt.Sprintf("pingoo.Middleware: error parsing client IP [%s]: %s", clientIpStr, err))
+				logger.Error(fmt.Sprintf("pingoo.Middleware: error parsing client IP [%s]: %s", clientIpStr, err))
 				clientIp = netip.AddrFrom4([4]byte{0, 0, 0, 0})
 			}
 
 			geoipInfo, err := client.GeoipLookup(ctx, clientIp)
 			if err != nil {
-				client.logger.Error(fmt.Sprintf("pingoo.Middleware: looking up geip information [%s]: %s", clientIpStr, err))
+				logger.Error(fmt.Sprintf("pingoo.Middleware: looking up geip information [%s]: %s", clientIpStr, err))
 			}
 
 			ctx = context.WithValue(ctx, CtxKeyGeoip, geoipInfo)
 			req = req.WithContext(ctx)
 
-			analyzeRequestInput := AnalyzeRequestInput{
+			if strings.HasPrefix(path, "/__pingoo/") {
+				client.handleHttpRequest(ctx, clientIp, res, req)
+				return
+			}
+
+			analyzeRequestInput := analyzeRequestInput{
 				HttpMethod:       req.Method,
+				Hostname:         req.Host,
 				UserAgent:        userAgent,
-				IpAddress:        clientIp.String(),
+				Ip:               clientIp.String(),
 				Asn:              geoipInfo.ASN,
 				Country:          geoipInfo.Country,
 				Path:             req.URL.Path,
 				HttpVersionMajor: int64(req.ProtoMajor),
 				HttpVersionMinor: int64(req.ProtoMinor),
+				Headers:          convertHttpheaders(req.Header),
 			}
-			analyzeRequestOutput, err := client.AnalyzeRequest(ctx, analyzeRequestInput)
+			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput, clientIp, nextMiddleware, res, req)
 			if err != nil {
 				// fail open
 				client.logger.Error(err.Error(), slog.String("user_agent", userAgent),
 					slog.String("ip_address", clientIp.String()), slog.Int64("asn", geoipInfo.ASN))
-				next.ServeHTTP(res, req)
+				nextMiddleware.ServeHTTP(res, req)
 				return
 			}
 
 			switch analyzeRequestOutput.Outcome {
+			case AnalyzeRequestOutcomeAllowed:
+				break
 			case AnalyzeRequestOutcomeBlocked:
 				client.serveBlockedResponse(res)
 				return
-			case AnalyzeRequestOutcomeAllowed:
-				break
-			case AnalyzeRequestOutcomeVerifiedBot:
-				client.allowedBotIps.Set(clientIp, true, memorycache.DefaultTTL)
+			case AnalyzeRequestOutcomeChallenge:
+				req.URL.Path = "/__pingoo/challenge"
+				client.handleHttpRequest(ctx, clientIp, res, req)
+				return
+
 			default:
 				// fail open
 				client.logger.Error("pingoo.Middleware: unknown outcome", slog.String("outcome", string(analyzeRequestOutput.Outcome)))
 			}
 
-			next.ServeHTTP(res, req)
+			nextMiddleware.ServeHTTP(res, req)
 		}
 		return http.HandlerFunc(fn)
 	}
@@ -148,5 +153,20 @@ func (client *Client) serveBlockedResponse(res http.ResponseWriter) {
 	res.Header().Set(httpx.HeaderContentType, httpx.MediaTypeTextUtf8)
 	res.Header().Set(httpx.HeaderContentLength, strconv.FormatInt(int64(len(message)), 10))
 	res.WriteHeader(http.StatusForbidden)
+	res.Write([]byte(message))
+}
+
+func (client *Client) serveInternalError(res http.ResponseWriter) {
+	sleepForMs := rand.Int64N(500) + 1000
+	time.Sleep(time.Duration(sleepForMs) * time.Millisecond)
+
+	message := "Internal Error. Please try again.\n"
+
+	res.Header().Set(httpx.HeaderConnection, "close")
+	res.Header().Del(httpx.HeaderETag)
+	res.Header().Set(httpx.HeaderCacheControl, httpx.CacheControlNoCache)
+	res.Header().Set(httpx.HeaderContentType, httpx.MediaTypeTextUtf8)
+	res.Header().Set(httpx.HeaderContentLength, strconv.FormatInt(int64(len(message)), 10))
+	res.WriteHeader(http.StatusInternalServerError)
 	res.Write([]byte(message))
 }

@@ -21,12 +21,8 @@ func (client *Client) resolveHostForIp(ctx context.Context, input lookupHostInpu
 	var hosts []string
 	err := retry.Do(func() (retryErr error) {
 		hosts, retryErr = client.dnsResolver.LookupAddr(ctx, input.IpAddress)
-		if retryErr != nil {
-			return retryErr
-		}
-
-		return nil
-	}, retry.Context(ctx), retry.Attempts(4), retry.Delay(50*time.Millisecond))
+		return retryErr
+	}, retry.Context(ctx), retry.Attempts(5), retry.Delay(10*time.Millisecond))
 	if err != nil {
 		return lookupHostOutput{}, fmt.Errorf("waf: error resolving hosts for IP address (%s): %w", input.IpAddress, err)
 	}
