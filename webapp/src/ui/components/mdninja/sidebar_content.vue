@@ -120,6 +120,7 @@ function onRouteChanged() {
       { name: 'Posts', to: `/websites/${websiteId}/posts`, icon: markRaw(FeatherIcon) },
       { name: 'Pages', to: `/websites/${websiteId}/pages`, icon: DocumentTextIcon },
       { name: 'Assets & Media', to: `/websites/${websiteId}/assets`, icon: PhotoIcon },
+      { name: 'Newsletters', to: `/websites/${websiteId}/newsletters`, icon: markRaw(SendIcon) },
       { name: 'Contacts', to: `/websites/${websiteId}/contacts`, icon: markRaw(BookUserIcon) },
       {
         name: 'Settings',
@@ -142,7 +143,6 @@ function onRouteChanged() {
         name: 'Beta',
         icon: SparklesIcon,
         children: [
-          { name: 'Newsletters', to: `/websites/${websiteId}/newsletters`, icon: markRaw(SendIcon) },
           { name: 'Products', to: `/websites/${websiteId}/products`, icon: ShoppingCartIcon },
           { name: 'Coupons', to: `/websites/${websiteId}/coupons`, icon: ReceiptPercentIcon },
           { name: 'Orders', to: `/websites/${websiteId}/orders`, icon: ListBulletIcon },
