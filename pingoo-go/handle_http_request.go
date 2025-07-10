@@ -25,10 +25,10 @@ func (client *Client) handleHttpRequest(ctx context.Context, ip netip.Addr, res 
 	logger.Debug("pingoo.handleHttpRequest: " + req.URL.Path)
 
 	switch req.URL.Path {
-	case "/__pingoo/challenge/api/init":
+	case "/__pingoo/api/challenge/init":
 		client.handleChallengeInitRequest(ctx, ip, res, req)
 		return
-	case "/__pingoo/challenge/api/verify":
+	case "/__pingoo/api/challenge/verify":
 		client.handleChallengeVerifyRequest(ctx, ip, res, req)
 		return
 	}

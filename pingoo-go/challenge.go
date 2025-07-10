@@ -49,10 +49,6 @@ type challengeVerifyOutput struct {
 	Cookies []string `json:"cookies"`
 }
 
-type challengeVerifyResponseBody struct {
-	Ok bool `json:"ok"`
-}
-
 func (client *Client) handleChallengeInitRequest(ctx context.Context, ip netip.Addr, res http.ResponseWriter, req *http.Request) {
 	logger := client.getLogger(ctx)
 
@@ -118,6 +114,11 @@ func (client *Client) handleChallengeVerifyRequest(ctx context.Context, ip netip
 		return
 	}
 
+	if len(requestBody.Hash) > 256 || len(requestBody.Nonce) > 256 {
+		client.serveInternalError(res)
+		return
+	}
+
 	var challengeJwt string
 	challengeCookie, _ := req.Cookie("__pingoo_challenge")
 	if challengeCookie != nil {
@@ -150,15 +151,5 @@ func (client *Client) handleChallengeVerifyRequest(ctx context.Context, ip netip
 		res.Header().Add("Set-Cookie", cookie)
 	}
 
-	res.Header().Set("Content-Type", "application/json")
-
 	res.WriteHeader(200)
-
-	err = json.NewEncoder(res).Encode(challengeVerifyResponseBody{Ok: true})
-	if err != nil {
-		logger.Error("pingoo.handleChallengeVerifyRequest: error encoding response to JSON: " + err.Error())
-		// TODO: correct error handling
-		client.serveInternalError(res)
-		return
-	}
 }
