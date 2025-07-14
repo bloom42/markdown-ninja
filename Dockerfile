@@ -1,7 +1,7 @@
 ####################################################################################################
 ## Build webapp & themes
 ####################################################################################################
-FROM --platform=$BUILDPLATFORM node:18 AS builder_js
+FROM --platform=$BUILDPLATFORM node:lts AS builder_js
 
 RUN apt update && apt upgrade -y && \
     apt install -y libimage-exiftool-perl make
@@ -11,23 +11,14 @@ COPY . ./
 
 # build webapp
 WORKDIR /mdninja/webapp
-RUN make exif
-RUN make clean
-RUN make install_ci
-RUN make build
+RUN make exif clean install_ci build
 
 # build themes
 WORKDIR /mdninja/themes/blog
-RUN make exif
-RUN make clean
-RUN make install_ci
-RUN make build
+RUN make exif clean install_ci build
 
 WORKDIR /mdninja/themes/docs
-RUN make exif
-RUN make clean
-RUN make install_ci
-RUN make build
+RUN make exif clean install_ci build
 
 ####################################################################################################
 ## Build mdninja and mdninja-server
