@@ -1,3 +1,5 @@
+FROM node:lts as node
+
 FROM golang:1.24 AS go
 
 FROM ubuntu:24.04
@@ -17,12 +19,17 @@ RUN apt-get install -y --no-install-recommends \
     # useful data. mailcap for mimetypes. tzdata for timezones.
     mailcap tzdata libpcre3-dev \
     # mdninja-server specific dependencies
-    postgresql-client-16 nodejs npm libimage-exiftool-perl
+    postgresql-client-16 libimage-exiftool-perl
 
 # setup node
+COPY --from=node /usr/local/bin/node /usr/local/bin/
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
 RUN npm config set ignore-scripts true
-# npm@10 is the last version compatible with nodejs@18 shipped with Ubuntu 24.04
-RUN npm i -g npm@10
+RUN /usr/local/bin/npm i -g npm@latest
+
 
 # Setup dev user
 ARG USERNAME=dev
