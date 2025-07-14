@@ -4,6 +4,6 @@
     "golang.Go",
     "Vue.volar"
   ],
-  "forwardPorts": [4000, 4001, 4080],
+  "forwardPorts": [4000, 4001, 4080, 4443],
   "runArgs": ["--name", "markdown-ninja-dev"]
 }
