@@ -5,5 +5,5 @@
     "Vue.volar"
   ],
   "forwardPorts": [4000, 4001, 4080],
-  "runArgs": ["--name", "chillchill-dev"]
+  "runArgs": ["--name", "markdown-ninja-dev"]
 }
