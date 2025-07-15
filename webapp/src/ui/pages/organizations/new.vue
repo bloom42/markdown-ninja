@@ -96,7 +96,7 @@ const plans = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '10€ / month',
+    price: '5€ / month (billed yearly)',
   }
 ];
 
@@ -148,8 +148,6 @@ async function createOrganization() {
     $router.push(`/organizations/${res.organization.id}`);
   } catch (err: any) {
     error.value = err.message;
-  } finally {
-    loading.value = false;
   }
 }
 </script>

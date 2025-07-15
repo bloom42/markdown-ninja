@@ -67,12 +67,6 @@ func Start(ctx context.Context, db db.DB, queue queue.Queue, jwtProvider *jwt.Pr
 		return err
 	}
 
-	// every hour at XX:15
-	err = cronScheduler.Schedule("organizations.organizationsDispatchSendUsageData", "0 15 * * * *", scheduler.organizationsDispatchSendUsageData)
-	if err != nil {
-		return err
-	}
-
 	// every 6 hours
 	err = cronScheduler.Schedule("contacts.TaskDeleteOldUnverifiedSessions", "00 01 */6 * * *", contactsService.TaskDeleteOldUnverifiedSessions)
 	if err != nil {
@@ -93,6 +87,12 @@ func Start(ctx context.Context, db db.DB, queue queue.Queue, jwtProvider *jwt.Pr
 
 	// every day at 01:00
 	err = cronScheduler.Schedule("jwt.RotateKeys", "0 0 1 * * *", jwtProvider.RotateKeys)
+	if err != nil {
+		return err
+	}
+
+	// every day at 10:00
+	err = cronScheduler.Schedule("organizations.DispatchInvoiceMonthlyUsage", "0 0 10 * * *", scheduler.organizationsDispatchInvoiceMonthlyUsage)
 	if err != nil {
 		return err
 	}

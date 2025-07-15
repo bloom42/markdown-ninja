@@ -54,7 +54,7 @@ var PlanPro = Plan{
 	Name: "Pro",
 	// Description: "Everything you need to scale your audience",
 	Description: "For bloggers, startups and agencies looking to grow their audience",
-	Price:       10,
+	Price:       5,
 	SelfServe:   true,
 
 	AllowedStorage:          StoragePerSlot, // base: 5GB
@@ -100,7 +100,7 @@ var PlanEnterprise = Plan{
 		"Premium support",
 		"Self-hosting support",
 		"Commercial license",
-		"A lot of other unfair advantages",
+		"And a lot of other unfair advantages",
 		// 'No additional transaction fees',
 		// 'Website with custom domain',
 		// 'Unlimited page views',

@@ -2,7 +2,7 @@
   <sl-select :value="selected" @sl-change="selected = $event.target.value" label="Plan">
     <sl-option v-for="plan in plans" :value="plan.id">
       {{ plan.name }}
-      <span v-if="plan.price">({{ plan.price }} € / month)</span>
+      <span v-if="plan.price">- {{ plan.price }} € / month</span>
     </sl-option>
   </sl-select>
 </template>

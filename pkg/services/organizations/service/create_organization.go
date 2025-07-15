@@ -15,7 +15,6 @@ import (
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
-	"markdown.ninja/pkg/timeutil"
 )
 
 func (service *OrganizationsService) CreateOrganization(ctx context.Context, input organizations.CreateOrganizationInput) (ret organizations.CreateOrganizationOutput, err error) {
@@ -92,7 +91,7 @@ func (service *OrganizationsService) CreateOrganization(ctx context.Context, inp
 		SubscriptionStartedAt: nil,
 		ExtraSlots:            0,
 		PaymentDueSince:       nil,
-		UsageLastSentAt:       nil,
+		UsageLastInvoicedAt:   nil,
 	}
 
 	staff := organizations.Staff{
@@ -106,7 +105,7 @@ func (service *OrganizationsService) CreateOrganization(ctx context.Context, inp
 	if planID != kernel.PlanFree.ID {
 		// create stripe customer
 		var stripeCustomer *stripe.Customer
-		stripeCustomerParams := service.generateStrieCustomerParams(organization)
+		stripeCustomerParams := service.generateStripeCustomerParams(organization)
 		stripeCustomer, err = stripecustomer.New(stripeCustomerParams)
 		if err != nil {
 			err = fmt.Errorf("organizations.CreateOrganization: creating Stripe customer: %w", err)
@@ -123,8 +122,8 @@ func (service *OrganizationsService) CreateOrganization(ctx context.Context, inp
 			return
 		}
 
-		billingAnchor := timeutil.GetFirstDayOfNextMonth(time.Now().UTC()).UTC()
-		checkoutParams := service.generateStripeCheckoutSessionParams(organization, planID, billingAnchor, stripeCheckoutSessionLineItems)
+		// billingAnchor := timeutil.GetFirstDayOfNextMonth(time.Now().UTC()).UTC()
+		checkoutParams := service.generateStripeCheckoutSessionParams(organization, planID, stripeCheckoutSessionLineItems)
 		stripeCheckoutSession, err = session.New(checkoutParams)
 		if err != nil {
 			err = fmt.Errorf("organizations.CreateOrganization: error creating stripe checkout session: %w", err)

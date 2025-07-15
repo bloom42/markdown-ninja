@@ -26,9 +26,17 @@
         <h3 class="font-bold">Name:</h3> &nbsp; <span>{{ organization.name }}</span>
       </div>
 
+      <div class="flex">
+        <h3 class="font-bold">Billing email:</h3> &nbsp; <span>{{ organization.billing_information.email }}</span>
+      </div>
+
 
       <div class="flex">
         <h3 class="font-bold">Plan:</h3> &nbsp; <span>{{ organization.plan }} ({{ organization.extra_slots }} extra slots)</span>
+      </div>
+
+      <div class="flex">
+        <h3 class="font-bold">Payment Due:</h3> &nbsp; <span>{{ organization.payment_due }}</span>
       </div>
 
       <div class="flex">
@@ -132,6 +140,7 @@ async function syncStripeData() {
 
   try {
     await $mdninja.organizationSyncStripe(organizationId);
+    await fetchData();
   } catch (err: any) {
     error.value = err.message;
   } finally {

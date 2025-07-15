@@ -15,12 +15,12 @@ import (
 func (repo *OrganizationsRepository) CreateOrganization(ctx context.Context, db db.Queryer, organization organizations.Organization) (err error) {
 	const query = `INSERT INTO organizations
 	(id, created_at, updated_at, name, plan, billing_information, stripe_customer_id, stripe_subscription_id,
-		payment_due_since, usage_last_sent_at, extra_slots)
+		payment_due_since, usage_last_invoiced_at, extra_slots)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
 	_, err = db.Exec(ctx, query, organization.ID, organization.CreatedAt, organization.UpdatedAt,
 		organization.Name, organization.Plan, organization.BillingInformation, organization.StripeCustomerID, organization.StripeSubscriptionID,
-		organization.PaymentDueSince, organization.UsageLastSentAt, organization.ExtraSlots)
+		organization.PaymentDueSince, organization.UsageLastInvoicedAt, organization.ExtraSlots)
 	if err != nil {
 		err = fmt.Errorf("organizations.CreateOrganization: %w", err)
 		return
@@ -33,13 +33,13 @@ func (repo *OrganizationsRepository) UpdateOrganization(ctx context.Context, db 
 	const query = `UPDATE organizations
 		SET updated_at = $1, name = $2, plan = $3, billing_information = $4, stripe_customer_id = $5,
 			stripe_subscription_id = $6,
-			payment_due_since = $7, usage_last_sent_at = $8, extra_slots = $9
+			payment_due_since = $7, usage_last_invoiced_at = $8, extra_slots = $9
 		WHERE id = $10`
 
 	_, err = db.Exec(ctx, query, organization.UpdatedAt, organization.Name, organization.Plan,
 		organization.BillingInformation, organization.StripeCustomerID, organization.StripeSubscriptionID,
 		organization.PaymentDueSince,
-		organization.UsageLastSentAt, organization.ExtraSlots,
+		organization.UsageLastInvoicedAt, organization.ExtraSlots,
 		organization.ID)
 	if err != nil {
 		err = fmt.Errorf("organizations.UpdateOrganization: %w", err)
@@ -109,6 +109,19 @@ func (repo *OrganizationsRepository) FindOrganizationsForUser(ctx context.Contex
 	err = db.Select(ctx, &ret, query, userID)
 	if err != nil {
 		err = fmt.Errorf("organizations.FindOrganizationsForUser: %w", err)
+		return
+	}
+
+	return
+}
+
+func (repo *OrganizationsRepository) FindOrganizationsByPlan(ctx context.Context, db db.Queryer, planID kernel.PlanID) (ret []organizations.Organization, err error) {
+	ret = make([]organizations.Organization, 0, 4)
+	const query = `SELECT * FROM organizations WHERE plan = $1`
+
+	err = db.Select(ctx, &ret, query, planID)
+	if err != nil {
+		err = fmt.Errorf("organizations.FindOrganizationsByPlan: %w", err)
 		return
 	}
 

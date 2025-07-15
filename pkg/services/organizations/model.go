@@ -78,8 +78,10 @@ type Organization struct {
 	StripeSubscriptionID  *string            `db:"stripe_subscription_id" json:"-"`
 	SubscriptionStartedAt *time.Time         `db:"subscription_started_at" json:"subscription_started_at"`
 	PaymentDueSince       *time.Time         `db:"payment_due_since" json:"-"`
-	UsageLastSentAt       *time.Time         `db:"usage_last_sent_at" json:"-"`
-	ExtraSlots            int64              `db:"extra_slots" json:"extra_slots"`
+	// LastInvoicedUsagePeriodEndsAt
+	// the time at when the last invoiced usage period ends
+	UsageLastInvoicedAt *time.Time `db:"usage_last_invoiced_at" json:"-"`
+	ExtraSlots          int64      `db:"extra_slots" json:"extra_slots"`
 
 	ApiKeys []ApiKey           `db:"-" json:"api_keys"`
 	Staffs  []StaffWithDetails `db:"-" json:"staffs"`

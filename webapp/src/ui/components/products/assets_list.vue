@@ -9,6 +9,9 @@
                 Path
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Size
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -17,6 +20,9 @@
             <tr v-for="asset in assets" :key="asset.id">
               <td class="px-6 py-4 whitespace-nowrap max-w-0">
                 assets/{{ asset.name }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap max-w-0">
+                {{ fileSize(asset.size) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap max-w-0 w-1/5">
                 <div class="flex flex-row space-x-3">
@@ -45,6 +51,7 @@ import { type Asset, type Website } from '@/api/model';
 import { TrashIcon, ArrowDownCircleIcon } from '@heroicons/vue/24/outline'
 import { useMdninja } from '@/api/mdninja';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
+import fileSize from '@/filters/filesize';
 
 // props
 defineProps({

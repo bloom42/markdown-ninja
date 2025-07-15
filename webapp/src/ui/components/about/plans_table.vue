@@ -20,7 +20,7 @@
           {{ plan.name }}
         </h3>
         <p v-if="plan.id === 'pro'" class="rounded-full bg-green-100 px-2.5 py-1 text-xs/5 font-medium text-green-800">
-          Recommended
+          Most Popular
         </p>
         <!-- <p v-if="plan.favorite" class="rounded-full bg-(--primary-color) px-2.5 py-1 text-xs font-semibold leading-5 text-(--primary-color)">
           Favorite

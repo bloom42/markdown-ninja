@@ -51,6 +51,6 @@ type Service interface {
 
 	// Jobs
 	JobSendStaffInvitations(ctx context.Context, input JobSendStaffInvitations) (err error)
-	JobDispatchSendUsageData(ctx context.Context, _ JobDispatchSendUsageData) (err error)
-	JobSendUsageData(ctx context.Context, input JobSendUsageData) (err error)
+	JobInvoiceMonthlyUsage(ctx context.Context, input JobInvoiceMonthlyUsage) (err error)
+	JobDispatchInvoiceMonthlyUsage(ctx context.Context, input JobDispatchInvoiceMonthlyUsage) (err error)
 }

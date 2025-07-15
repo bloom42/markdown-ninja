@@ -130,9 +130,8 @@ type Stripe struct {
 }
 
 type StripePrices struct {
-	Pro    string `json:"pro" yaml:"pro"`
-	Slots  string `json:"slots" yaml:"slots"`
-	Emails string `json:"emails" yaml:"emails"`
+	Pro   string `json:"pro" yaml:"pro"`
+	Slots string `json:"slots" yaml:"slots"`
 }
 
 type Logs struct {
@@ -552,11 +551,6 @@ func cleanAndValdiateStripeConfig(stripeConfig *Stripe) (err error) {
 	stripeConfig.Prices.Slots = strings.TrimSpace(stripeConfig.Prices.Slots)
 	if !strings.HasPrefix(stripeConfig.Prices.Slots, stripePrefixPrice) {
 		return errs.InvalidArgument("config: stripe.prices.slots is not valid")
-	}
-
-	stripeConfig.Prices.Emails = strings.TrimSpace(stripeConfig.Prices.Emails)
-	if !strings.HasPrefix(stripeConfig.Prices.Emails, stripePrefixPrice) {
-		return errs.InvalidArgument("config: stripe.prices.emails is not valid")
 	}
 
 	return

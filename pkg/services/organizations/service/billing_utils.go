@@ -9,6 +9,8 @@ import (
 	"github.com/bloom42/stdx-go/guid"
 	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/stripe/stripe-go/v81"
+	"github.com/stripe/stripe-go/v81/customer"
+	"github.com/stripe/stripe-go/v81/paymentmethod"
 	"github.com/stripe/stripe-go/v81/taxid"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
@@ -21,9 +23,6 @@ func (service *OrganizationsService) getStripeCheckoutSessionLineItemsForPlan(pl
 			{
 				Price:    stripe.String(service.stripeConfig.Prices.Pro),
 				Quantity: stripe.Int64(1),
-			},
-			{
-				Price: stripe.String(service.stripeConfig.Prices.Emails),
 			},
 		}
 
@@ -49,9 +48,6 @@ func (service *OrganizationsService) getStripeSubscriptionLineItemsForPlan(planI
 			{
 				Price:    stripe.String(service.stripeConfig.Prices.Pro),
 				Quantity: stripe.Int64(1),
-			},
-			{
-				Price: stripe.String(service.stripeConfig.Prices.Emails),
 			},
 		}
 
@@ -92,7 +88,7 @@ func (service *OrganizationsService) generateOrganizationBillingUrl(organization
 	return billingUrl.String()
 }
 
-func (service *OrganizationsService) generateStripeCheckoutSessionParams(organization organizations.Organization, planID kernel.PlanID, billingAnchor time.Time, lineItems []*stripe.CheckoutSessionLineItemParams) (stripeCheckoutSessionParams *stripe.CheckoutSessionParams) {
+func (service *OrganizationsService) generateStripeCheckoutSessionParams(organization organizations.Organization, planID kernel.PlanID, lineItems []*stripe.CheckoutSessionLineItemParams) (stripeCheckoutSessionParams *stripe.CheckoutSessionParams) {
 	// if the stripe customer already exists, and the billing address is not empty then we don't ask for the billing address
 	billingAddressCollection := stripe.CheckoutSessionBillingAddressCollectionRequired
 	customerUpdateAddress := "auto"
@@ -114,13 +110,24 @@ func (service *OrganizationsService) generateStripeCheckoutSessionParams(organiz
 		LineItems:                lineItems,
 		SuccessURL:               stripe.String(service.generateStripeCheckoutSessionSuccessUrl(organization.ID, planID)),
 		CancelURL:                stripe.String(service.generateOrganizationBillingUrl(organization.ID)),
-		SavedPaymentMethodOptions: &stripe.CheckoutSessionSavedPaymentMethodOptionsParams{
-			AllowRedisplayFilters: []*string{
-				stripe.String(string(stripe.CheckoutSessionSavedPaymentMethodOptionsAllowRedisplayFilterAlways)),
-			},
-			// for subscriptions the payment method is already saved by default, so there is no need to enable this
-			// PaymentMethodSave: stripe.String(string(stripe.CheckoutSessionSavedPaymentMethodOptionsPaymentMethodSaveEnabled)),
-		},
+		PaymentMethodTypes: stripe.StringSlice([]string{
+			"card", // Add other payment methods as needed
+		}),
+		// SavedPaymentMethodOptions: &stripe.CheckoutSessionSavedPaymentMethodOptionsParams{
+		// 	AllowRedisplayFilters: []*string{
+		// 		stripe.String(string(stripe.CheckoutSessionSavedPaymentMethodOptionsAllowRedisplayFilterAlways)),
+		// 	},
+		// 	// for subscriptions the payment method is already saved by default, so there is no need to enable this
+		// 	// PaymentMethodSave: stripe.String(string(stripe.CheckoutSessionSavedPaymentMethodOptionsPaymentMethodSaveEnabled)),
+		// },
+		// PaymentMethodOptions: &stripe.CheckoutSessionPaymentMethodOptionsParams{
+		// 	Card: &stripe.CheckoutSessionPaymentMethodOptionsCardParams{
+		// 		SetupFutureUsage: stripe.String("off_session"),
+		// 	},
+		// },
+		// PaymentIntentData: &stripe.CheckoutSessionPaymentIntentDataParams{
+		// 	SetupFutureUsage: stripe.String(string(stripe.PaymentIntentSetupFutureUsageOffSession)),
+		// },
 		// PaymentMethodCollection: stripe.String(string(stripe.CheckoutSessionPaymentMethodCollectionAlways)),
 		// PaymentMethodOptions: &stripe.CheckoutSessionPaymentMethodOptionsParams{
 		// 	Card: &stripe.CheckoutSessionPaymentMethodOptionsCardParams{
@@ -146,7 +153,7 @@ func (service *OrganizationsService) generateStripeCheckoutSessionParams(organiz
 			"markdown_ninja_plan":            string(planID),
 		},
 		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-			BillingCycleAnchor: stripe.Int64(billingAnchor.Unix()),
+			// BillingCycleAnchor: stripe.Int64(billingAnchor.Unix()),
 			Metadata: map[string]string{
 				"markdown_ninja_organization_id": organization.ID.String(),
 				"markdown_ninja_plan":            string(planID),
@@ -156,7 +163,7 @@ func (service *OrganizationsService) generateStripeCheckoutSessionParams(organiz
 	return
 }
 
-func (service *OrganizationsService) generateStrieCustomerParams(organization organizations.Organization) (stripeCustomerParams *stripe.CustomerParams) {
+func (service *OrganizationsService) generateStripeCustomerParams(organization organizations.Organization) (stripeCustomerParams *stripe.CustomerParams) {
 	var stripeCustomerTaxIdData []*stripe.CustomerTaxIDDataParams
 
 	if organization.BillingInformation.TaxID != nil {
@@ -265,4 +272,47 @@ func (service *OrganizationsService) updateStripeTaxIDIfNeeded(ctx context.Conte
 		}
 	}
 	return
+}
+
+func (service *OrganizationsService) getDefaultPaymentMethodForStripeCustomer(_ctx context.Context, stripeCustomerID string) (defaultPaymentMethod *stripe.PaymentMethod, err error) {
+	getStripeCustomerParams := &stripe.CustomerParams{}
+	getStripeCustomerParams.AddExpand("invoice_settings.default_payment_method")
+	stripeCustomer, err := customer.Get(stripeCustomerID, getStripeCustomerParams)
+	if err != nil {
+		return nil, fmt.Errorf("error getting stripe customer [%s]: %w", stripeCustomerID, err)
+	}
+
+	defaultPaymentMethod = stripeCustomer.InvoiceSettings.DefaultPaymentMethod
+	// make sure that the default payment method is valid
+	if defaultPaymentMethod != nil &&
+		defaultPaymentMethod.Card != nil &&
+		!hasPaymentMethodExpired(defaultPaymentMethod) {
+		return defaultPaymentMethod, nil
+	}
+
+	// if the customer has no default payment method, we use the one that is valid
+	listPaymentMethodsParams := &stripe.PaymentMethodListParams{
+		Customer: stripe.String(stripeCustomerID),
+		Type:     stripe.String(string(stripe.PaymentMethodTypeCard)),
+	}
+	paymentMethodsIterator := paymentmethod.List(listPaymentMethodsParams)
+	for paymentMethodsIterator.Next() {
+		paymentMethod := paymentMethodsIterator.PaymentMethod()
+		if !hasPaymentMethodExpired(paymentMethod) {
+			return paymentMethod, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no payment method found for Stripe customer %s", stripeCustomerID)
+}
+
+func hasPaymentMethodExpired(paymentMethod *stripe.PaymentMethod) bool {
+	now := time.Now()
+
+	if paymentMethod.Card == nil {
+		return false
+	}
+
+	return paymentMethod.Card.ExpYear < int64(now.Year()) ||
+		(paymentMethod.Card.ExpYear == int64(now.Year()) && paymentMethod.Card.ExpMonth <= int64(now.Month()))
 }

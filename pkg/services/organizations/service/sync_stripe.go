@@ -23,18 +23,18 @@ func (service *OrganizationsService) SyncStripe(ctx context.Context, input organ
 		return
 	}
 
-	// if current user is not a Markdown Ninja admin then it needs to be an organization admin
+	// if current user is not a Markdown Ninja admin then it needs to be a staff of the organization
 	if !httpCtx.AccessToken.IsAdmin {
-		var staff organizations.Staff
-		staff, err = service.repo.FindStaff(ctx, service.db, actorID, input.OrganizationID)
+		// var staff organizations.Staff
+		_, err = service.repo.FindStaff(ctx, service.db, actorID, input.OrganizationID)
 		if err != nil {
 			return
 		}
 
-		if staff.Role != organizations.StaffRoleAdministrator {
-			err = kernel.ErrPermissionDenied
-			return
-		}
+		// if staff.Role != organizations.StaffRoleAdministrator {
+		// 	err = kernel.ErrPermissionDenied
+		// 	return
+		// }
 	}
 
 	_, err = service.syncOrganizationWithStripeCustomer(ctx, input.OrganizationID)
@@ -62,11 +62,12 @@ func (service *OrganizationsService) syncOrganizationWithStripeCustomer(ctx cont
 		return
 	}
 
-	logger = logger.With(slog.String("stripe.customer.id", *organization.StripeCustomerID))
+	logger = logger.With(slog.String("organization.id", organization.ID.String()), slog.String("stripe.customer.id", *organization.StripeCustomerID))
 
 	getCustomerParams := &stripe.CustomerParams{}
 	getCustomerParams.AddExpand("tax_ids")
 	getCustomerParams.AddExpand("subscriptions")
+	getCustomerParams.AddExpand("subscriptions.data.items")
 	stripeCustomer, err := stripecustomer.Get(*organization.StripeCustomerID, getCustomerParams)
 	if err != nil {
 		err = fmt.Errorf("organizations.syncOrganizationWithStripeCustomer: fetching stripe customer: %w", err)
@@ -94,44 +95,56 @@ func (service *OrganizationsService) syncOrganizationWithStripeCustomer(ctx cont
 	}
 
 	// Update subscription if needed
-	if stripeCustomer.Subscriptions != nil && len(stripeCustomer.Subscriptions.Data) != 0 {
-
+	if stripeCustomer.Subscriptions != nil {
 		nonCanceledSubscriptionsCount := 0
-		for _, stripeSubscription := range stripeCustomer.Subscriptions.Data {
-			// ignore canceled subscriptions
-			if stripeSubscription.Status == stripe.SubscriptionStatusCanceled {
-				continue
-			}
-			nonCanceledSubscriptionsCount += 1
 
-			organization.StripeSubscriptionID = &stripeSubscription.ID
+		if len(stripeCustomer.Subscriptions.Data) != 0 {
+			for _, stripeSubscription := range stripeCustomer.Subscriptions.Data {
+				// ignore canceled subscriptions
+				if stripeSubscription.Status == stripe.SubscriptionStatusCanceled {
+					continue
+				}
+				nonCanceledSubscriptionsCount += 1
 
-			planStr, planOk := stripeSubscription.Metadata["markdown_ninja_plan"]
-			if planOk {
-				organization.Plan = kernel.PlanID(planStr)
-			} else {
-				logger.Error("organizations.syncOrganizationWithStripeCustomer: markdown_ninja_plan metadata is missing for subscription")
-			}
+				organization.StripeSubscriptionID = &stripeSubscription.ID
 
-			stripeSubscriptionStartDate := time.Unix(stripeSubscription.StartDate, 0).UTC()
-			if organization.SubscriptionStartedAt == nil ||
-				!organization.SubscriptionStartedAt.Equal(stripeSubscriptionStartDate) {
-				organization.SubscriptionStartedAt = &stripeSubscriptionStartDate
-			}
+				if stripeSubscription.Items != nil && stripeSubscription.Items.Data != nil {
+					for _, item := range stripeSubscription.Items.Data {
+						if item.Price.ID == service.stripeConfig.Prices.Slots {
+							organization.ExtraSlots = item.Quantity
+						}
+					}
+				}
 
-			if stripeSubscription.Status == stripe.SubscriptionStatusActive {
-				organization.PaymentDueSince = nil
-			} else {
-				organization.PaymentDueSince = &now
+				planStr, planOk := stripeSubscription.Metadata["markdown_ninja_plan"]
+				if planOk {
+					organization.Plan = kernel.PlanID(planStr)
+				} else {
+					logger.Error("organizations.syncOrganizationWithStripeCustomer: markdown_ninja_plan metadata is missing for subscription")
+				}
+
+				stripeSubscriptionStartDate := time.Unix(stripeSubscription.StartDate, 0).UTC()
+				if organization.SubscriptionStartedAt == nil ||
+					!organization.SubscriptionStartedAt.Equal(stripeSubscriptionStartDate) {
+					organization.SubscriptionStartedAt = &stripeSubscriptionStartDate
+				}
+
+				if stripeSubscription.Status == stripe.SubscriptionStatusActive {
+					organization.PaymentDueSince = nil
+				} else if stripeSubscription.Status == stripe.SubscriptionStatusPastDue || stripeSubscription.Status == stripe.SubscriptionStatusUnpaid {
+					organization.PaymentDueSince = &now
+				}
 			}
 		}
 
-		// if no subscription
-		if nonCanceledSubscriptionsCount == 0 {
+		// if no active subscription
+		if len(stripeCustomer.Subscriptions.Data) == 0 || nonCanceledSubscriptionsCount == 0 {
 			organization.StripeSubscriptionID = nil
 			organization.SubscriptionStartedAt = nil
 			organization.Plan = kernel.PlanFree.ID
 			organization.ExtraSlots = 0
+			organization.UsageLastInvoicedAt = nil
+			organization.PaymentDueSince = nil
 		} else if nonCanceledSubscriptionsCount > 1 {
 			logger.Error("organizations.syncOrganizationWithStripeCustomer: Organization has more than 1 non-canceled subscription")
 		}

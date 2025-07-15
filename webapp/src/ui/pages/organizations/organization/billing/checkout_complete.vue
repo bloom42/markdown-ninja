@@ -64,6 +64,11 @@ let loading = ref(true);
 async function syncStripe() {
   try {
     await $mdninja.organizationSyncStripe(organizationId);
+    if ($route.query.redirect_to && ($route.query.redirect_to as string).startsWith('/')) {
+      $router.push($route.query.redirect_to as string);
+      return ;
+    }
+
     $router.push(`/organizations/${organizationId}`);
     // const res = await $mdninja.getOrganization(input);
     // if ((plan && res.plan === plan)

@@ -8,7 +8,10 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Size
+              </th>
+              <th scope="col" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">
                 Actions
               </th>
             </tr>
@@ -24,6 +27,9 @@
                   <DocumentIcon v-else class="h-5 w-5" aria-hidden="true" />
                   <span class="ml-2 text-md font-medium text-gray-900 truncate"></span>{{ asset.name }}
                 </div>
+              </td>
+              <td class="px-4 py-4 whitespace-nowrap min-w-10">
+                {{ fileSize(asset.size) }}
               </td>
               <td class="px-4 py-4 whitespace-nowrap space-x-4 flex flex-row">
                 <sl-tooltip content="Copy path to clipboard" placement="bottom">
@@ -55,6 +61,7 @@ import { TrashIcon, Square2StackIcon } from '@heroicons/vue/24/outline'
 import { FolderIcon, MusicalNoteIcon, DocumentIcon, PhotoIcon, FilmIcon } from '@heroicons/vue/24/outline'
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
+import fileSize from '@/filters/filesize';
 
 
 // props

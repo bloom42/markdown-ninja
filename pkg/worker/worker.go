@@ -39,8 +39,8 @@ func Start(ctx context.Context, logger *slog.Logger, concurrencyMax uint32, queu
 
 	// organizations
 	workerpool.AddHandler(workerPool, organizationsService.JobSendStaffInvitations)
-	workerpool.AddHandler(workerPool, organizationsService.JobDispatchSendUsageData)
-	workerpool.AddHandler(workerPool, organizationsService.JobSendUsageData)
+	workerpool.AddHandler(workerPool, organizationsService.JobInvoiceMonthlyUsage)
+	workerpool.AddHandler(workerPool, organizationsService.JobDispatchInvoiceMonthlyUsage)
 
 	// websites
 

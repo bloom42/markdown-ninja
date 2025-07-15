@@ -56,6 +56,7 @@
           <div class="flex mt-4">
             <p class="text-lg font-medium text-gray-900">
               Total: {{ subscriptionTotalPrice }}€ / month
+              <span v-if="subscriptionTotalPrice !== 0">(billed yearly)</span>
             </p>
           </div>
 
@@ -229,11 +230,11 @@ const subscriptionTotalPrice = computed(() => {
     case 'free':
       return 0;
     case 'pro':
-      total += 10;
+      total += 5;
       break;
   }
 
-  total += Math.abs(extraSlots.value) * 10;
+  total += Math.abs(extraSlots.value) * 5;
 
   return total;
 });
@@ -327,7 +328,7 @@ async function updateSubscription() {
       location.href = res.stripe_checkout_session_url;
       return;
     }
-    $router.push({ path: `/organizations/${organizationId}/billing/checkout/complete`, query: { plan: plan.value }});
+    $router.push({ path: `/organizations/${organizationId}/billing/checkout/complete`, query: { plan: plan.value, redirect_to: $route.path }});
     return;
   } catch (err: any) {
     error.value = err.message;

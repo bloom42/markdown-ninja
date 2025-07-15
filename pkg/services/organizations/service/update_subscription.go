@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bloom42/stdx-go/guid"
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/checkout/session"
 	stripecustomer "github.com/stripe/stripe-go/v81/customer"
@@ -13,7 +14,6 @@ import (
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
-	"markdown.ninja/pkg/timeutil"
 )
 
 func (service *OrganizationsService) UpdateSubscription(ctx context.Context, input organizations.UpdateSubscriptionInput) (ret organizations.UpdateSubscriptionOutput, err error) {
@@ -84,20 +84,27 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 
 	organization.UpdatedAt = now
 
-	// This is a best effort to send the latest usage data. There are no 100% guarantees that it will be
-	// accounted for to calculate the next invoice as Stripe ingests usage events asynchronously
-	err = service.sendOrganizationUsageData(ctx, tx, &organization)
-	if err != nil {
-		return
-	}
-
-	time.Sleep(500 * time.Millisecond)
-
 	// if plan = free then we cancel subscription
 	if input.Plan == kernel.PlanFree.ID {
 		if organization.PaymentDueSince != nil {
 			err = errs.InvalidArgument("Please pay all your due invoices before cancelling your subscription")
 			return
+		}
+
+		if organization.StripeCustomerID != nil {
+			var paymentMethodToCharge *stripe.PaymentMethod
+			paymentMethodToCharge, err = service.getDefaultPaymentMethodForStripeCustomer(ctx, *organization.StripeCustomerID)
+			if err != nil || paymentMethodToCharge == nil {
+				err = errs.InvalidArgument("Please make sure that a valid payment method is attached to your account before canceling your subscription")
+				return
+			}
+
+			idempotencyKey := guid.NewTimeBased().String()
+			err = service.invoiceForUsageData(ctx, tx, &organization, idempotencyKey, true, paymentMethodToCharge)
+			if err != nil {
+				err = errs.InvalidArgument("There was a problem canceling your subscription. Please contact support if the problem persist")
+				return
+			}
 		}
 
 		// StripeSubscriptionID can be null. If it was given as a gift for example
@@ -112,10 +119,13 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 			}
 		}
 
+		// reset all the fields related to subscription
 		organization.StripeSubscriptionID = nil
 		organization.SubscriptionStartedAt = nil
 		organization.Plan = kernel.PlanFree.ID
 		organization.ExtraSlots = 0
+		organization.UsageLastInvoicedAt = nil
+		organization.PaymentDueSince = nil
 
 		err = service.repo.UpdateOrganization(ctx, tx, organization)
 		if err != nil {
@@ -136,7 +146,7 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 	// if the organization has no stripe customer, then we create one
 	if organization.StripeCustomerID == nil {
 		var stripeCustomer *stripe.Customer
-		createStripeCustomerParams := service.generateStrieCustomerParams(organization)
+		createStripeCustomerParams := service.generateStripeCustomerParams(organization)
 		createStripeCustomerParams.AddExpand("invoice_settings.default_payment_method")
 		stripeCustomer, err = stripecustomer.New(createStripeCustomerParams)
 		if err != nil {
@@ -160,27 +170,57 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 	// create a stripe checkout session?
 	// instead we could directly create the subscription and charge the payment method.
 
-	// if StripeSubscriptionID then we create a checkout sessions so the customer can pay
+	// if there is no active subscription, we create one
 	if organization.StripeSubscriptionID == nil {
-		var stripeCheckoutSession *stripe.CheckoutSession
-		var stripeCheckoutSessionLineItems []*stripe.CheckoutSessionLineItemParams
-		stripeCheckoutSessionLineItems, err = service.getStripeCheckoutSessionLineItemsForPlan(input.Plan, organization.ExtraSlots)
-		if err != nil {
-			err = fmt.Errorf("organizations.UpdateSubscription: %w", err)
-			return
+		paymentMethodToUse, _ := service.getDefaultPaymentMethodForStripeCustomer(ctx, *organization.StripeCustomerID)
+		if paymentMethodToUse != nil {
+			// if a payment method is available, try to charge directly
+			var newSubscriptionNewLineItems []*stripe.SubscriptionItemsParams
+			newSubscriptionNewLineItems, err = service.getStripeSubscriptionLineItemsForPlan(input.Plan, organization.ExtraSlots)
+			if err != nil {
+				err = fmt.Errorf("organizations.UpdateSubscription: %w", err)
+				return
+			}
+
+			// var newSubscription *stripe.Subscription
+			createSubscriptionParams := &stripe.SubscriptionParams{
+				Customer:             stripe.String(*organization.StripeCustomerID),
+				Items:                newSubscriptionNewLineItems,
+				DefaultPaymentMethod: stripe.String(paymentMethodToUse.ID),
+				Metadata: map[string]string{
+					"markdown_ninja_organization_id": organization.ID.String(),
+					"markdown_ninja_plan":            string(input.Plan),
+				},
+			}
+			_, err = stripesubscription.New(createSubscriptionParams)
+			if err != nil {
+				return
+			}
+			// the subscription id will be updated when receiving the webhooks / syncing Stripe
+			// organization.StripeSubscriptionID = &newSubscription.ID
+		} else {
+			// otherwise redirecto to stripe Checkout
+			var stripeCheckoutSession *stripe.CheckoutSession
+			var stripeCheckoutSessionLineItems []*stripe.CheckoutSessionLineItemParams
+			stripeCheckoutSessionLineItems, err = service.getStripeCheckoutSessionLineItemsForPlan(input.Plan, organization.ExtraSlots)
+			if err != nil {
+				err = fmt.Errorf("organizations.UpdateSubscription: %w", err)
+				return
+			}
+
+			// billingAnchor := timeutil.GetFirstDayOfNextMonth(time.Now().UTC()).UTC()
+			checkoutParams := service.generateStripeCheckoutSessionParams(organization, input.Plan, stripeCheckoutSessionLineItems)
+			stripeCheckoutSession, err = session.New(checkoutParams)
+			if err != nil {
+				err = fmt.Errorf("organizations.UpdateSubscription: error creating stripe checkout session: %w", err)
+				return
+			}
+
+			ret.StripeCheckoutSessionUrl = &stripeCheckoutSession.URL
 		}
 
-		billingAnchor := timeutil.GetFirstDayOfNextMonth(time.Now().UTC()).UTC()
-		checkoutParams := service.generateStripeCheckoutSessionParams(organization, input.Plan, billingAnchor, stripeCheckoutSessionLineItems)
-		stripeCheckoutSession, err = session.New(checkoutParams)
-		if err != nil {
-			err = fmt.Errorf("organizations.UpdateSubscription: error creating stripe checkout session: %w", err)
-			return
-		}
-
-		ret.StripeCheckoutSessionUrl = &stripeCheckoutSession.URL
 	} else {
-		// Update subscription
+		// otherwise, we update the subscription
 		var stripeSubscription *stripe.Subscription
 		getStripeSubscriptionParams := &stripe.SubscriptionParams{}
 		stripeSubscription, err = stripesubscription.Get(*organization.StripeSubscriptionID, getStripeSubscriptionParams)
