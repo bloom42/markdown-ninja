@@ -131,7 +131,9 @@ func (service *OrganizationsService) syncOrganizationWithStripeCustomer(ctx cont
 
 				if stripeSubscription.Status == stripe.SubscriptionStatusActive {
 					organization.PaymentDueSince = nil
-				} else if stripeSubscription.Status == stripe.SubscriptionStatusPastDue || stripeSubscription.Status == stripe.SubscriptionStatusUnpaid {
+				} else if organization.PaymentDueSince == nil &&
+					(stripeSubscription.Status == stripe.SubscriptionStatusPastDue ||
+						stripeSubscription.Status == stripe.SubscriptionStatusUnpaid) {
 					organization.PaymentDueSince = &now
 				}
 			}

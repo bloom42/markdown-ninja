@@ -71,7 +71,7 @@ var PlanPro = Plan{
 		"1 Website / slot",
 		"1 Staff / slot",
 		"5 GB of assets storage / slot",
-		"1000 Emails + 1€ / 1000",
+		"1€ / 1000 emails",
 		"Custom Domains",
 		"Unlimited page views",
 		// 'Unlimited contacts',

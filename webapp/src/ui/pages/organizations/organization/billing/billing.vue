@@ -46,7 +46,7 @@
 
           <div v-if="plan !== 'free'" class="flex flex-col">
             <div class="flex flex-col my-2">
-              <sl-input label="Additional Slots"
+              <sl-input label="Additional Slots (5 € / slot)"
                 :value="extraSlots" @input="extraSlots = parseInt($event.target.value, 10)" min="0" type="number"
                 placeholder="0"
               />

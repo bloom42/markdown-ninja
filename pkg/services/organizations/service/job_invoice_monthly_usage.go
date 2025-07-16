@@ -32,7 +32,7 @@ func (service *OrganizationsService) JobInvoiceMonthlyUsage(ctx context.Context,
 			return txErr
 		}
 
-		txErr = service.invoiceForUsageData(ctx, tx, &organization, input.IdempotencyKey, false, nil)
+		txErr = service.invoiceForUsageData(ctx, tx, &organization, input.IdempotencyKey, false)
 		if txErr != nil {
 			return txErr
 		}
@@ -48,7 +48,7 @@ func (service *OrganizationsService) JobInvoiceMonthlyUsage(ctx context.Context,
 	return nil
 }
 
-func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db db.Queryer, organization *organizations.Organization, idempotencyKey string, cancelingSubscription bool, paymentMethod *stripe.PaymentMethod) (err error) {
+func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db db.Queryer, organization *organizations.Organization, idempotencyKey string, cancelingSubscription bool) (err error) {
 	logger := slogx.FromCtx(ctx)
 
 	if organization.StripeCustomerID == nil || organization.StripeSubscriptionID == nil {
@@ -79,14 +79,18 @@ func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db
 		return fmt.Errorf("organizations.invoiceForUsageData: %w", err)
 	}
 
-	billedEmailsSent := emailsSent - 1000
 	// if no email was sent during the invoice period there is no need to create an invoice
-	if billedEmailsSent <= 0 {
+	if emailsSent <= 0 {
 		return nil
 	}
 
 	// 1 € / 1000 emails = 1 cents / 10 emails
-	usageBasedAmountToPayInCents := billedEmailsSent / 10
+	usageBasedAmountToPayInCents := emailsSent / 10
+	// don't invoice customers if they need to pay less than 1 €
+	// this is not an official policy so it can change any time
+	if usageBasedAmountToPayInCents < 100 {
+		return nil
+	}
 
 	// Create an invoice item for the usage
 	invoiceItemParams := &stripe.InvoiceItemParams{
@@ -98,6 +102,10 @@ func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db
 		Period: &stripe.InvoiceItemPeriodParams{
 			Start: stripe.Int64(invoicePeriodStart.Unix()),
 			End:   stripe.Int64(invoicePeriodEnd.Unix()),
+		},
+		Metadata: map[string]string{
+			"markdown_ninja_organization_id": organization.ID.String(),
+			"markdown_ninja_emails_sent":     strconv.Itoa(int(emailsSent)),
 		},
 	}
 	invoiceItemParams.SetIdempotencyKey("create_invoice_item-" + idempotencyKey)
@@ -120,7 +128,7 @@ func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db
 		// PendingInvoiceItemsBehavior: stripe.String("include"),
 		Metadata: map[string]string{
 			"markdown_ninja_organization_id": organization.ID.String(),
-			"markdown_ninja_emails":          strconv.Itoa(int(emailsSent)),
+			"markdown_ninja_emails_sent":     strconv.Itoa(int(emailsSent)),
 		},
 	}
 	newInvoiceParams.SetIdempotencyKey("create_invoice-" + idempotencyKey)
@@ -146,10 +154,17 @@ func (service *OrganizationsService) invoiceForUsageData(ctx context.Context, db
 		return err
 	}
 
-	if cancelingSubscription && paymentMethod != nil {
+	if cancelingSubscription {
+		var paymentMethodToCharge *stripe.PaymentMethod
+		paymentMethodToCharge, err = service.getDefaultPaymentMethodForStripeCustomer(ctx, *organization.StripeCustomerID)
+		if err != nil || paymentMethodToCharge == nil {
+			err = errs.InvalidArgument("Please make sure that a valid payment method is attached to your account before canceling your subscription")
+			return
+		}
+
 		// if the user is canceling their subscription, then we immediately pay the invoice
 		payInvoiceParams := &stripe.InvoicePayParams{
-			PaymentMethod: stripe.String(paymentMethod.ID),
+			PaymentMethod: stripe.String(paymentMethodToCharge.ID),
 		}
 		payInvoiceParams.SetIdempotencyKey("pay_invoice-" + idempotencyKey)
 		err = retry.Do(func() error {

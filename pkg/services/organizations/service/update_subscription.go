@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/checkout/session"
 	stripecustomer "github.com/stripe/stripe-go/v81/customer"
@@ -18,6 +18,7 @@ import (
 
 func (service *OrganizationsService) UpdateSubscription(ctx context.Context, input organizations.UpdateSubscriptionInput) (ret organizations.UpdateSubscriptionOutput, err error) {
 	httpCtx := httpctx.FromCtx(ctx)
+	logger := slogx.FromCtx(ctx)
 
 	if service.isSelfHosted {
 		return ret, errs.InvalidArgument("Subscriptions can't be changed in self-hosted mode")
@@ -74,6 +75,7 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 
 	// Do nothing
 	if input.Plan == organization.Plan && input.ExtraSlots == organization.ExtraSlots {
+		logger.Debug("organizations.UpdateSubscription: subscription has not changed. Do nothing.")
 		return
 	}
 
@@ -91,26 +93,17 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 			return
 		}
 
-		if organization.StripeCustomerID != nil {
-			var paymentMethodToCharge *stripe.PaymentMethod
-			paymentMethodToCharge, err = service.getDefaultPaymentMethodForStripeCustomer(ctx, *organization.StripeCustomerID)
-			if err != nil || paymentMethodToCharge == nil {
-				err = errs.InvalidArgument("Please make sure that a valid payment method is attached to your account before canceling your subscription")
-				return
-			}
-
-			idempotencyKey := guid.NewTimeBased().String()
-			err = service.invoiceForUsageData(ctx, tx, &organization, idempotencyKey, true, paymentMethodToCharge)
+		// StripeSubscriptionID can be null. If it was given as a gift for example
+		if organization.StripeSubscriptionID != nil && organization.StripeCustomerID != nil {
+			idempotencyKey := fmt.Sprintf("cancel_subscription-%s", *organization.StripeSubscriptionID)
+			err = service.invoiceForUsageData(ctx, tx, &organization, idempotencyKey, true)
 			if err != nil {
 				err = errs.InvalidArgument("There was a problem canceling your subscription. Please contact support if the problem persist")
 				return
 			}
-		}
 
-		// StripeSubscriptionID can be null. If it was given as a gift for example
-		if organization.StripeSubscriptionID != nil {
 			params := &stripe.SubscriptionCancelParams{
-				InvoiceNow: stripe.Bool(true),
+				// InvoiceNow: stripe.Bool(true),
 			}
 			_, err = stripesubscription.Cancel(*organization.StripeSubscriptionID, params)
 			if err != nil {

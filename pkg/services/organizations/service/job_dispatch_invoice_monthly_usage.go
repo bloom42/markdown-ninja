@@ -10,16 +10,18 @@ import (
 	"github.com/bloom42/stdx-go/queue"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
-	"markdown.ninja/pkg/timeutil"
 )
 
 func (service *OrganizationsService) JobDispatchInvoiceMonthlyUsage(ctx context.Context, _ organizations.JobDispatchInvoiceMonthlyUsage) error {
 	now := time.Now().UTC()
 
-	// Only execute this job on the first monday of every months
-	if now.Weekday() != time.Monday || now.Day() != timeutil.GetFirstMondayOfTheMonth(now).Day() {
+	// Only execute this job on the 2 of every month
+	if now.Day() != 2 {
 		return nil
 	}
+	// if now.Day() != timeutil.GetFirstMondayOfTheMonth(now).Day() {
+	// 	return nil
+	// }
 
 	proOrganizations, err := service.repo.FindOrganizationsByPlan(ctx, service.db, kernel.PlanPro.ID)
 	if err != nil {
