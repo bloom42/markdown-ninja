@@ -82,7 +82,7 @@
         <Terminal prompt="$" command="markdown-ninja publish" :showCopyToClipboard="false" />
       </div>
       <div class="flex items-center justify-center gap-x-6">
-        <sl-button outline @click="$pingoo.signup()">
+        <sl-button variant="primary" @click="$pingoo.signup()">
           Try Markdown Ninja &nbsp; <span aria-hidden="true">→</span>
         </sl-button>
       </div>
