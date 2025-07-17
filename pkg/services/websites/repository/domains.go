@@ -13,7 +13,7 @@ import (
 func (repo *WebsitesRepository) CreateDomain(ctx context.Context, db db.Queryer, domain websites.Domain) (err error) {
 	const query = `INSERT INTO domains
 			(id, created_at, updated_at, hostname, tls_active, website_id)
-		VALUES ($1, $2, $3, $4, $5, $7)`
+		VALUES ($1, $2, $3, $4, $5, $6)`
 
 	_, err = db.Exec(ctx, query, domain.ID, domain.CreatedAt, domain.UpdatedAt, domain.Hostname, domain.TlsActive,
 		domain.WebsiteID)
