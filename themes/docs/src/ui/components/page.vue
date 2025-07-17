@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="page.path !== '/'">
+    <!-- <div v-if="page.path !== '/'">
       <h1 class="font-semibold text-3xl">{{  page.title }}</h1>
       <hr />
-    </div>
+    </div> -->
 
     <div v-html="page.body" />
 
