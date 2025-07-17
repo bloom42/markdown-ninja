@@ -4,7 +4,7 @@ title: "API & Headless CMS - Markdown Ninja"
 type: "page"
 tags: ["docs"]
 authors: ["Markdown Ninja"]
-url: "/docs/api"
+url: "/api"
 ---
 
 Coming soon.

@@ -4,7 +4,7 @@ title: "CLI and Git integration - Markdown Ninja"
 type: "page"
 tags: ["docs"]
 authors: ["Markdown Ninja"]
-url: "/docs/cli"
+url: "/cli"
 ---
 
 ## Overview

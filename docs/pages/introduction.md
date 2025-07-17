@@ -4,7 +4,7 @@ title: "Introduction - Markdown Ninja"
 type: "page"
 tags: ["docs"]
 authors: ["Markdown Ninja"]
-url: "/docs"
+url: "/"
 ---
 
 Coming soon...

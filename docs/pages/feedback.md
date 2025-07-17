@@ -4,7 +4,7 @@ title: "Feedback - Markdown Ninja"
 type: "page"
 tags: ["docs"]
 authors: ["Markdown Ninja"]
-url: "/docs/feedback"
+url: "/feedback"
 ---
 
 We love feedbak! Feel free to join the discussion and ask your questions, report bugs or suggest ideas and improvments on GitHub: [https://github.com/bloom42/markdown-ninja](https://github.com/bloom42/markdown-ninja)
