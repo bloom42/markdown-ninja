@@ -17,7 +17,7 @@
           <!-- Logo and site name -->
           <div class="flex items-center flex-row">
             <PLink href="/" class="flex no-underline items-center">
-              <img class="inline-flex h-8 w-8" :src="$store.website!.logo!" alt="Website logo" />
+              <img v-if="$store.website?.logo" :src="$store.website.logo" alt="Website logo" class="inline-flex h-8 w-8" />
               <h1 class="inline-flex ml-1.5 sm:ml-3 font-normal text-base xs:text-lg sm:text-xl text-[var(--mdninja-text)]">
                 {{ website.name }}
               </h1>
