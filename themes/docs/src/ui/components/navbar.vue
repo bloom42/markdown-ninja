@@ -1,7 +1,7 @@
 <template>
   <!-- <nav> -->
     <Disclosure as="nav" class="w-full shadow-sm bg-[var(--mdninja-background)]" v-slot="{ open }">
-      <div class="mx-auto max-w-7xl px-2 xs:px-4 sm:px-8">
+      <div :class="[!hasSidebar && 'max-w-7xl', 'mx-autopx-2 xs:px-4 sm:px-8']">
       <div class="flex h-16 justify-between w-full">
         <div class="flex">
           <div v-if="hasSidebar && website.navigation.secondary.length > 0"class="flex items-center md:hidden">
