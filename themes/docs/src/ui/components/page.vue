@@ -7,9 +7,10 @@
 
     <div v-html="page.body" />
 
-    <hr />
 
     <div v-if="page.tags.length !== 0" class="my-5">
+      <hr class="mb-5" />
+
       <strong class="mx-2">Tags:&nbsp;</strong>
       <!-- <span  class=""> -->
         <!-- <span v-if="$index !== 0">, </span> -->
