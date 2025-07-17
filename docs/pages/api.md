@@ -1,8 +1,8 @@
 ---
 date: 2025-01-01T06:00:00Z
-title: "API & Headless CMS - Markdown Ninja"
+title: "Headless CMS & API - Markdown Ninja"
 type: "page"
-tags: ["docs"]
+tags: []
 authors: ["Markdown Ninja"]
 url: "/api"
 ---

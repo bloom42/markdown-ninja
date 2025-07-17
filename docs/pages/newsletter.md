@@ -2,7 +2,7 @@
 date: 2025-01-01T06:00:00Z
 title: "Newsletter - Markdown Ninja"
 type: "page"
-tags: ["docs"]
+tags: []
 authors: ["Markdown Ninja"]
 url: "/docs/newsletter"
 ---
