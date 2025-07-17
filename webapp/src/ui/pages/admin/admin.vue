@@ -3,7 +3,7 @@
 
     <div class="flex w-full" v-if="adminStatistics.length !== 0">
       <div class="w-full mt-2 rounded-md border border-gray-900/10">
-        <dl class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:px-2 xl:px-0">
+        <dl class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:px-2 xl:px-0">
           <div v-for="stat in adminStatistics" :key="stat.name" class="sm:border-l flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-gray-900/5 px-4 py-5 sm:px-6 lg:border-t-0 xl:px-8">
             <dt class="text-md">{{ stat.name }}</dt>
             <dd class="w-full flex-none text-3xl font-medium tracking-tight">
@@ -68,10 +68,6 @@ async function fetchData() {
         name: 'Paying Organizations',
         value: organizationsStatistics.paying_organizations,
       },
-      {
-        name: 'Monthly Revenue',
-        value: organizationsStatistics.monthly_revenue,
-      }
     ]
   } catch (err: any) {
     error.value = err.message;

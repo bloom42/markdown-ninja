@@ -640,7 +640,6 @@ export type AddStaffs = {
 export type OrganizationsAdminStatistics = {
   organizations: number,
   paying_organizations: number,
-  monthly_revenue: number,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

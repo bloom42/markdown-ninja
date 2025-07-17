@@ -33,21 +33,10 @@ func (service *OrganizationsService) GetAdminStatistics(ctx context.Context, _ k
 		return taskErr
 	})
 
-	errGroup.Go(func() error {
-		extraSlots, taskErr := service.repo.GetTotalExtraSlotsCount(ctx, service.db)
-		if taskErr != nil {
-			return taskErr
-		}
-		stats.MonthlyRevenue = extraSlots * kernel.PlanPro.Price
-		return taskErr
-	})
-
 	err = errGroup.Wait()
 	if err != nil {
 		return stats, err
 	}
-
-	stats.MonthlyRevenue += (stats.PayingOrganizations * kernel.PlanPro.Price)
 
 	return
 }
