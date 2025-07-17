@@ -475,6 +475,10 @@ export type Organization = {
 
   api_keys: ApiKey[] | null;
   staffs: Staff[] | null;
+
+  // admin fields
+  stripe_customer_id?: string,
+  stripe_subscription_id?: string,
 }
 
 export type BillingInformation = {

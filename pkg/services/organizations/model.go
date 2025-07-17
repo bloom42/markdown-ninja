@@ -83,8 +83,9 @@ type Organization struct {
 	UsageLastInvoicedAt *time.Time `db:"usage_last_invoiced_at" json:"-"`
 	ExtraSlots          int64      `db:"extra_slots" json:"extra_slots"`
 
-	ApiKeys []ApiKey           `db:"-" json:"api_keys"`
-	Staffs  []StaffWithDetails `db:"-" json:"staffs"`
+	ApiKeys                  []ApiKey           `db:"-" json:"api_keys"`
+	Staffs                   []StaffWithDetails `db:"-" json:"staffs"`
+	*OrganizationAdminFields `json:",omitempty"`
 }
 
 func (organization Organization) MarshalJSON() ([]byte, error) {
@@ -100,6 +101,11 @@ func (organization Organization) MarshalJSON() ([]byte, error) {
 		StripeCustomer:   organization.StripeCustomerID != nil,
 		PaymentDue:       organization.PaymentDueSince != nil,
 	})
+}
+
+type OrganizationAdminFields struct {
+	StripeCustomerID     *string `json:"stripe_customer_id"`
+	StripeSubscriptionID *string `json:"stripe_subscription_id"`
 }
 
 type Staff struct {

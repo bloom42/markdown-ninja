@@ -146,6 +146,13 @@ func (service *OrganizationsService) CreateOrganization(ctx context.Context, inp
 		return
 	}
 
+	if httpCtx.AccessToken.IsAdmin {
+		organization.OrganizationAdminFields = &organizations.OrganizationAdminFields{
+			StripeCustomerID:     organization.StripeCustomerID,
+			StripeSubscriptionID: organization.StripeSubscriptionID,
+		}
+	}
+
 	ret.Organization = organization
 	return
 }

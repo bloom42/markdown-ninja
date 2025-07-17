@@ -1,8 +1,6 @@
 <template>
   <div class="flex-1">
 
-
-
     <div class="rounded-md bg-red-50 p-4 my-4" v-if="error">
       <div class="flex">
         <div class="ml-3">
@@ -30,20 +28,45 @@
         <h3 class="font-bold">Billing email:</h3> &nbsp; <span>{{ organization.billing_information.email }}</span>
       </div>
 
+      <div class="flex">
+        <h3 class="font-bold">Stripe Customer ID:</h3> &nbsp; <span>{{ organization.stripe_customer_id }}</span>
+      </div>
 
       <div class="flex">
-        <h3 class="font-bold">Plan:</h3> &nbsp; <span>{{ organization.plan }} ({{ organization.extra_slots }} extra slots)</span>
+        <h3 class="font-bold">Stripe Subscription ID:</h3> &nbsp; <span>{{ organization.stripe_subscription_id }}</span>
       </div>
+
 
       <div class="flex">
         <h3 class="font-bold">Payment Due:</h3> &nbsp; <span>{{ organization.payment_due }}</span>
       </div>
+
+
+      <div class="flex flex-col">
+        <SelectPlan v-model="organization.plan" :all-plans="true" />
+      </div>
+
+      <div class="flex flex-col">
+        <sl-input label="Extra Slots"
+          :value="organization.extra_slots" @input="organization.extra_slots = parseInt($event.target.value, 10)" min="0" type="number"
+          placeholder="0"
+        />
+      </div>
+
+      <div class="flex">
+        <sl-button variant="primary" @click="updateOrganization()" :loading="loading">
+          Update Organization
+        </sl-button>
+      </div>
+
+      <hr />
 
       <div class="flex">
         <sl-button variant="primary" @click="syncStripeData()" :loading="loading">
           Sync Stripe data
         </sl-button>
       </div>
+
 
 
       <div class="flex flex-col mt-5 space-y-2">
@@ -79,13 +102,15 @@
 
 <script lang="ts" setup>
 import { useMdninja } from '@/api/mdninja';
-import type { Organization, OrganizationBillingUsage, RemoveStaffInput, Staff, Website } from '@/api/model';
+import type { Organization, OrganizationBillingUsage, RemoveStaffInput, Staff, UpdateOrganizationInput, Website } from '@/api/model';
 import { onBeforeMount, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import StaffsList from '@/ui/components/organizations/staffs_list.vue';
 import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
 import WebsitesList from '@/ui/components/admin/websites_list.vue';
 import BillingUsage from '@/ui/components/organizations/billing_usage.vue';
+import SlInput from '@shoelace-style/shoelace/dist/components/input/input.js';
+import SelectPlan from '@/ui/components/organizations/select_plan.vue';
 
 // props
 
@@ -179,6 +204,24 @@ async function removeStaff(staff: Staff) {
   try {
     await $mdninja.removeStaff(intput);
     organization.value!.staffs = organization.value!.staffs!.filter((sta) => sta.user_id !== staff.user_id);
+  } catch (err: any) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function updateOrganization() {
+  loading.value = true;
+  error.value = '';
+  const intput: UpdateOrganizationInput = {
+    id: organizationId,
+    plan: organization.value?.plan,
+    extra_slots: organization.value?.extra_slots,
+  };
+
+  try {
+    organization.value = await $mdninja.updateOrganization(intput);
   } catch (err: any) {
     error.value = err.message;
   } finally {

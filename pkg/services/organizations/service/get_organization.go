@@ -53,5 +53,12 @@ func (service *OrganizationsService) GetOrganization(ctx context.Context, input 
 		}
 	}
 
+	if httpCtx.AccessToken.IsAdmin {
+		org.OrganizationAdminFields = &organizations.OrganizationAdminFields{
+			StripeCustomerID:     org.StripeCustomerID,
+			StripeSubscriptionID: org.StripeSubscriptionID,
+		}
+	}
+
 	return org, nil
 }

@@ -63,7 +63,7 @@ var PlanPro = Plan{
 	AllowedPages:            3000,
 	AllowedAssets:           3000,
 	MaxAssetSize:            MaxAssetSize,
-	CustomDomainsPerWebsite: 10,
+	CustomDomainsPerWebsite: 5,
 
 	Features: []string{
 		// 'No additional transaction fees',
