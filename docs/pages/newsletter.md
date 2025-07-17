@@ -4,7 +4,7 @@ title: "Newsletter - Markdown Ninja"
 type: "page"
 tags: []
 authors: ["Markdown Ninja"]
-url: "/docs/newsletter"
+url: "/newsletter"
 ---
 
 Your posts can be sent by email to your subscribed contacts.

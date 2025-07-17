@@ -45,7 +45,7 @@
         </RouterLink>
 
         <sl-tooltip content="Docs & Help" placement="bottom">
-          <a href="/docs" target="_blank" rel="noopener">
+          <a :href="$config.docsUrl" target="_blank" rel="noopener">
             <sl-button variant="text" circle
               class="rounded-full hover:bg-neutral-100 h-10 w-10">
               <QuestionMarkCircleIcon class="flex-auto h-6 w-6" />
@@ -82,10 +82,14 @@
         </RouterLink>
       </div>
       <div class="hidden sm:flex gap-x-8 md:gap-x-12 items-center -ml-16">
-        <RouterLink :to="item.url" v-for="item in navigation" :key="item.name"
-          :class="['text-sm font-semibold leading-6 hover:underline']">
+        <!-- render a RouterLink if URL starts with '/' and a normal link otherwise -->
+        <component :is="item.url.startsWith('http') ? 'a' : 'RouterLink'"
+          v-for="item in navigation" :key="item.url"
+          :to="item.url" :href="item.url" :target="item.url.startsWith('/') ? undefined : '_blank'"
+          class="text-sm font-semibold leading-6 hover:underline"
+        >
           {{ item.name }}
-        </RouterLink>
+        </component>
       </div>
 
       <div class="items-center flex flex-row space-x-2">
@@ -135,6 +139,7 @@ import SlBreadcrumb from '@shoelace-style/shoelace/dist/components/breadcrumb/br
 import SlBreadcrumbItem from '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item.js';
 import { useMdninja } from '@/api/mdninja';
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
+import { useConfig } from '@/app/config';
 
 
 type NavigationLink = {
@@ -144,7 +149,7 @@ type NavigationLink = {
 
 const navigation: NavigationLink[] = [
   { name: 'Home', url: '/' },
-  { name: 'Docs', url: '/docs' },
+  { name: 'Docs', url: 'https://docs.markdown.ninja' },
   { name: 'Pricing', url: '/pricing' },
 ];
 
@@ -168,6 +173,7 @@ const $pingoo = usePingoo();
 const $store = useStore();
 const $route = useRoute();
 const $mdninja = useMdninja();
+const $config = useConfig();
 
 // lifecycle
 onBeforeMount(() => {
@@ -188,7 +194,7 @@ const accountUrl = $pingoo.accountUrl();
 
 // computed
 const showAppNavbar = computed(() => {
-  return $store.userId && $route.path !== '/' && !$route.path.startsWith('/docs')
+  return $store.userId && $route.path !== '/'
     && $route.path !== '/pricing' && $route.path !== '/about' && $route.path !== '/terms'
     && $route.path !== '/privacy'   && $route.path !== '/contact'
 });

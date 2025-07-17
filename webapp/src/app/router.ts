@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type Router } from 'vue-router';
-import type { Config } from './config';
+import { useConfig, type Config } from './config';
 import { useStore } from './store';
 import { usePingoo } from '@/pingoo/pingoo';
 
@@ -86,8 +86,6 @@ export function newRouter(config: Config): Router {
 
       // about
       { path: '/pricing', component: Pricing, meta: { auth: false } },
-      { path: '/docs', redirect: '/docs/cli' },
-      { path: '/docs/:slug(.*)*', component: Content, meta: { auth: false } },
       { path: '/privacy', component: Content, meta: { auth: false } },
       { path: '/terms', component: Content, meta: { auth: false } },
       { path: '/about', component: Content, meta: { auth: false } },
@@ -170,6 +168,16 @@ export function newRouter(config: Config): Router {
       { path: '/admin/queue', component: AdminQueue },
       { path: '/admin/tls', component: AdminTls },
 
+      // redirect /docs to https://docs.markdown.ninja
+      { path: '/docs', redirect: '/docs/introduction' },
+      {
+        path: '/docs/:slug(.*)*', component: Content, meta: { auth: false },
+        beforeEnter: () => {
+          const $config = useConfig();
+          window.location.href = $config.docsUrl;
+          return false;
+        },
+      },
 
       // 404
       { path: '/:path(.*)*', component: Page404, meta: { auth: false } },

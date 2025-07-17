@@ -19,6 +19,7 @@ export class Config {
   oidcRedirectUri: string;
   cmsBaseUrl: string;
   githubRepository: string;
+  docsUrl: string;
 
   constructor() {
     this.env = import.meta.env.VITE_ENV as string | undefined ?? 'production';
@@ -28,5 +29,6 @@ export class Config {
     this.oidcRedirectUri = `${window.location.protocol}//${window.location.host}/auth`;
     this.cmsBaseUrl = "https://cms.markdown.ninja";
     this.githubRepository = "https://github.com/bloom42/markdown-ninja";
+    this.docsUrl = "https://docs.markdown.ninja";
   }
 }

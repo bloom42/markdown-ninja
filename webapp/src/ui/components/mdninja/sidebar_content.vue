@@ -167,15 +167,7 @@ function onRouteChanged() {
       { name: 'Organizations', to: '/organizations', icon: UserGroupIcon },
       { name: 'Invitations', to: '/organizations/invitations', icon: EnvelopeIcon },
     ];
-  } else if ($route.path.startsWith('/docs')) {
-    navigation.value = [
-      // { name: 'Introduction', to: '/docs' },
-      { name: 'CLI & Git integration', to: '/docs/cli' },
-      { name: 'API & Headless CMS', to: '/docs/api' },
-      { name: 'Feedback & Open Source', to: '/docs/feedback' },
-      // { name: 'Newsletter', to: '/docs/newsletter' },
-    ];
-  }  else {
+  } else {
     navigation.value = [];
   }
 }

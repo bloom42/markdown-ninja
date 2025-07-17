@@ -17,14 +17,14 @@ You can now publish your blog, documentation website or newsletter with one comm
 $ docker run -i --rm -e MARKDOWN_NINJA_API_KEY=[YOUR_API_KEY] -v `pwd`:/mdninja ghcr.io/bloom42/markdown-ninja publish
 ```
 
-[Get started in 2 minutes](https://markdown.ninja/docs/cli)
+[Get started in 2 minutes](https://docs.markdown.ninja/cli)
 
 
 ## Documentation
 
-For usage documentation see [https://markdown.ninja/docs](https://markdown.ninja/docs)
+For usage documentation see [https://docs.markdown.ninja](https://docs.markdown.ninja)
 
-For development documentation see the [docs folder](docs)
+For development documentation see the [dev folder](dev)
 
 
 ## Security

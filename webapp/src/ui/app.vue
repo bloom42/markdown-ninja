@@ -85,7 +85,6 @@ function setShowSidebar() {
     || $route.path.startsWith('/organizations')
     || $route.params.organization_id
     || $route.path.startsWith('/admin')
-    || $route.path.startsWith('/docs')
   ) {
       showSidebar.value = true;
   } else {
