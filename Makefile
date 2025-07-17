@@ -60,7 +60,7 @@ download_deps:
 	go mod download
 
 .PHONY: release
-release:
+release: mdninja
 	date
 	make delete_ds_store
 	make exif
