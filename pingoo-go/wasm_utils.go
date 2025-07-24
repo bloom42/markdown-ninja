@@ -116,7 +116,7 @@ func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
 
 	wasi_snapshot_preview1.MustInstantiate(wasmCtx, client.wasmRuntime)
 
-	// enabling WASM memory leads to crashes in some Virtual Machines:
+	// enabling WASM memory leads to crashes in some Virtual Machines such as firecracker:
 	// This error may come from the fact that the VM has less than 4GB of memory, but the memory module
 	// tries to "reserve" 4GB of memory.
 	//

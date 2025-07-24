@@ -25,6 +25,8 @@ func (service *SiteService) Logout(ctx context.Context, input kernel.EmptyInput)
 
 	logoutCookie := service.contactsService.GenerateLogoutCookie()
 	httpCtx.Response.Cookies = append(httpCtx.Response.Cookies, logoutCookie)
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Clear-Site-Data
+	httpCtx.Response.Headers.Set("Clear-Site-Data", "*")
 
 	return
 }
