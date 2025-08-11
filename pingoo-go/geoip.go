@@ -78,7 +78,7 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 	}
 
 	// download the actual database in a buffer
-	geoipDbBuffer := bytes.NewBuffer(make([]byte, 0, 50_000_000))
+	geoipDbBuffer := bytes.NewBuffer(make([]byte, 0, 60_000_000))
 	_, err = io.Copy(geoipDbBuffer, geoipDbRes.Data)
 	if err != nil && err != io.EOF {
 		return fmt.Errorf("pingoo: error downloading geoip database: %w", err)
