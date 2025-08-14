@@ -51,13 +51,11 @@ type SiteService struct {
 
 	// the complete rendered HTML for pages
 	pagesHtmlCache *memorycache.Cache[string, []byte]
-	// cache assets up to 1 MB in memory
-	assetsCache *memorycache.Cache[string, []byte]
-	// cache the HTML rendered from Markdown body of pages
-	pagesBodyHtmlCache *memorycache.Cache[string, []byte]
-	pagesCache         *memorycache.Cache[string, site.Page]
-	feedsCache         *memorycache.Cache[string, []byte]
-	sitemapsCache      *memorycache.Cache[string, []byte]
+	// cache assets up to 1 MB in size
+	assetsCache   *memorycache.Cache[string, []byte]
+	pagesCache    *memorycache.Cache[string, site.Page]
+	feedsCache    *memorycache.Cache[string, []byte]
+	sitemapsCache *memorycache.Cache[string, []byte]
 
 	// pages are cached compressed to reduce the memory usage
 	cacheZstdCompressor   *zstd.Encoder
@@ -123,7 +121,7 @@ func NewSiteService(conf config.Config, db db.DB, queue queue.Queue, mailer mail
 
 	pagesHtmlCache := memorycache.New(
 		memorycache.WithTTL[string, []byte](48*time.Hour),
-		memorycache.WithCapacity[string, []byte](1_000),
+		memorycache.WithCapacity[string, []byte](500),
 		memorycache.WithInsertHook(zstdCompressInsertHook),
 		memorycache.WithGetHook(zstdDecompressGetHook),
 	)
@@ -133,28 +131,21 @@ func NewSiteService(conf config.Config, db db.DB, queue queue.Queue, mailer mail
 		memorycache.WithCapacity[string, []byte](100),
 	)
 
-	pagesBodyHtmlCache := memorycache.New(
-		memorycache.WithTTL[string, []byte](48*time.Hour),
-		memorycache.WithCapacity[string, []byte](1_000),
-		memorycache.WithInsertHook(zstdCompressInsertHook),
-		memorycache.WithGetHook(zstdDecompressGetHook),
-	)
-
 	pagesCache := memorycache.New(
 		memorycache.WithTTL[string, site.Page](48*time.Hour),
-		memorycache.WithCapacity[string, site.Page](1_000),
+		memorycache.WithCapacity[string, site.Page](100),
 	)
 
 	feedsCache := memorycache.New(
 		memorycache.WithTTL[string, []byte](48*time.Hour),
-		memorycache.WithCapacity[string, []byte](1_000),
+		memorycache.WithCapacity[string, []byte](100),
 		memorycache.WithInsertHook(zstdCompressInsertHook),
 		memorycache.WithGetHook(zstdDecompressGetHook),
 	)
 
 	sitemapsCache := memorycache.New(
 		memorycache.WithTTL[string, []byte](48*time.Hour),
-		memorycache.WithCapacity[string, []byte](1_000),
+		memorycache.WithCapacity[string, []byte](100),
 		memorycache.WithInsertHook(zstdCompressInsertHook),
 		memorycache.WithGetHook(zstdDecompressGetHook),
 	)
@@ -180,12 +171,11 @@ func NewSiteService(conf config.Config, db db.DB, queue queue.Queue, mailer mail
 		cacheZstdCompressor:    cacheZstdCompressor,
 		cacheZstdDecompressor:  cacheZstdDecompressor,
 
-		pagesHtmlCache:     pagesHtmlCache,
-		assetsCache:        assetsCache,
-		pagesBodyHtmlCache: pagesBodyHtmlCache,
-		pagesCache:         pagesCache,
-		feedsCache:         feedsCache,
-		sitemapsCache:      sitemapsCache,
+		pagesHtmlCache: pagesHtmlCache,
+		assetsCache:    assetsCache,
+		pagesCache:     pagesCache,
+		feedsCache:     feedsCache,
+		sitemapsCache:  sitemapsCache,
 
 		themes: themes,
 	}

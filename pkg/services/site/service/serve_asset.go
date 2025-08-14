@@ -194,7 +194,7 @@ func (service *SiteService) servePartialAsset(ctx context.Context, res http.Resp
 			slog.String("website.id", website.ID.String()), slog.String("asset.id", asset.ID.String()),
 			slog.String("range", requestedRange),
 		)
-		err = fmt.Errorf("error getting asset data with range [%s]: %w", requestedRange)
+		err = fmt.Errorf("error getting asset data with range [%s]: %w", requestedRange, err)
 		service.serveInternalError(ctx, res, err, hostname, url)
 		return
 	}

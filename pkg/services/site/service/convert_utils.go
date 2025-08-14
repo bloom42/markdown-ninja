@@ -5,8 +5,6 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/memorycache"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/site"
@@ -113,25 +111,12 @@ func (service *SiteService) convertWebsite(input websites.Website) site.Website 
 	}
 }
 
-func (service *SiteService) convertPage(ctx context.Context, website websites.Website, input content.Page, tags []content.Tag, snippets []content.Snippet) (ret site.Page) {
-	logger := slogx.FromCtx(ctx)
-
+func (service *SiteService) convertPage(_ context.Context, website websites.Website, input content.Page, tags []content.Tag, snippets []content.Snippet) (ret site.Page) {
 	if tags == nil {
 		tags = []content.Tag{}
 	}
 
-	var bodyHtml string
-
-	bodyHtmlCacheKey := generatePageBodyHtmlCacheKey(input)
-	cachedBodyHtml := service.pagesBodyHtmlCache.Get(bodyHtmlCacheKey)
-	if cachedBodyHtml != nil {
-		logger.Debug("site.convertPage: HTML page body cache hit")
-		bodyHtml = string(cachedBodyHtml.Value())
-	} else {
-		logger.Debug("site.convertPage: HTML page body cache miss")
-		bodyHtml = service.contentService.RenderMarkdown(website, input.BodyMarkdown, snippets, false)
-		service.pagesBodyHtmlCache.Set(bodyHtmlCacheKey, []byte(bodyHtml), memorycache.DefaultTTL)
-	}
+	bodyHtml := service.contentService.RenderMarkdown(website, input.BodyMarkdown, snippets, false)
 
 	ret = site.Page{
 		PageMetadata: service.convertPageToMetadata(website, input),
