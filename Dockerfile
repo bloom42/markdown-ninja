@@ -23,7 +23,7 @@ RUN make exif clean install_ci build
 ####################################################################################################
 ## Build mdninja and mdninja-server
 ####################################################################################################
-FROM golang:1.24 AS go
+FROM golang:1.25 AS go
 FROM ubuntu:24.04 AS builder_go
 
 ENV TZ="UTC"

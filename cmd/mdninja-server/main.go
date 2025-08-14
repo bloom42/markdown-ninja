@@ -13,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bloom42/stdx-go/automaxprocs/maxprocs"
 	"github.com/bloom42/stdx-go/cobra"
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/log/slogx"
@@ -48,7 +47,6 @@ func init() {
 }
 
 func main() {
-	maxprocs.Set()
 	log.SetOutput(os.Stdout)
 
 	err := rootCmd.ExecuteContext(context.Background())

@@ -1,6 +1,6 @@
 FROM node:lts as node
 
-FROM golang:1.24 AS go
+FROM golang:1.25 AS go
 
 FROM ubuntu:24.04
 
