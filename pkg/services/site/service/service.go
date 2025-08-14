@@ -130,7 +130,7 @@ func NewSiteService(conf config.Config, db db.DB, queue queue.Queue, mailer mail
 
 	assetsCache := memorycache.New(
 		memorycache.WithTTL[string, []byte](48*time.Hour),
-		memorycache.WithCapacity[string, []byte](50),
+		memorycache.WithCapacity[string, []byte](100),
 	)
 
 	pagesBodyHtmlCache := memorycache.New(
