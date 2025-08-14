@@ -31,13 +31,13 @@ type newSigningKey struct {
 type HmacSha512Key struct {
 	algorithm Algorithm
 	id        string
-	secret    []byte
+	secret    [32]byte
 }
 
 func (key *HmacSha512Key) Sign(message []byte) []byte {
 	var signature [64]byte
 
-	hmac := hmac.New(func() hash.Hash { return sha512.New() }, key.secret)
+	hmac := hmac.New(func() hash.Hash { return sha512.New() }, key.secret[:])
 	hmac.Write(message)
 	return hmac.Sum(signature[:0])
 }
@@ -45,7 +45,7 @@ func (key *HmacSha512Key) Sign(message []byte) []byte {
 func (key *HmacSha512Key) Verify(message, signature []byte) bool {
 	var hmacHash [64]byte
 
-	hmac := hmac.New(func() hash.Hash { return sha512.New() }, key.secret)
+	hmac := hmac.New(func() hash.Hash { return sha512.New() }, key.secret[:])
 	hmac.Write(message)
 	hmac.Sum(hmacHash[:0])
 
@@ -81,7 +81,7 @@ func generateAndSaveNewJwtKey(ctx context.Context, store KeyStore, kms *kms.Kms)
 		hmacKey: HmacSha512Key{
 			algorithm: AlgorithmHS512,
 			id:        jwtKey.ID.String(),
-			secret:    secret[:],
+			secret:    secret,
 		},
 	}
 	return ret, nil
@@ -92,13 +92,15 @@ func decryptJwtSecretKey(ctx context.Context, kms *kms.Kms, jwtKey jwtKey) (Hmac
 	ret := HmacSha512Key{
 		algorithm: AlgorithmHS512,
 		id:        jwtKey.ID.String(),
-		secret:    nil,
+		secret:    [32]byte{},
 	}
 
-	ret.secret, err = kms.Decrypt(ctx, jwtKey.EncryptedSecretKey, jwtKey.ID.Bytes())
+	secret, err := kms.Decrypt(ctx, jwtKey.EncryptedSecretKey, jwtKey.ID.Bytes())
 	if err != nil {
 		return ret, fmt.Errorf("error decrypting JWT secret key: %w", err)
 	}
+
+	copy(ret.secret[:], secret)
 
 	return ret, nil
 }

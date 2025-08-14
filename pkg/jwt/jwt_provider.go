@@ -63,7 +63,7 @@ func NewProvider(ctx context.Context, db db.DB, kms *kms.Kms, options *NewProvid
 	}
 
 	verifyingKeysCache := memorycache.New(
-		memorycache.WithCapacity[string, HmacSha512Key](60),
+		memorycache.WithCapacity[string, HmacSha512Key](100),
 		memorycache.WithTTL[string, HmacSha512Key](12*time.Hour),
 	)
 	verifyingKeysCache.Set(signingKey.id, signingKey, memorycache.DefaultTTL)
@@ -141,7 +141,7 @@ func (provider *Provider) NewSignedToken(data any, options *TokenOptions) (token
 	tokenBuffer.WriteString(encodedClaims)
 
 	// Signature
-	rawSignature := signTokenHMAC(sha512.New, []byte(signingKey.secret), tokenBuffer.Bytes())
+	rawSignature := signTokenHMAC(sha512.New, signingKey.secret[:], tokenBuffer.Bytes())
 
 	encodedSignature := base64.RawURLEncoding.EncodeToString(rawSignature)
 	tokenBuffer.WriteString(".")
@@ -203,7 +203,7 @@ func (provider *Provider) ParseAndVerifyToken(token string, claimsPointer any) (
 
 	encodedHeaderAndClaims := token[:signatureStart]
 
-	err = verifyTokenHMAC(sha512.New, []byte(verifyingKey.secret), signature, []byte(encodedHeaderAndClaims))
+	err = verifyTokenHMAC(sha512.New, verifyingKey.secret[:], signature, []byte(encodedHeaderAndClaims))
 	if err != nil {
 		return err
 	}

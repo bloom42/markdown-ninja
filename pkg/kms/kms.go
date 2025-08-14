@@ -52,7 +52,7 @@ type Kms struct {
 
 func New(kms KmsService, masterKeyID string) *Kms {
 	dataKeysCache := memorycache.New(
-		memorycache.WithCapacity[string, []byte](10_000),
+		memorycache.WithCapacity[string, []byte](5_000),
 		memorycache.WithTTL[string, []byte](1*time.Hour),
 	)
 
