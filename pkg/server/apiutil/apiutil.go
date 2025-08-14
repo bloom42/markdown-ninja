@@ -36,6 +36,9 @@ const (
 	ErrorCodeAuthenticationRequired apiErrorCode = "AUTHENTICATION_REQUIRED"
 )
 
+var jsonEncodingOptions = json.JoinOptions(json.FormatNilMapAsNull(true))
+var jsonDecodingOptions = json.JoinOptions(json.RejectUnknownMembers(true))
+
 func DecodeRequest(w http.ResponseWriter, req *http.Request, dest any) (err error) {
 	req.Body = http.MaxBytesReader(w, req.Body, MaxBodySize)
 	contentType := strings.TrimSpace(strings.Split(req.Header.Get("Content-type"), ";")[0])
@@ -46,7 +49,7 @@ func DecodeRequest(w http.ResponseWriter, req *http.Request, dest any) (err erro
 		return
 	}
 
-	err = json.UnmarshalRead(req.Body, dest, json.RejectUnknownMembers(true))
+	err = json.UnmarshalRead(req.Body, dest, jsonDecodingOptions)
 	if err != nil {
 		ctx := req.Context()
 		logger := slogx.FromCtx(ctx)
@@ -97,7 +100,7 @@ func SendResponse(ctx context.Context, w http.ResponseWriter, statusCode int, da
 
 	w.WriteHeader(statusCode)
 
-	err := json.MarshalWrite(w, data)
+	err := json.MarshalWrite(w, data, jsonEncodingOptions)
 	if err != nil {
 		logger.Error("apiutil.SendResponse: encoding JSON", slogx.Err(err))
 		SendError(ctx, w, err)
@@ -149,7 +152,7 @@ func SendError(ctx context.Context, w http.ResponseWriter, err error) {
 		Message: message,
 		Code:    code,
 	}
-	err = json.MarshalWrite(w, apiErr)
+	err = json.MarshalWrite(w, apiErr, jsonEncodingOptions)
 	if err != nil {
 		logger.Error("apiutil.SendError: encoding error", slogx.Err(err))
 		http.Error(w, `{"message":"Internal Error","code":"INTERNAL"}`, http.StatusInternalServerError)
