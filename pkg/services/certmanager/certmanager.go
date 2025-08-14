@@ -57,7 +57,7 @@ func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
 	autocertDomains.Insert(httpConfig.WebsitesRootDomain)
 
 	certsCache := memorycache.New(
-		memorycache.WithCapacity[string, *tls.Certificate](10_000),
+		memorycache.WithCapacity[string, *tls.Certificate](1_000),
 		memorycache.WithTTL[string, *tls.Certificate](1*time.Hour),
 	)
 
