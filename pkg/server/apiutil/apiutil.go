@@ -2,7 +2,7 @@ package apiutil
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"net/http"
 	"strconv"
@@ -46,10 +46,7 @@ func DecodeRequest(w http.ResponseWriter, req *http.Request, dest any) (err erro
 		return
 	}
 
-	jsonDecoder := json.NewDecoder(req.Body)
-	jsonDecoder.DisallowUnknownFields()
-
-	err = jsonDecoder.Decode(dest)
+	err = json.UnmarshalRead(req.Body, dest, json.RejectUnknownMembers(true))
 	if err != nil {
 		ctx := req.Context()
 		logger := slogx.FromCtx(ctx)
@@ -100,7 +97,7 @@ func SendResponse(ctx context.Context, w http.ResponseWriter, statusCode int, da
 
 	w.WriteHeader(statusCode)
 
-	err := json.NewEncoder(w).Encode(data)
+	err := json.MarshalWrite(w, data)
 	if err != nil {
 		logger.Error("apiutil.SendResponse: encoding JSON", slogx.Err(err))
 		SendError(ctx, w, err)
@@ -152,7 +149,7 @@ func SendError(ctx context.Context, w http.ResponseWriter, err error) {
 		Message: message,
 		Code:    code,
 	}
-	err = json.NewEncoder(w).Encode(apiErr)
+	err = json.MarshalWrite(w, apiErr)
 	if err != nil {
 		logger.Error("apiutil.SendError: encoding error", slogx.Err(err))
 		http.Error(w, `{"message":"Internal Error","code":"INTERNAL"}`, http.StatusInternalServerError)
