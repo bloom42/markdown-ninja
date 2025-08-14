@@ -114,7 +114,7 @@ STRIP_CMD = strip --strip-all -xX \
 .PHONY: mdninja
 mdninja:
 	mkdir -p $(DIST_DIR)
-	GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_BIN) -tags timetzdata \
+	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_BIN) -tags timetzdata \
 		-trimpath -a -ldflags "-B none -extldflags -static -w -s -X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja
 	$(STRIP_CMD) $(DIST_DIR)/$(MDNINJA_BIN)
@@ -158,7 +158,7 @@ MDNINJA_EBOOK_BIN = mdninja-ebook
 .PHONY: mdninja-ebook
 mdninja-ebook:
 	mkdir -p $(DIST_DIR)
-	GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_EBOOK_BIN) -trimpath -a -ldflags "-extldflags -static -w -s \
+	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_EBOOK_BIN) -trimpath -a -ldflags "-extldflags -static -w -s \
 		-X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja-ebook
 	$(STRIP_CMD) $(DIST_DIR)/$(MDNINJA_EBOOK_BIN)
