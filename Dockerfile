@@ -68,7 +68,7 @@ RUN make mdninja
 ####################################################################################################
 ## This container is used to get the correct files to scratch
 ####################################################################################################
-FROM --platform=$BUILDPLATFORM debian:12-slim AS builder_files
+FROM --platform=$BUILDPLATFORM debian:13-slim AS builder_files
 
 # appuser
 ENV USER=mdninja
@@ -98,7 +98,7 @@ RUN adduser \
 
 # See https://chemidy.medium.com/create-the-smallest-and-secured-golang-docker-image-based-on-scratch-4752223b7324
 # for more information about how to create Go containers FROM scratch
-FROM scratch
+FROM debian:13-slim
 
 ENV TZ="UTC"
 ENV LC_ALL="en_US.UTF-8"
@@ -115,8 +115,9 @@ COPY --from=builder_files --chmod=444 \
     /etc/timezone \
     /etc/
 
-
-COPY --from=builder_files --chmod=444 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder_files  --chmod=444 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+RUN chmod 0755 /etc/ssl && chmod 0755 /etc/ssl/certs
+# COPY --from=builder_files --chmod=755 /etc/ssl /etc/ssl
 COPY --from=builder_files --chmod=444 /usr/share/zoneinfo /usr/share/zoneinfo
 
 # Copy our builds

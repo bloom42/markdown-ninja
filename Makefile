@@ -114,7 +114,7 @@ STRIP_CMD = strip --strip-all -xX \
 .PHONY: mdninja
 mdninja:
 	mkdir -p $(DIST_DIR)
-	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_BIN) -tags timetzdata \
+	GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_BIN) -tags timetzdata \
 		-trimpath -a -ldflags "-B none -extldflags -static -w -s -X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja
 	$(STRIP_CMD) $(DIST_DIR)/$(MDNINJA_BIN)
@@ -132,7 +132,7 @@ MDNINJA_SERVER_BIN = mdninja-server
 .PHONY: mdninja-server
 mdninja-server:
 	mkdir -p $(DIST_DIR)
-	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 GOAMD64=v3 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_SERVER_BIN) -tags timetzdata \
+	GOAMD64=v3 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_SERVER_BIN) -tags timetzdata \
 		-trimpath -a -ldflags "-B none -extldflags -static -w -s -X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja-server
 	$(STRIP_CMD) $(DIST_DIR)/$(MDNINJA_SERVER_BIN)
@@ -145,7 +145,7 @@ dev:
 
 .PHONY: build_server_dev
 build_server_dev:
-	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 go build -o $(DIST_DIR)/$(MDNINJA_SERVER_BIN) -ldflags "-B none -extldflags -w -s -X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
+	go build -o $(DIST_DIR)/$(MDNINJA_SERVER_BIN) -ldflags "-B none -extldflags -w -s -X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja-server
 
 
@@ -158,7 +158,7 @@ MDNINJA_EBOOK_BIN = mdninja-ebook
 .PHONY: mdninja-ebook
 mdninja-ebook:
 	mkdir -p $(DIST_DIR)
-	GOEXPERIMENT=greenteagc GOEXPERIMENT=jsonv2 GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_EBOOK_BIN) -trimpath -a -ldflags "-extldflags -static -w -s \
+	GOOS=linux CGO_ENABLED=0 go build -o $(DIST_DIR)/$(MDNINJA_EBOOK_BIN) -trimpath -a -ldflags "-extldflags -static -w -s \
 		-X $(GO_MODULE)/pkg/buildinfo.Version=$(VERSION)" \
 		./cmd/mdninja-ebook
 	$(STRIP_CMD) $(DIST_DIR)/$(MDNINJA_EBOOK_BIN)

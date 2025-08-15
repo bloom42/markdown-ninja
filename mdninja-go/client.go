@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -22,8 +22,8 @@ type Client struct {
 	apiBaseUrl       string
 }
 
-var jsonEncodingOptions = json.JoinOptions(json.FormatNilMapAsNull(true))
-var jsonDecodingOptions = json.JoinOptions()
+// var jsonEncodingOptions = json.JoinOptions(json.FormatNilMapAsNull(true))
+// var jsonDecodingOptions = json.JoinOptions()
 
 // TODO: wrap errors with errs
 func NewClient(markdownNinjaUrl, apiKey string) (client *Client, err error) {
@@ -76,7 +76,7 @@ func (client *Client) request(ctx context.Context, params requestParams, dst any
 	if params.Payload != nil {
 		var payloadData []byte
 
-		payloadData, err = json.Marshal(params.Payload, jsonEncodingOptions)
+		payloadData, err = json.Marshal(params.Payload)
 		if err != nil {
 			return fmt.Errorf("client.request: marshaling JSON: %w", err)
 		}
@@ -101,7 +101,7 @@ func (client *Client) request(ctx context.Context, params requestParams, dst any
 
 	if res.StatusCode >= 400 {
 		var apiErr apiutil.ApiError
-		err = json.Unmarshal(body, &apiErr, jsonDecodingOptions)
+		err = json.Unmarshal(body, &apiErr)
 		if err != nil {
 			return fmt.Errorf("decoding error API response: %w", err)
 		}
@@ -109,7 +109,7 @@ func (client *Client) request(ctx context.Context, params requestParams, dst any
 	}
 
 	if dst != nil {
-		err = json.Unmarshal(body, &dst, jsonDecodingOptions)
+		err = json.Unmarshal(body, &dst)
 		if err != nil {
 			return fmt.Errorf("decoding API response: %w", err)
 		}

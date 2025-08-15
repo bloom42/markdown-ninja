@@ -3,3 +3,4 @@ dist
 _dev
 markdown_ninja_server.yml
 examples/
+Dockerfile

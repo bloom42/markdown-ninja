@@ -16,7 +16,7 @@ const (
 	NewsletterSubjectMinSize         = 1
 
 	// the number of emails / s to send for a single newsletter
-	NewsletterRateLimit = 8
+	NewsletterRateLimit = 5
 )
 
 type EmailType string

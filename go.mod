@@ -1,6 +1,6 @@
 module markdown.ninja
 
-go 1.25
+go 1.25.0
 
 tool github.com/bloom42/stdx-go/tools/watchgod
 
