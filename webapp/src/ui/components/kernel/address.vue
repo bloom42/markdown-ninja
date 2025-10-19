@@ -26,6 +26,7 @@
         <sl-input :value="modelValue.state" @input="modelValue.state = $event.target.value" type="text"
           :readonly="readonly" placeholder="State, Province or Region (optional)" label="State, Province or Region (optional)" />
 
+        <!-- @ts-ignore: ignore next line -->
         <SelectCountry v-model="modelValue.country_code" :readonly="readonly" />
       </div>
     </div>
@@ -34,7 +35,7 @@
 
 <script lang="ts" setup>
 import type { Address } from '@/api/model';
-import { readonly, type PropType } from 'vue';
+import { type PropType } from 'vue';
 import SelectCountry from './select_country.vue';
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input.js';
 
@@ -45,7 +46,7 @@ defineProps({
     required: true,
   },
   readonly: {
-    type: Boolean as PropType<boolean>,
+    type: Boolean,
     required: false,
     default: false,
   },

@@ -13,13 +13,13 @@ RUN apt-get install -y --no-install-recommends \
     # base system. psmisc for killall. openssh-client for git over SSH. netbase for whois.
     bash curl wget psmisc ca-certificates lsb-release openssh-client netbase whois sqlite3 less netcat-openbsd \
     # dev tools. dnsutils for dig. bsdmainutils for hexdump.
-    git vim make binutils coreutils build-essential pkg-config \
+    git vim make binutils coreutils build-essential pkg-config xxd \
     zip gnupg gcc libc6-dev htop wrk zstd gzip upx gdb dnsutils jq b3sum bsdmainutils \
     #  g++ musl musl-dev musl-tools clang libclang-dev lld cmake \
     # useful data. mailcap for mimetypes. tzdata for timezones.
     mailcap tzdata libpcre3-dev \
     # mdninja-server specific dependencies
-    postgresql-client-16 libimage-exiftool-perl
+    postgresql-client-16 libimage-exiftool-perl graphviz
 
 # setup node
 COPY --from=node /usr/local/bin/node /usr/local/bin/

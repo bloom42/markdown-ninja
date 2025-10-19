@@ -87,7 +87,7 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 
 	// if res.Etag != "" && res.Etag != geoipDbHashHex {
 	// 	logger.Error("geoip: downloaded geoip database hash doesn't match etag",
-	// 		slog.String("algorithm", "SHA3-256"), slog.String("encoding", "hex"),
+	// 		slog.String("algorithm", "BLAKE3"), slog.String("encoding", "hex"),
 	// 		slog.String("etag", res.Etag), slog.String("geoip_db.hash", geoipDbHashHex),
 	// 	)
 	// }

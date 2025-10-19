@@ -6,6 +6,7 @@ import (
 	"log"
 	"log/slog"
 	"net"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"runtime"
@@ -92,11 +93,13 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		logger.Info("successfully connected to database")
 
 		err = migrateDatabase(ctx, dbPool)
 		if err != nil {
 			return err
 		}
+		logger.Debug("successfully migrated database schema")
 
 		queue := postgres.NewPostgreSQLQueue(ctx, dbPool, logger)
 

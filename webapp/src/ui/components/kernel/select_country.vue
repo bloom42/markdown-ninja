@@ -23,7 +23,7 @@ const props = defineProps({
     default: 'Country',
   },
   readonly: {
-    type: Boolean as PropType<boolean>,
+    type: Boolean,
     required: false,
     default: false,
   },

@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { useStore } from '@/app/store';
-import { hashSha256 } from '@/libs/crypto';
+import { hashSha512 } from '@/libs/crypto';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { onBeforeMount } from 'vue';
 
@@ -41,7 +41,7 @@ onBeforeMount(async () => {
   if ($store.announcement && announcementPreferencesStr) {
     try {
       let announcementPreferences: SavedAnnouncementPreferences = JSON.parse(announcementPreferencesStr);
-      const announcementHash = await hashSha256(new TextEncoder().encode($store.announcement));
+      const announcementHash = await hashSha512(new TextEncoder().encode($store.announcement));
 
       if (announcementPreferences.announcementHash === announcementHash) {
         $store.setShowAnnouncementBar(false);
@@ -71,7 +71,7 @@ async function hide() {
   $store.setShowAnnouncementBar(!$store.showAnnouncementBar);
 
   try {
-    const announcementHash = await hashSha256(new TextEncoder().encode(announcementValue));
+    const announcementHash = await hashSha512(new TextEncoder().encode(announcementValue));
     let preferences: SavedAnnouncementPreferences = {
       announcementHash: announcementHash,
       hiidenAt: new Date().toISOString(),
