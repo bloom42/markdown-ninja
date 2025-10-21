@@ -10,10 +10,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.17
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.5
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.53.6
-	github.com/bloom42/stdx-go v0.0.0-20250811085142-4b987334962f
+	github.com/bloom42/stdx-go v0.0.0-20251021083538-fa232b97572c
 	github.com/fxamacker/cbor/v2 v2.9.0
 	github.com/go-chi/chi/v5 v5.2.3
-	github.com/klauspost/compress v1.18.0
+	github.com/klauspost/compress v1.18.1
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pdfcpu/pdfcpu v0.11.0
 	github.com/stripe/stripe-go/v81 v81.4.0
