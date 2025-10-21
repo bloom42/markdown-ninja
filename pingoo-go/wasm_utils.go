@@ -81,7 +81,7 @@ func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
 	}
 	defer pingooWasmRes.Data.Close()
 
-	if pingooWasmRes.NotModified || pingooWasmRes.Etag == *currentPingooWasmEtag {
+	if pingooWasmRes.NotModified || pingooWasmRes.Etag == *currentPingooWasmEtag && pingooWasmRes.Etag != "" {
 		logger.Debug("pingoo: no new pingoo.wasm is available")
 		return nil
 	}
