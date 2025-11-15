@@ -72,17 +72,17 @@ func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
 		cache:              certsCache,
 	}
 
-	go func() {
-		for {
-			// delete older certificates every 12 hours
-			certManager.deleteOlderCertificates(ctx)
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(12 * time.Hour):
-			}
-		}
-	}()
+	// go func() {
+	// 	for {
+	// 		// delete older certificates every 12 hours
+	// 		certManager.deleteOlderCertificates(ctx)
+	// 		select {
+	// 		case <-ctx.Done():
+	// 			return
+	// 		case <-time.After(12 * time.Hour):
+	// 		}
+	// 	}
+	// }()
 
 	return certManager, nil
 }
@@ -195,8 +195,8 @@ func (certManager *CertManager) deleteOlderCertificates(ctx context.Context) {
 
 	logger := slogx.FromCtx(ctx)
 
-	// delete certificates older than 80 days
-	olderThan := time.Now().UTC().Add(-80 * 24 * time.Hour)
+	// delete certificates that haven't been updated in the last 100 days
+	olderThan := time.Now().UTC().Add(-100 * 24 * time.Hour)
 	_, err := certManager.db.Exec(ctx, "DELETE FROM tls_certificates WHERE updated_at < $1", olderThan)
 	if err != nil {
 		err = fmt.Errorf("certmanager.deleteOlderCertificates: error deleting tls_certificates: %w", err)

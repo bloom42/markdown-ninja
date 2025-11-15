@@ -64,6 +64,7 @@ release: mdninja
 	date
 	make delete_ds_store
 	make exif
+	make mdninja
 	cd webapp && make check
 	cd themes/blog && make check
 	cd themes/docs && make check
