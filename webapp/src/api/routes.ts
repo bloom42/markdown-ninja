@@ -5,6 +5,7 @@ export const Routes = {
   // misc
   challengeSiteKey: '/challenge_site_key',
   listTlsCertificates: '/list_tls_certificates',
+  deleteTlsCertificate: '/delete_tls_certificate',
 
   // background jobs
   failedBackgroundJobs: '/queue/failed_background_jobs',

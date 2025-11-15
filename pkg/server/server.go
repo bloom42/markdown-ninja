@@ -106,7 +106,7 @@ func Start(ctx context.Context, conf config.Config, db db.DB, pingooClient *ping
 	}
 
 	certManager, err := certmanager.NewCertManager(ctx,
-		db, kms, autocertManager, websitesService, conf.HTTP,
+		db, kms, autocertManager, websitesService, conf.HTTP, kernelService,
 	)
 	if err != nil {
 		return fmt.Errorf("server: error creating Certmanager: %w", err)

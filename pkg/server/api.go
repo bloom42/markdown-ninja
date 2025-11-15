@@ -78,6 +78,7 @@ func (server *server) Api(apiRouter chi.Router) {
 	// misc
 	apiRouter.Post(api.RouteInit, apiutil.JsonEndpoint(server.kernelService.Init))
 	apiRouter.Post("/list_tls_certificates", apiutil.JsonEndpoint(server.certManager.ListCertificates))
+	apiRouter.Post("/delete_tls_certificate", apiutil.JsonEndpointOk(server.certManager.DeleteTlsCertificate))
 
 	// jobs queue
 	apiRouter.Post(api.RouteFailedBackgroundJobs, apiutil.JsonEndpoint(server.kernelService.ListFailedBackgroundJobs))

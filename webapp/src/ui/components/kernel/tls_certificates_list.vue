@@ -14,6 +14,9 @@
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Updated At
               </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody class="min-w-full bg-white divide-y divide-gray-200">
@@ -33,6 +36,11 @@
                   {{ date(certificate.updated_at) }}
                 </div>
               </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <sl-button variant="neutral" circle @click="$emit('delete', certificate)">
+                  <TrashIcon class="h-5 w-5" aria-hidden="true" />
+                </sl-button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -45,6 +53,8 @@
 import type { TlsCertificates } from '@/api/model';
 import date from 'mdninja-js/src/libs/date';
 import type { PropType } from 'vue';
+import { TrashIcon } from '@heroicons/vue/24/outline';
+import SlButton from '@shoelace-style/shoelace/dist/components/button/button.js';
 
 // props
 defineProps({
@@ -55,6 +65,7 @@ defineProps({
 });
 
 // events
+const $emit = defineEmits(['delete']);
 
 // composables
 

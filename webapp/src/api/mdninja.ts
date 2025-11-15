@@ -456,7 +456,11 @@ export class MdninjaService {
   // Kernel
   //////////////////////////////////////////////////////////////////////////////////////////////////
   async listTlsCertificates(): Promise<model.PaginatedResult<model.TlsCertificates>> {
-    return await post(Routes.listTlsCertificates, {});
+    return post(Routes.listTlsCertificates, {});
+  }
+
+  async deleteTlsCertificate(input: model.DeleteTlsCertificateInput) {
+    await post(Routes.deleteTlsCertificate, input);
   }
 
   async listFailedBackgroundJobs(): Promise<model.PaginatedResult<model.BackgroundJob>> {

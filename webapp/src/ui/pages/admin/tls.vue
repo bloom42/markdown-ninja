@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <TlsCertificatesList :tls-certificates="tlsCertificates" />
+    <TlsCertificatesList :tls-certificates="tlsCertificates" @delete="deleteCertificate" />
   </div>
 </template>
 
@@ -37,7 +37,24 @@ async function fetchData() {
   try {
     const res = await $mdninja.listTlsCertificates();
     tlsCertificates.value = res.data;
-    console.log(tlsCertificates.value);
+  } catch (err: any) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function deleteCertificate(certificate: TlsCertificates) {
+  if (!confirm('Do you really want to delete this certificate? This action cannot be undone.')) {
+    return;
+  }
+
+  loading.value = true;
+  error.value = '';
+
+  try {
+    await $mdninja.deleteTlsCertificate({ key: certificate.key });
+    tlsCertificates.value= tlsCertificates.value.filter((cert) => certificate.key !== cert.key);
   } catch (err: any) {
     error.value = err.message;
   } finally {

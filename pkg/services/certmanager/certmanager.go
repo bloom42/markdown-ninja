@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/kms"
+	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/websites"
 )
@@ -28,6 +29,7 @@ type CertManager struct {
 	websitesService    websites.Service
 	httpConfig         config.Http
 	kms                *kms.Kms
+	kernel             kernel.Service
 
 	cache           *memorycache.Cache[string, *tls.Certificate]
 	autocertManager *autocert.Manager
@@ -40,11 +42,15 @@ type TlsCertificate struct {
 	EncryptedValue []byte    `db:"encrypted_value" json:"-"`
 }
 
+type DeleteTlsCertificateInput struct {
+	Key string `json:"key"`
+}
+
 // Note that all hosts will be converted to Punycode via idna.Lookup.ToASCII so that
 // Manager.GetCertificate can handle the Unicode IDN and mixedcase hosts correctly.
 // Invalid hosts will be silently ignored.
 func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
-	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http) (certManager *CertManager, err error) {
+	autocertManager *autocert.Manager, websitesService websites.Service, httpConfig config.Http, kernel kernel.Service) (certManager *CertManager, err error) {
 
 	selfSignedTlsCertificate, err := generateSelfSignedCert()
 	if err != nil {
@@ -70,6 +76,7 @@ func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
 		websitesService:    websitesService,
 		httpConfig:         httpConfig,
 		cache:              certsCache,
+		kernel:             kernel,
 	}
 
 	// go func() {
@@ -177,6 +184,7 @@ func (certManager *CertManager) Put(ctx context.Context, key string, data []byte
 func (certManager *CertManager) Delete(ctx context.Context, key string) error {
 	logger := slogx.FromCtx(ctx)
 
+	certManager.cache.Delete(key)
 	_, err := certManager.db.Exec(ctx, "DELETE FROM tls_certificates WHERE key = $1", key)
 	if err != nil {
 		err = fmt.Errorf("certmanager.Delete: error deleting tls_certificate: %w", err)
@@ -207,7 +215,27 @@ func (certManager *CertManager) deleteOlderCertificates(ctx context.Context) {
 	logger.Debug("certmanager: older certificates successfully deleted")
 }
 
+// API endpoints
+
+func (certManager *CertManager) DeleteTlsCertificate(ctx context.Context, input DeleteTlsCertificateInput) error {
+	httpCtx := httpctx.FromCtx(ctx)
+
+	accessToken := httpCtx.AccessToken
+	if accessToken == nil || !accessToken.IsAdmin {
+		return kernel.ErrPermissionDenied
+	}
+
+	return certManager.Delete(ctx, input.Key)
+}
+
 func (certManager *CertManager) ListCertificates(ctx context.Context, _ kernel.EmptyInput) (ret kernel.PaginatedResult[TlsCertificate], err error) {
+	httpCtx := httpctx.FromCtx(ctx)
+
+	accessToken := httpCtx.AccessToken
+	if accessToken == nil || !accessToken.IsAdmin {
+		return ret, kernel.ErrPermissionDenied
+	}
+
 	limit := math.MaxInt64
 	certs := make([]TlsCertificate, 0, 10)
 

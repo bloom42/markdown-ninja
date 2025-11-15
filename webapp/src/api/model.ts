@@ -408,6 +408,10 @@ export type TlsCertificates = {
   key: string,
 }
 
+export type DeleteTlsCertificateInput = {
+  key: string,
+}
+
 export type PricingPlan = {
   id: string,
   name: string,
