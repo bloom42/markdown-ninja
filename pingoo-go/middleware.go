@@ -128,9 +128,10 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				client.serveBlockedResponse(res)
 				return
 			case AnalyzeRequestOutcomeChallenge:
-				req.URL.Path = "/__pingoo/challenge"
-				client.handleHttpRequest(ctx, clientIp, res, req)
-				return
+				break
+			// 	req.URL.Path = "/__pingoo/challenge"
+			// 	client.handleHttpRequest(ctx, clientIp, res, req)
+			// 	return
 
 			default:
 				// fail open
