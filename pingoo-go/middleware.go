@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/netip"
 	"strconv"
-	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -59,8 +58,8 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 				}
 			}
 
-			userAgent := strings.TrimSpace(req.UserAgent())
-			var err error
+			// userAgent := strings.TrimSpace(req.UserAgent())
+			// var err error
 			path := req.URL.Path
 			ctx := req.Context()
 			logger := client.getLogger(ctx)
@@ -92,57 +91,58 @@ func (client *Client) Middleware(config *MiddlewareConfig) func(next http.Handle
 			ctx = context.WithValue(ctx, CtxKeyGeoip, geoipInfo)
 			req = req.WithContext(ctx)
 
-			if strings.HasPrefix(path, "/__pingoo/") {
-				client.handleHttpRequest(ctx, clientIp, res, req)
-				return
-			}
-
-			analyzeRequestInput := analyzeRequestInput{
-				HttpMethod:       req.Method,
-				Hostname:         req.Host,
-				UserAgent:        userAgent,
-				Ip:               clientIp.String(),
-				Asn:              geoipInfo.ASN,
-				Country:          geoipInfo.Country,
-				Path:             req.URL.Path,
-				HttpVersionMajor: int64(req.ProtoMajor),
-				HttpVersionMinor: int64(req.ProtoMinor),
-				Headers:          convertHttpheaders(req.Header),
-			}
-			analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput)
-			if err != nil {
-				// fail open
-				logger.Error(err.Error(),
-					slog.String("user_agent", userAgent),
-					slog.String("ip_address", clientIp.String()),
-					slog.Int64("asn", geoipInfo.ASN),
-				)
-				nextMiddleware.ServeHTTP(res, req)
-				return
-			}
-
-			switch analyzeRequestOutput.Outcome {
-			case AnalyzeRequestOutcomeAllowed, AnalyzeRequestOutcomeVerifiedBot:
-				break
-			case AnalyzeRequestOutcomeChallenge:
-				break
-			// 	req.URL.Path = "/__pingoo/challenge"
+			// if strings.HasPrefix(path, "/__pingoo/") {
 			// 	client.handleHttpRequest(ctx, clientIp, res, req)
 			// 	return
-			case AnalyzeRequestOutcomeBlocked:
-				client.serveBlockedResponse(res)
-				return
+			// }
 
-			default:
-				// fail open
-				logger.Error("pingoo.Middleware: unknown outcome",
-					slog.String("outcome", string(analyzeRequestOutput.Outcome)),
-					slog.String("ip", clientIp.String()),
-					slog.String("user_agent", userAgent),
-					slog.String("path", path),
-					slog.Int64("asn", geoipInfo.ASN),
-				)
-			}
+			// analyzeRequestInput := analyzeRequestInput{
+			// 	HttpMethod:       req.Method,
+			// 	Hostname:         req.Host,
+			// 	UserAgent:        userAgent,
+			// 	Ip:               clientIp.String(),
+			// 	Asn:              geoipInfo.ASN,
+			// 	Country:          geoipInfo.Country,
+			// 	Path:             req.URL.Path,
+			// 	HttpVersionMajor: int64(req.ProtoMajor),
+			// 	HttpVersionMinor: int64(req.ProtoMinor),
+			// 	Headers:          convertHttpheaders(req.Header),
+			// }
+			// analyzeRequestOutput, err := client.analyzeRequest(ctx, analyzeRequestInput)
+			// if err != nil {
+			// 	// fail open
+			// 	logger.Error(err.Error(),
+			// 		slog.String("user_agent", userAgent),
+			// 		slog.String("ip_address", clientIp.String()),
+			// 		slog.Int64("asn", geoipInfo.ASN),
+			// 	)
+			// 	nextMiddleware.ServeHTTP(res, req)
+			// 	return
+			// }
+
+			// switch analyzeRequestOutput.Outcome {
+			// case AnalyzeRequestOutcomeAllowed, AnalyzeRequestOutcomeVerifiedBot:
+			// 	break
+			// case AnalyzeRequestOutcomeChallenge:
+			// 	break
+			// // it's causing too much troubles
+			// // 	req.URL.Path = "/__pingoo/challenge"
+			// // 	client.handleHttpRequest(ctx, clientIp, res, req)
+			// // 	return
+			// case AnalyzeRequestOutcomeBlocked:
+			// 	client.serveBlockedResponse(res)
+			// 	return
+
+			// default:
+			// 	// fail open
+			// 	logger.Error("pingoo.Middleware: unknown outcome",
+			// 		slog.String("outcome", string(analyzeRequestOutput.Outcome)),
+			// 		slog.String("ip", clientIp.String()),
+			// 		slog.String("user_agent", userAgent),
+			// 		slog.String("path", path),
+			// 		slog.Int64("asn", geoipInfo.ASN),
+			// 	)
+			// }
 
 			nextMiddleware.ServeHTTP(res, req)
 		}
