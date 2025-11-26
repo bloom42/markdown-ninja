@@ -12,6 +12,9 @@
       "@/*": ["./src/*"]
     },
     "noUnusedLocals": true,
+    // Disable noUncheckedIndexedAccess for backward compatibility with existing code
+    // This was enabled by default in @vue/tsconfig 0.8.x
+    "noUncheckedIndexedAccess": false,
   },
   "jsx": "preserve",
   "jsxImportSource": "vue"
