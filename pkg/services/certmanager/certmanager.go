@@ -11,7 +11,6 @@ import (
 
 	"github.com/bloom42/stdx-go/db"
 	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/memorycache"
 	"github.com/bloom42/stdx-go/set"
 	"golang.org/x/crypto/acme/autocert"
 	"markdown.ninja/cmd/mdninja-server/config"
@@ -31,7 +30,7 @@ type CertManager struct {
 	kms                *kms.Kms
 	kernel             kernel.Service
 
-	cache           *memorycache.Cache[string, *tls.Certificate]
+	// cache           *memorycache.Cache[string, *tls.Certificate]
 	autocertManager *autocert.Manager
 }
 
@@ -62,10 +61,10 @@ func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
 	autocertDomains.Insert(fmt.Sprintf("www.%s", httpConfig.WebappDomain))
 	autocertDomains.Insert(httpConfig.WebsitesRootDomain)
 
-	certsCache := memorycache.New(
-		memorycache.WithCapacity[string, *tls.Certificate](1_000),
-		memorycache.WithTTL[string, *tls.Certificate](1*time.Hour),
-	)
+	// certsCache := memorycache.New(
+	// 	memorycache.WithCapacity[string, *tls.Certificate](1_000),
+	// 	memorycache.WithTTL[string, *tls.Certificate](1*time.Hour),
+	// )
 
 	certManager = &CertManager{
 		db:                 db,
@@ -75,8 +74,8 @@ func NewCertManager(ctx context.Context, db db.DB, kms *kms.Kms,
 		autocertManager:    autocertManager,
 		websitesService:    websitesService,
 		httpConfig:         httpConfig,
-		cache:              certsCache,
-		kernel:             kernel,
+		// cache:              certsCache,
+		kernel: kernel,
 	}
 
 	// go func() {
@@ -116,16 +115,16 @@ func (certManager *CertManager) DefaultCertificate() *tls.Certificate {
 
 func (certManager *CertManager) GetCertificate(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	if certManager.isAllowedDomain(context.Background(), clientHello.ServerName) {
-		if cachedCert := certManager.cache.Get(clientHello.ServerName); cachedCert != nil {
-			return cachedCert.Value(), nil
-		}
+		// if cachedCert := certManager.cache.Get(clientHello.ServerName); cachedCert != nil {
+		// 	return cachedCert.Value(), nil
+		// }
 
 		cert, err := certManager.autocertManager.GetCertificate(clientHello)
 		if err != nil {
 			return cert, err
 		}
 
-		certManager.cache.Set(clientHello.ServerName, cert, memorycache.DefaultTTL)
+		// certManager.cache.Set(clientHello.ServerName, cert, memorycache.DefaultTTL)
 		return cert, nil
 	}
 
@@ -184,7 +183,7 @@ func (certManager *CertManager) Put(ctx context.Context, key string, data []byte
 func (certManager *CertManager) Delete(ctx context.Context, key string) error {
 	logger := slogx.FromCtx(ctx)
 
-	certManager.cache.Delete(key)
+	// certManager.cache.Delete(key)
 	_, err := certManager.db.Exec(ctx, "DELETE FROM tls_certificates WHERE key = $1", key)
 	if err != nil {
 		err = fmt.Errorf("certmanager.Delete: error deleting tls_certificate: %w", err)
