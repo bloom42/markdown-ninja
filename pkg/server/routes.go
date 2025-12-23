@@ -48,7 +48,6 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 					rules.ActionSetResponseHeader{
 						Headers: []rules.HttpHeader{
 							{"X-Content-Type-Options", "nosniff"},
-							{"X-Robots-Tag", "noai, noimageai"},
 							{"X-Frame-Options", "Deny"},
 							// "X-Frame-Options":        "Deny",
 							// w.Header().Set("Content-Security-Policy", "default-src 'self'")
