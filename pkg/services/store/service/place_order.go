@@ -85,9 +85,10 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	}
 
 	orderID := guid.NewTimeBased()
-	currency := strings.ToLower(string(website.Currency))
+
+	currency := website.Currency
 	if httpCtx.Client.CountryCode == "US" {
-		currency = strings.ToLower(string(websites.CurrencyUSD))
+		currency = websites.CurrencyUSD
 	}
 
 	stripeItems := make([]*stripe.CheckoutSessionLineItemParams, len(orderedProducts))
@@ -99,7 +100,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		stripeItems[i] = &stripe.CheckoutSessionLineItemParams{
 			PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 				// Stripe uses lowercase codes for currencies. See stripe.CurrencyUSD for example.
-				Currency: stripe.String(currency),
+				Currency: stripe.String(strings.ToLower(string(currency))),
 				ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
 					Name: stripe.String(product.Name),
 					Metadata: map[string]string{
@@ -228,7 +229,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		CreatedAt:                    now,
 		UpdatedAt:                    now,
 		TotalAmount:                  totalAmount,
-		Currency:                     websites.Currency(strings.ToUpper(currency)),
+		Currency:                     currency,
 		Notes:                        "",
 		Status:                       store.OrderStatusPending,
 		CompletedAt:                  nil,
