@@ -18,6 +18,7 @@ import (
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/events"
 	"markdown.ninja/pkg/services/store"
+	"markdown.ninja/pkg/services/websites"
 )
 
 func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOrderInput) (output store.PlaceOrderOutput, err error) {
@@ -84,6 +85,10 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 	}
 
 	orderID := guid.NewTimeBased()
+	currency := strings.ToLower(string(website.Currency))
+	if httpCtx.Client.CountryCode == "US" {
+		currency = strings.ToLower(string(websites.CurrencyUSD))
+	}
 
 	stripeItems := make([]*stripe.CheckoutSessionLineItemParams, len(orderedProducts))
 	for i, product := range orderedProducts {
@@ -94,7 +99,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		stripeItems[i] = &stripe.CheckoutSessionLineItemParams{
 			PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 				// Stripe uses lowercase codes for currencies. See stripe.CurrencyUSD for example.
-				Currency: stripe.String(strings.ToLower(string(website.Currency))),
+				Currency: stripe.String(currency),
 				ProductData: &stripe.CheckoutSessionLineItemPriceDataProductDataParams{
 					Name: stripe.String(product.Name),
 					Metadata: map[string]string{

@@ -24,6 +24,7 @@ type pageTemplateData struct {
 	Header            template.HTML
 	Footer            template.HTML
 
+	Country string
 	// ClientMetadata template.HTML
 }
 
@@ -94,6 +95,7 @@ func (service *SiteService) convertPageTemplateData(website websites.Website,
 		MarkdownNinjaData: template.JS(markdowNinjaDataJson),
 		Header:            template.HTML(website.Header),
 		Footer:            template.HTML(website.Footer),
+		Country:           country,
 	}
 	return
 }

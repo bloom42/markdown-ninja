@@ -88,6 +88,7 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	// rootRouter.Use(chimiddleware.RedirectSlashes)
 	rootRouter.Use(server.pingooClient.Middleware(&pingooMiddlewareConfig))
 	rootRouter.Use(middlewares.SetHTTPContext(server.pingooClient))
+	rootRouter.Use(middlewares.BlockCountries(server.blockedCountries))
 	rootRouter.Use(middlewares.Auth(server.webappDomain, server.kernelService, server.organizationsService,
 		server.contactsService, server.pingooClient))
 	rootRouter.Use(compressionMiddleware.Handler)

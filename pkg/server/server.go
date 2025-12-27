@@ -68,6 +68,7 @@ type server struct {
 	webappIndexHtmlHash     []byte
 	emailsConfig            config.Emails
 	websitesBaseUrl         *url.URL
+	blockedCountries        []string
 
 	autocertManager *autocert.Manager
 	certManager     *certmanager.CertManager
@@ -140,6 +141,7 @@ func Start(ctx context.Context, conf config.Config, db db.DB, pingooClient *ping
 		webappIndexHtmlHash:     webappIndexHtmlHash[:],
 		emailsConfig:            conf.Emails,
 		websitesBaseUrl:         conf.HTTP.WebsitesBaseUrl,
+		blockedCountries:        conf.BlockedCountries,
 
 		autocertManager: autocertManager,
 		certManager:     certManager,

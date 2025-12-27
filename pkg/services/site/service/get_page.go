@@ -58,7 +58,7 @@ func (service *SiteService) GetPage(ctx context.Context, input site.GetPageInput
 	// ThemeHash is not needed as it's an API call. There is no theme/frontend involved.
 	// Nothing in the returned response depends on the data of the contact, so we don't need to check
 	// if contact is present or not.
-	etag := computePageEtag(&page, website.ModifiedAt, nil, nil)
+	etag := computePageEtag(&page, website.ModifiedAt, nil, httpCtx.Client.CountryCode, nil)
 	if httpCtx.Request.IfNoneMatch != nil && *httpCtx.Request.IfNoneMatch == etag {
 		httpCtx.Response.CacheHit = &httpctx.CacheHit{
 			CacheControl: cacheControl,

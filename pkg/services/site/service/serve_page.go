@@ -34,7 +34,7 @@ func (service *SiteService) servePage(ctx context.Context, res http.ResponseWrit
 		return
 	}
 
-	etag := computePageEtag(&page, website.ModifiedAt, service.themes[website.Theme].Hash, contact)
+	etag := computePageEtag(&page, website.ModifiedAt, service.themes[website.Theme].Hash, httpCtx.Client.CountryCode, contact)
 	if statusCode == http.StatusOK &&
 		httpCtx.Request.IfNoneMatch != nil && *httpCtx.Request.IfNoneMatch == etag {
 		res.Header().Set(httpx.HeaderCacheControl, cacheControl)
@@ -122,7 +122,7 @@ func (service *SiteService) servePage(ctx context.Context, res http.ResponseWrit
 // and the hash of the theme files, so if any of these things has changed, the etag value will change.
 // Page MUST NOT be null. If page is null, then, to avoid segfaulting, a random ETAG will be returned
 // which defeats the purpose of generating an etag.
-func computePageEtag(page *content.Page, siteModifiedAt time.Time, themeHash []byte, contact *contacts.Contact) (etag string) {
+func computePageEtag(page *content.Page, siteModifiedAt time.Time, themeHash []byte, country string, contact *contacts.Contact) (etag string) {
 	var hash [32]byte
 
 	if page == nil {
@@ -137,6 +137,7 @@ func computePageEtag(page *content.Page, siteModifiedAt time.Time, themeHash []b
 	hasher.Write(page.ID.Bytes())
 	// hasher.Write(pageHash)
 	hasher.Write(themeHash)
+	hasher.Write([]byte(country))
 	if contact != nil {
 		hasher.Write(contact.ID.Bytes())
 	}
