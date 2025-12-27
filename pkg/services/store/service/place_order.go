@@ -228,7 +228,7 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		CreatedAt:                    now,
 		UpdatedAt:                    now,
 		TotalAmount:                  totalAmount,
-		Currency:                     website.Currency,
+		Currency:                     websites.Currency(strings.ToUpper(currency)),
 		Notes:                        "",
 		Status:                       store.OrderStatusPending,
 		CompletedAt:                  nil,
