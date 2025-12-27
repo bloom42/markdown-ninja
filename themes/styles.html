@@ -12,6 +12,6 @@
       */}}
     }
 
-    .mdninja-country { display: none; }
     div[data-mdninja-country="{{ .Country }}"] { display: block; }
+    div[data-mdninja-country="!{{ .Country }}"] { display: none; }
 </style>
