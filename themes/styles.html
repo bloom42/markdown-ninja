@@ -14,5 +14,6 @@
 
     .mdninja-hidden { display: none; }
     *[data-mdninja-country-show="{{ .Country }}"] { display: block; }
+    *[data-mdninja-country-show]:not([data-mdninja-country-show="{{ .Country }}"]){ display: none; }
     *[data-mdninja-country-hide="{{ .Country }}"] { display: none; }
 </style>
