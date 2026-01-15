@@ -179,7 +179,7 @@ func (server *server) run(ctx context.Context) (err error) {
 	httpHandler := http.MaxBytesHandler(h2cHandler, kernel.MaxAssetSize+10_000_000)
 
 	httpServer := http.Server{
-		Addr:              ":" + portStr,
+		Addr:              server.httpConfig.Ip + ":" + portStr,
 		Handler:           httpHandler,
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
@@ -205,7 +205,7 @@ func (server *server) run(ctx context.Context) (err error) {
 		httpServer.TLSConfig = tlsConfig
 	}
 
-	logger.Info("server: Starting HTTP server", slog.String("port", portStr), slog.Bool("tls", server.httpConfig.Tls))
+	logger.Info("server: Starting HTTP server", slog.String("address", httpServer.Addr), slog.Bool("tls", server.httpConfig.Tls))
 	httpServerListener, err := net.Listen("tcp", httpServer.Addr)
 	if err != nil {
 		return fmt.Errorf("server: error listening on port [%s]: %w", portStr, err)

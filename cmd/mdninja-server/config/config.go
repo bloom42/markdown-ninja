@@ -10,6 +10,7 @@ import (
 	"math"
 	"net"
 	"net/mail"
+	"net/netip"
 	"net/url"
 	"os"
 	"strconv"
@@ -47,8 +48,10 @@ type Config struct {
 }
 
 type Http struct {
-	// The port to listen to
+	// The port to listen to. default: 8080
 	Port uint16 `json:"port" yaml:"port"`
+	// The IP address to listen to. default: 0.0.0.0
+	Ip string `json:"ip" yaml:"ip"`
 	// AccessLogs   bool   `json:"access_logs" yaml:"access_logs"`
 	Tls bool `json:"tls" yaml:"tls"`
 
@@ -432,16 +435,20 @@ func (config *Config) validateAndDefaultValues() (err error) {
 }
 
 func cleanAndValidateHttpConfig(config *Config) (err error) {
+	if config.HTTP.Ip != "" {
+		if _, err = netip.ParseAddr(config.HTTP.Ip); err != nil {
+			return errs.InvalidArgument("config: http.ip is not valid")
+		}
+	}
+
 	// webapp_base_url
 	config.HTTP.WebappBaseUrlStr = strings.ToLower(strings.TrimSpace(config.HTTP.WebappBaseUrlStr))
 	if config.HTTP.WebappBaseUrlStr == "" {
-		err = errs.InvalidArgument("config: http.webapp_base_url is empty")
-		return err
+		return errs.InvalidArgument("config: http.webapp_base_url is empty")
 	}
 	config.HTTP.WebappBaseUrl, err = url.Parse(config.HTTP.WebappBaseUrlStr)
 	if err != nil {
-		err = errs.InvalidArgument(fmt.Sprintf("config: error parsing http.webapp_base_url: %s", err))
-		return
+		return errs.InvalidArgument(fmt.Sprintf("config: error parsing http.webapp_base_url: %s", err))
 	}
 
 	if config.HTTP.WebappBaseUrl.Scheme != protocolHttp && config.HTTP.WebappBaseUrl.Scheme != protocolHttps {
@@ -454,8 +461,7 @@ func cleanAndValidateHttpConfig(config *Config) (err error) {
 	if strings.Contains(config.HTTP.WebappBaseUrl.Host, ":") {
 		config.HTTP.WebappDomain, config.HTTP.WebappPort, err = net.SplitHostPort(config.HTTP.WebappBaseUrl.Host)
 		if err != nil {
-			err = errs.InvalidArgument(fmt.Sprintf("config: error parsing http.webapp_base_url: %s", err))
-			return
+			return errs.InvalidArgument(fmt.Sprintf("config: error parsing http.webapp_base_url: %s", err))
 		}
 		if config.HTTP.WebappPort != "" {
 			config.HTTP.WebappPort = ":" + config.HTTP.WebappPort

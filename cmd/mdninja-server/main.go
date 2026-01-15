@@ -291,6 +291,7 @@ func logConfig(logger *slog.Logger, conf config.Config) {
 				slog.String("url", formatStringPtr(conf.Pingoo.Url)),
 			),
 			slog.Group("http",
+				slog.String("ip", conf.HTTP.Ip),
 				slog.Uint64("port", uint64(conf.HTTP.Port)),
 				slog.Bool("proxy_protocol", conf.HTTP.ProxyProtocol),
 				slog.String("webapp_base_url", conf.HTTP.WebappBaseUrlStr),
