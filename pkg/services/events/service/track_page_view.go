@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/events"
 )

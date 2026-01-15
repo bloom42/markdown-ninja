@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/services/events"
 )
 

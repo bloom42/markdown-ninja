@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/services/events"
 	"markdown.ninja/pkg/settings"
 )

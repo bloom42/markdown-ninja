@@ -7,9 +7,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/countries"
-	"github.com/bloom42/stdx-go/money/vat"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/countries"
+	"github.com/skerkour/stdx-go/money/vat"
+	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"

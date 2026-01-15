@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/crypto"
+	"github.com/skerkour/stdx-go/crypto"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/emails"
 )
 

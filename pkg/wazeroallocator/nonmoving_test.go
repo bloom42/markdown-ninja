@@ -3,7 +3,7 @@ package wazeroallocator
 import (
 	"testing"
 
-	"github.com/bloom42/stdx-go/testify/require"
+	"github.com/skerkour/stdx-go/testify/require"
 	"github.com/tetratelabs/wazero/experimental"
 )
 

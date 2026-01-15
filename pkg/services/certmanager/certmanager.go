@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/set"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/set"
 	"golang.org/x/crypto/acme/autocert"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/kms"

@@ -3,7 +3,7 @@ package service
 import (
 	"path/filepath"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/guid"
 	"markdown.ninja/pkg/services/content"
 )
 

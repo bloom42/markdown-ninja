@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/yuin/goldmark"
 	mdparser "github.com/yuin/goldmark/parser"
 	"golang.org/x/text/cases"

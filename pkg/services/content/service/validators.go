@@ -6,8 +6,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/languages"
-	"github.com/bloom42/stdx-go/stringsx"
+	"github.com/skerkour/stdx-go/languages"
+	"github.com/skerkour/stdx-go/stringsx"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/websites"

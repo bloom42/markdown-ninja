@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/retry"
 )
 
 func (client *Client) resolveHostForIp(ctx context.Context, ip string) (string, error) {

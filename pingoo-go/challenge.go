@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/netip"
 
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/uuid"
 )
 
 type challengeInitInput struct {

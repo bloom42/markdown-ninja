@@ -5,7 +5,7 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/uuid"
 )
 
 type EmailInfo struct {

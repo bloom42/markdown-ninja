@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 )

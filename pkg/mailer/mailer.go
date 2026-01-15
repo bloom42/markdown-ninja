@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bloom42/stdx-go/email"
+	"github.com/skerkour/stdx-go/email"
 )
 
 type Mailer interface {

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/mailer"
 	"markdown.ninja/pkg/services/contacts"

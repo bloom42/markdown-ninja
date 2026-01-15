@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/mail"
 
-	"github.com/bloom42/stdx-go/email"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/email"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/events"
 	"markdown.ninja/pkg/services/store"

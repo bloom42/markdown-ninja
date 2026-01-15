@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/bloom42/stdx-go/uuid"
 	"github.com/fxamacker/cbor/v2"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pkg/jwt"
 )
 

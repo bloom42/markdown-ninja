@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bloom42/stdx-go/email"
+	"github.com/skerkour/stdx-go/email"
 	"markdown.ninja/pkg/mailer"
 )
 

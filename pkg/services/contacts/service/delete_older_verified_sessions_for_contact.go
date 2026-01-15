@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/guid"
 )
 
 func (service *ContactsService) DeleteOlderVerifiedSessionsForContact(ctx context.Context, db db.Queryer, contactID guid.GUID) (err error) {

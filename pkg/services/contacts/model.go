@@ -3,7 +3,7 @@ package contacts
 import (
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/guid"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/store"
 )

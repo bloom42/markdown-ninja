@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/stripe/stripe-go/v81"
 	"github.com/stripe/stripe-go/v81/customer"
 	"github.com/stripe/stripe-go/v81/paymentmethod"

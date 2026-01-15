@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/contacts"
 )
 

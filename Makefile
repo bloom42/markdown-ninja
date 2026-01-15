@@ -39,7 +39,7 @@ update_deps:
 
 .PHONY: update_stdx
 update_stdx:
-	go get -u github.com/bloom42/stdx-go
+	go get -u github.com/skerkour/stdx-go
 	go mod tidy
 	go mod tidy
 

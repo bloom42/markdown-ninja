@@ -3,8 +3,8 @@ package kernel
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/queue"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/queue"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pingoo-go"
 )
 

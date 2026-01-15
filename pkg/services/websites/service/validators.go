@@ -5,8 +5,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/stringsx"
-	"github.com/bloom42/stdx-go/validate"
+	"github.com/skerkour/stdx-go/stringsx"
+	"github.com/skerkour/stdx-go/validate"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/websites"
 	"markdown.ninja/themes"

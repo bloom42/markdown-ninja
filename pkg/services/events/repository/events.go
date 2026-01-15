@@ -7,9 +7,9 @@ import (
 	"slices"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/iterx"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/iterx"
 	"markdown.ninja/pkg/dbx"
 	"markdown.ninja/pkg/services/events"
 )

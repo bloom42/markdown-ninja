@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
-	"github.com/bloom42/stdx-go/yaml"
+	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/yaml"
 	"golang.org/x/net/html"
 	"markdown.ninja/pkg/services/websites"
 	"markdown.ninja/themes"

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bloom42/stdx-go/set"
+	"github.com/skerkour/stdx-go/set"
 )
 
 type StringList []string

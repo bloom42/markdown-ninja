@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/retry"
 	"github.com/tetratelabs/wazero"
 	wazeroapi "github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/experimental"

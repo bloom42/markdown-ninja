@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/bloom42/stdx-go/httpx/cors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/skerkour/stdx-go/httpx/cors"
 	"markdown.ninja/pkg/server/apiutil"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/site"

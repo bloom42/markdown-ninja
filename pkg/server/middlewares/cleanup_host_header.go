@@ -6,7 +6,7 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/bloom42/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/httpx"
 )
 
 // CleanupHostHeader cleans up Go's req.Host

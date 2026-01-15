@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
-	"github.com/bloom42/stdx-go/email"
+	"github.com/skerkour/stdx-go/email"
 	"markdown.ninja/pkg/mailer"
 )
 

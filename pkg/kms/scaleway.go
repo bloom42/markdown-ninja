@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/retry"
 )
 
 type ScalewayKms struct {

@@ -1,6 +1,6 @@
 package contacts
 
-import "github.com/bloom42/stdx-go/guid"
+import "github.com/skerkour/stdx-go/guid"
 
 type JobDeleteOldUnverifiedContacts struct {
 }

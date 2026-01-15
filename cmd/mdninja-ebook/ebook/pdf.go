@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bloom42/stdx-go/filex"
 	pdfcpuapi "github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	pdfcpumodel "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	pdfcputypes "github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
+	"github.com/skerkour/stdx-go/filex"
 )
 
 func ebookToPdf(ctx context.Context, config Config, pandocFiles pandocFiles, distPath, coverPath string) (err error) {

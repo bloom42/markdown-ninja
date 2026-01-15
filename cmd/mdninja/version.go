@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/bloom42/stdx-go/cobra"
+	"github.com/skerkour/stdx-go/cobra"
 	"markdown.ninja/pkg/buildinfo"
 )
 

@@ -12,7 +12,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/bloom42/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/httpx"
 	"markdown.ninja/pingoo-go/rules"
 )
 

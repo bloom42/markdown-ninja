@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/retry"
 	"github.com/stripe/stripe-go/v81"
 	stripecustomer "github.com/stripe/stripe-go/v81/customer"
 	"github.com/stripe/stripe-go/v81/paymentintent"

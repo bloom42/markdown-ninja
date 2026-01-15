@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/retry"
-	"github.com/bloom42/stdx-go/stringsx"
+	"github.com/skerkour/stdx-go/retry"
+	"github.com/skerkour/stdx-go/stringsx"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/kernel"

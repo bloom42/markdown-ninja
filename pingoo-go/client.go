@@ -15,10 +15,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/retry"
-	"github.com/bloom42/stdx-go/uuid"
 	"github.com/klauspost/compress/zstd"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/retry"
+	"github.com/skerkour/stdx-go/uuid"
 	"github.com/tetratelabs/wazero"
 	"markdown.ninja/pingoo-go/wasm"
 )

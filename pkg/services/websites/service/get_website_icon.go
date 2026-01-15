@@ -5,8 +5,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/websites"
 	"markdown.ninja/pkg/storage"

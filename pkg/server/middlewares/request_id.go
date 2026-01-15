@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/uuid"
 )
 
 type requestIDContextKey struct{}

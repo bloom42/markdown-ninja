@@ -18,9 +18,9 @@ import (
 
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/jsonutil"
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/yaml"
+	"github.com/skerkour/stdx-go/jsonutil"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/yaml"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/kms"
 )

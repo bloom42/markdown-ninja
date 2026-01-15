@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/crypto/blake3"
 )
 
 func HashPageMetadata(pageType PageType, path string, date time.Time, sendAsNewsletter bool, language string, title string, description string, tags []string) [32]byte {

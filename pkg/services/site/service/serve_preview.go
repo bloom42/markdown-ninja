@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/httpx"
 	"github.com/go-chi/chi/v5"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/httpx"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/apiutil"
 	"markdown.ninja/pkg/server/cachecontrol"

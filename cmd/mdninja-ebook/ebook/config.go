@@ -9,7 +9,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/bloom42/stdx-go/yaml"
+	"github.com/skerkour/stdx-go/yaml"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"

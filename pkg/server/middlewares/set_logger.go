@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/uuid"
 )
 
 // SetLogger injects `logger` in the context of requests

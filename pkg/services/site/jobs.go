@@ -1,6 +1,6 @@
 package site
 
-import "github.com/bloom42/stdx-go/guid"
+import "github.com/skerkour/stdx-go/guid"
 
 type JobSendLoginEmail struct {
 	ContactID     guid.GUID `json:"contact_id"`

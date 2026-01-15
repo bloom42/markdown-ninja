@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/queue"
-	"github.com/bloom42/stdx-go/workerpool"
+	"github.com/skerkour/stdx-go/queue"
+	"github.com/skerkour/stdx-go/workerpool"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/emails"

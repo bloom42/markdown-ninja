@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
 )

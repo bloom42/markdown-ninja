@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/bloom42/stdx-go/yaml"
+	"github.com/skerkour/stdx-go/yaml"
 	"github.com/yuin/goldmark"
 	gast "github.com/yuin/goldmark/ast"
 	mdparser "github.com/yuin/goldmark/parser"

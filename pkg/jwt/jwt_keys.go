@@ -10,7 +10,7 @@ import (
 	"hash"
 	"time"
 
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pkg/kms"
 )
 

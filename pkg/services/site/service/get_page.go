@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/memorycache"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/memorycache"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/content"

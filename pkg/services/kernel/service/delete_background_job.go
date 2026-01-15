@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 )

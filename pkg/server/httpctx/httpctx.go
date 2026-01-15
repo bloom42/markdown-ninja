@@ -6,8 +6,8 @@ import (
 	"net/netip"
 	"net/url"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pkg/server/auth"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/organizations"

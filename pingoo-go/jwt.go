@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pingoo-go/wasm"
 	"markdown.ninja/pkg/jwt"
 )

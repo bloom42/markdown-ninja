@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/orderedmap"
-	"github.com/bloom42/stdx-go/yaml"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/orderedmap"
+	"github.com/skerkour/stdx-go/yaml"
 	"markdown.ninja/pkg/services/websites"
 )
 

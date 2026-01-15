@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pkg/services/kernel"
 )
 

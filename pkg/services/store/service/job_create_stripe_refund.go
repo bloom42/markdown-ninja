@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/retry"
 	"github.com/stripe/stripe-go/v81"
 	striperefund "github.com/stripe/stripe-go/v81/refund"
 	"markdown.ninja/pkg/services/store"

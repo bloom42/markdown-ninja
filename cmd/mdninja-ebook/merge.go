@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bloom42/stdx-go/cobra"
+	"github.com/skerkour/stdx-go/cobra"
 	"markdown.ninja/cmd/mdninja-ebook/ebook"
 )
 

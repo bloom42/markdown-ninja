@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/timex"
+	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/timex"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"

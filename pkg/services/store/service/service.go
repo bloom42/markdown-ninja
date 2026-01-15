@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/mailer"

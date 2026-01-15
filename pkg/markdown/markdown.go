@@ -3,7 +3,7 @@ package markdown
 import (
 	"bytes"
 
-	highlighting "github.com/bloom42/stdx-go/goldmark-highlighting"
+	highlighting "github.com/skerkour/stdx-go/goldmark-highlighting"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"

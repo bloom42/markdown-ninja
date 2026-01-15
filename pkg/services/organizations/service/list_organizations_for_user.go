@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pkg/services/organizations"
 )
 

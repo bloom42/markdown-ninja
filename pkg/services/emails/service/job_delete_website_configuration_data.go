@@ -6,8 +6,8 @@ import (
 
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pkg/services/emails"
 	"markdown.ninja/pkg/services/websites"
 )

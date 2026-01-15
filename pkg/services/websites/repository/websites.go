@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/guid"
 	"markdown.ninja/pkg/services/websites"
 )
 

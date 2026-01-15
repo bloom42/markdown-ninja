@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/guid"
 	"markdown.ninja/pkg/jwt"
 	"markdown.ninja/pkg/services/contacts"
 )

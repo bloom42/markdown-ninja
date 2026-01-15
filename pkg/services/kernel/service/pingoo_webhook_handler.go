@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
 )

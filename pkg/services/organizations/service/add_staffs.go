@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/set"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/set"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"

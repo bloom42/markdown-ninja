@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/xxh3"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/xxh3"
 )
 
 func BenchmarkGetAnonymousID(b *testing.B) {

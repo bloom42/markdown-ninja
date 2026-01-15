@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/log/loki"
+	"github.com/skerkour/stdx-go/log/loki"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/buildinfo"
 	"markdown.ninja/pkg/kms"

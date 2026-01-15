@@ -1,6 +1,6 @@
 package organizations
 
-import "github.com/bloom42/stdx-go/guid"
+import "github.com/skerkour/stdx-go/guid"
 
 type JobSendStaffInvitations struct {
 	InvitationIDs []guid.GUID `json:"invitation_ids"`

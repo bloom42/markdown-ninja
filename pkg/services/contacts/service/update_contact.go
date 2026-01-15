@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/countries"
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/countries"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/contacts"
 )

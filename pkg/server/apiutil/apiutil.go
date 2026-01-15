@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"

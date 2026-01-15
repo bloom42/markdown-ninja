@@ -4,7 +4,7 @@ import (
 	"embed"
 	"io/fs"
 
-	"github.com/bloom42/stdx-go/set"
+	"github.com/skerkour/stdx-go/set"
 )
 
 //go:embed */dist/*

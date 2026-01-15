@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/stripe/stripe-go/v81"
 	stripecustomer "github.com/stripe/stripe-go/v81/customer"
 	"markdown.ninja/pkg/errs"

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto/blake3"
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/useragent"
+	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/useragent"
 	"markdown.ninja/pkg/services/events"
 )
 

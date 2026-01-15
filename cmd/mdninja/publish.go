@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/bloom42/stdx-go/cobra"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/cobra"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/cmd/mdninja/client"
 	"markdown.ninja/pkg/errs"
 )

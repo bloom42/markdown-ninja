@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/bloom42/stdx-go/schema"
+	"github.com/skerkour/stdx-go/schema"
 	"markdown.ninja/pkg/errs"
 )
 

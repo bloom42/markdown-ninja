@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/bloom42/stdx-go/crypto"
-	"github.com/bloom42/stdx-go/db"
+	"github.com/skerkour/stdx-go/crypto"
+	"github.com/skerkour/stdx-go/db"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/organizations"
 )

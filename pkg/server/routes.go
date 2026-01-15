@@ -7,11 +7,11 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bloom42/stdx-go/httpx/hostrouter"
-	"github.com/bloom42/stdx-go/httpx/middlewarex"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/klauspost/compress/zstd"
+	"github.com/skerkour/stdx-go/httpx/hostrouter"
+	"github.com/skerkour/stdx-go/httpx/middlewarex"
 	"markdown.ninja/pingoo-go"
 	pingoomiddleware "markdown.ninja/pingoo-go/middleware"
 	"markdown.ninja/pingoo-go/rules"

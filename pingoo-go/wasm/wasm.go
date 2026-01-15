@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/fxamacker/cbor/v2"
+	"github.com/skerkour/stdx-go/log/slogx"
 	wazeroapi "github.com/tetratelabs/wazero/api"
 )
 

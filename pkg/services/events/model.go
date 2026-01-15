@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/guid"
 )
 
 type Browser int32

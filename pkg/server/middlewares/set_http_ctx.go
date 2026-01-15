@@ -8,9 +8,9 @@ import (
 	"net/netip"
 	"strings"
 
-	"github.com/bloom42/stdx-go/httpx"
-	"github.com/bloom42/stdx-go/log/slogx"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/server/apiutil"
 	"markdown.ninja/pkg/server/httpctx"

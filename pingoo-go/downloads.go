@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bloom42/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/httpx"
 )
 
 type DownloadOutput struct {

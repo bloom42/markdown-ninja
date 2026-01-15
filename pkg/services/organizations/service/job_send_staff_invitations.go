@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bloom42/stdx-go/queue"
+	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/services/emails"
 	"markdown.ninja/pkg/services/organizations"

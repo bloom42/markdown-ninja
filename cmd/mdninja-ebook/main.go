@@ -8,8 +8,8 @@ import (
 
 	"log/slog"
 
-	"github.com/bloom42/stdx-go/cobra"
-	"github.com/bloom42/stdx-go/log/slogx"
+	"github.com/skerkour/stdx-go/cobra"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"markdown.ninja/cmd/mdninja-ebook/ebook"
 )
 

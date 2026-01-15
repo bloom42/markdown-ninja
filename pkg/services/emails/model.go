@@ -3,7 +3,7 @@ package emails
 import (
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/guid"
 	"markdown.ninja/pkg/mailer"
 	"markdown.ninja/pkg/services/kernel"
 )

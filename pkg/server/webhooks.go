@@ -7,9 +7,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bloom42/stdx-go/crypto"
-	"github.com/bloom42/stdx-go/log/slogx"
 	"github.com/go-chi/chi/v5"
+	"github.com/skerkour/stdx-go/crypto"
+	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/stripe/stripe-go/v81/webhook"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"

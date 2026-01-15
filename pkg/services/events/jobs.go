@@ -1,6 +1,6 @@
 package events
 
-import "github.com/bloom42/stdx-go/guid"
+import "github.com/skerkour/stdx-go/guid"
 
 type JobDeleteWebsiteEvents struct {
 	WebsiteID guid.GUID `json:"website_id"`

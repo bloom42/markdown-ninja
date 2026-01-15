@@ -6,7 +6,7 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/bloom42/stdx-go/email"
+	"github.com/skerkour/stdx-go/email"
 	"markdown.ninja/pkg/services/emails"
 	"markdown.ninja/pkg/services/events"
 )

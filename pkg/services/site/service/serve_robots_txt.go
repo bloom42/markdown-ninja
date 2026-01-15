@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bloom42/stdx-go/httpx"
+	"github.com/skerkour/stdx-go/httpx"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/websites"

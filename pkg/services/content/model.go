@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/timex"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/timex"
 	"markdown.ninja/pkg/services/kernel"
 )
 

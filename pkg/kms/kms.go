@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bloom42/stdx-go/memorycache"
-	"github.com/bloom42/stdx-go/uuid"
 	"github.com/fxamacker/cbor/v2"
+	"github.com/skerkour/stdx-go/memorycache"
+	"github.com/skerkour/stdx-go/uuid"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 

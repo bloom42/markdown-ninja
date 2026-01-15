@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/guid"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/guid"
 	"github.com/stripe/stripe-go/v81"
 	"markdown.ninja/pkg/services/kernel"
 )

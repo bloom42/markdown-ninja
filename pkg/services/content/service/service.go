@@ -5,10 +5,10 @@ import (
 	"regexp"
 	"text/template"
 
-	"github.com/bloom42/stdx-go/db"
-	"github.com/bloom42/stdx-go/queue"
-	"github.com/bloom42/stdx-go/set"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/skerkour/stdx-go/db"
+	"github.com/skerkour/stdx-go/queue"
+	"github.com/skerkour/stdx-go/set"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/content/repository"

@@ -4,9 +4,9 @@ import (
 	"context"
 	"slices"
 
-	"github.com/bloom42/stdx-go/iterx"
-	"github.com/bloom42/stdx-go/set"
-	"github.com/bloom42/stdx-go/uuid"
+	"github.com/skerkour/stdx-go/iterx"
+	"github.com/skerkour/stdx-go/set"
+	"github.com/skerkour/stdx-go/uuid"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"

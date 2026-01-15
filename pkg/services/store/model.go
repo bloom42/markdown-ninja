@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/bloom42/stdx-go/guid"
-	"github.com/bloom42/stdx-go/set"
+	"github.com/skerkour/stdx-go/guid"
+	"github.com/skerkour/stdx-go/set"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/websites"

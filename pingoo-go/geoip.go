@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bloom42/stdx-go/countries"
-	"github.com/bloom42/stdx-go/opt"
-	"github.com/bloom42/stdx-go/retry"
+	"github.com/skerkour/stdx-go/countries"
+	"github.com/skerkour/stdx-go/opt"
+	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pingoo-go/wasm"
 )
 

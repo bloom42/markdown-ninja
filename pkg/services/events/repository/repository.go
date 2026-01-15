@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/bloom42/stdx-go/memorycache"
+	"github.com/skerkour/stdx-go/memorycache"
 )
 
 type EventsRepository struct {
