@@ -23,13 +23,13 @@ type bucket struct {
 
 // New creates a new rate limiter with automatic cleanup of expired buckets.
 func New() *Limiter {
-	l := &Limiter{
+	limiter := &Limiter{
 		mutex:   sync.Mutex{},
 		buckets: make(map[[32]byte]*bucket),
 		stop:    make(chan struct{}),
 	}
-	go l.cleanupLoop()
-	return l
+	go limiter.cleanupLoop()
+	return limiter
 }
 
 // RateLimit checks if an action by an actor is allowed within the rate limit.
@@ -40,17 +40,17 @@ func New() *Limiter {
 //   - actor: identifies who is performing the action (e.g., user ID, IP address)
 //   - timeBucket: the duration of each rate limit window
 //   - allowed: maximum number of actions allowed per time bucket
-func (l *Limiter) RateLimit(action string, actor []byte, timeBucket time.Duration, allowed uint64) bool {
+func (limiter *Limiter) RateLimit(action string, actor []byte, timeBucket time.Duration, allowed uint64) bool {
 	now := time.Now()
 	bucketStart := now.Truncate(timeBucket)
 	key := makeKey(action, actor, uint64(bucketStart.UnixNano()), uint64(timeBucket.Nanoseconds()))
 
-	l.mutex.Lock()
-	defer l.mutex.Unlock()
+	limiter.mutex.Lock()
+	defer limiter.mutex.Unlock()
 
-	b, exists := l.buckets[key]
+	b, exists := limiter.buckets[key]
 	if !exists {
-		l.buckets[key] = &bucket{
+		limiter.buckets[key] = &bucket{
 			count:   1,
 			expires: bucketStart.Add(timeBucket * 2), // Keep for one extra period for safety
 		}
@@ -67,23 +67,23 @@ func (l *Limiter) RateLimit(action string, actor []byte, timeBucket time.Duratio
 
 // Count returns the current count for an action/actor in the current time bucket.
 // Useful for showing users how many requests they have remaining.
-func (l *Limiter) Count(action string, actor []byte, timeBucket time.Duration) uint64 {
+func (limiter *Limiter) Count(action string, actor []byte, timeBucket time.Duration) uint64 {
 	now := time.Now()
 	bucketStart := now.Truncate(timeBucket)
 	key := makeKey(action, actor, uint64(bucketStart.UnixNano()), uint64(timeBucket.Nanoseconds()))
 
-	l.mutex.Lock()
-	defer l.mutex.Unlock()
+	limiter.mutex.Lock()
+	defer limiter.mutex.Unlock()
 
-	if b, exists := l.buckets[key]; exists {
+	if b, exists := limiter.buckets[key]; exists {
 		return b.count
 	}
 	return 0
 }
 
 // Remaining returns how many requests are remaining for an action/actor.
-func (l *Limiter) Remaining(action string, actor []byte, timeBucket time.Duration, allowed uint64) uint64 {
-	count := l.Count(action, actor, timeBucket)
+func (limiter *Limiter) Remaining(action string, actor []byte, timeBucket time.Duration, allowed uint64) uint64 {
+	count := limiter.Count(action, actor, timeBucket)
 	if count >= allowed {
 		return 0
 	}
@@ -92,33 +92,33 @@ func (l *Limiter) Remaining(action string, actor []byte, timeBucket time.Duratio
 
 // Stop stops the background cleanup goroutine.
 // Call this when the limiter is no longer needed.
-func (l *Limiter) Stop() {
-	close(l.stop)
+func (limiter *Limiter) Stop() {
+	close(limiter.stop)
 }
 
-func (l *Limiter) cleanupLoop() {
+func (limiter *Limiter) cleanupLoop() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			l.cleanup()
-		case <-l.stop:
+			limiter.cleanup()
+		case <-limiter.stop:
 			return
 		}
 	}
 }
 
-func (l *Limiter) cleanup() {
+func (limiter *Limiter) cleanup() {
 	now := time.Now()
 
-	l.mutex.Lock()
-	defer l.mutex.Unlock()
+	limiter.mutex.Lock()
+	defer limiter.mutex.Unlock()
 
-	for key, b := range l.buckets {
+	for key, b := range limiter.buckets {
 		if now.After(b.expires) {
-			delete(l.buckets, key)
+			delete(limiter.buckets, key)
 		}
 	}
 }
