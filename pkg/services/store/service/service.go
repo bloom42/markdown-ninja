@@ -9,6 +9,7 @@ import (
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/mailer"
+	"markdown.ninja/pkg/ratelimit"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/emails"
@@ -38,6 +39,7 @@ type StoreService struct {
 	httpConfig                     config.Http
 	websitesPort                   string
 	orderConfirmationEmailTemplate *template.Template
+	rateLimiter                    *ratelimit.Limiter
 }
 
 func NewStoreService(db db.DB, queue queue.Queue, conf config.Config, mailer mailer.Mailer, kernel kernel.PrivateService, websitesService websites.Service,
@@ -69,6 +71,7 @@ func NewStoreService(db db.DB, queue queue.Queue, conf config.Config, mailer mai
 		httpConfig:                     conf.HTTP,
 		websitesPort:                   conf.HTTP.WebsitesPort,
 		orderConfirmationEmailTemplate: orderConfirmationEmailTemplate,
+		rateLimiter:                    ratelimit.New(),
 	}
 	return
 }

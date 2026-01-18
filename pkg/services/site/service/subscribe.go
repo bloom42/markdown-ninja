@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/skerkour/stdx-go/countries"
 	"github.com/skerkour/stdx-go/crypto"
@@ -28,6 +29,11 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 	name := strings.ToLower(strings.TrimSpace(input.Name))
 	unverifiedContactAlreadyExists := false
 	logger := slogx.FromCtx(ctx)
+
+	if !service.rateLimiter.RateLimit("SiteService.Subscribe", httpCtx.Client.IP.AsSlice(), time.Hour, 10) {
+		err = errs.InvalidArgument("Too many requests. Please try again later.")
+		return
+	}
 
 	err = service.kernel.ValidateEmail(ctx, email, true)
 	if err != nil {

@@ -32,6 +32,11 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		return
 	}
 
+	if !service.rateLimiter.RateLimit("StoreService.PlaceOrder", httpCtx.Client.IP.AsSlice(), time.Hour, 10) {
+		err = errs.InvalidArgument("Too many requests. Please try again later.")
+		return
+	}
+
 	customer := service.contactsService.CurrentContact(ctx)
 	if customer == nil && input.Email == nil {
 		err = errs.InvalidArgument("email is required")

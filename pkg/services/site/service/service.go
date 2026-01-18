@@ -16,6 +16,7 @@ import (
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/mailer"
+	"markdown.ninja/pkg/ratelimit"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/emails"
@@ -60,6 +61,8 @@ type SiteService struct {
 	// pages are cached compressed to reduce the memory usage
 	cacheZstdCompressor   *zstd.Encoder
 	cacheZstdDecompressor *zstd.Decoder
+
+	rateLimiter *ratelimit.Limiter
 
 	themes map[string]parsedTheme
 }
@@ -176,6 +179,8 @@ func NewSiteService(conf config.Config, db db.DB, queue queue.Queue, mailer mail
 		pagesCache:     pagesCache,
 		feedsCache:     feedsCache,
 		sitemapsCache:  sitemapsCache,
+
+		rateLimiter: ratelimit.New(),
 
 		themes: themes,
 	}
