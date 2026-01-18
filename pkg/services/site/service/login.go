@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/skerkour/stdx-go/crypto"
 	"github.com/skerkour/stdx-go/log/slogx"
@@ -30,6 +31,11 @@ func (service *SiteService) Login(ctx context.Context, input site.LoginInput) (r
 
 	website, err := service.websitesService.FindWebsiteByDomain(ctx, service.db, httpCtx.Hostname)
 	if err != nil {
+		return
+	}
+
+	if !service.rateLimiter.RateLimit("SiteService.Login", httpCtx.Client.IP.AsSlice(), time.Hour, 20) {
+		err = errs.InvalidArgument("Too many requests. Please try again later.")
 		return
 	}
 

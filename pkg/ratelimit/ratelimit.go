@@ -43,7 +43,7 @@ func New() *Limiter {
 func (l *Limiter) RateLimit(action string, actor []byte, timeBucket time.Duration, allowed uint64) bool {
 	now := time.Now()
 	bucketStart := now.Truncate(timeBucket)
-	key := makeKey(action, actor, bucketStart)
+	key := makeKey(action, actor, uint64(bucketStart.UnixNano()), uint64(timeBucket.Nanoseconds()))
 
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
@@ -70,7 +70,7 @@ func (l *Limiter) RateLimit(action string, actor []byte, timeBucket time.Duratio
 func (l *Limiter) Count(action string, actor []byte, timeBucket time.Duration) uint64 {
 	now := time.Now()
 	bucketStart := now.Truncate(timeBucket)
-	key := makeKey(action, actor, bucketStart)
+	key := makeKey(action, actor, uint64(bucketStart.UnixNano()), uint64(timeBucket.Nanoseconds()))
 
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
@@ -123,12 +123,14 @@ func (l *Limiter) cleanup() {
 	}
 }
 
-func makeKey(action string, actor []byte, bucketStart time.Time) [32]byte {
+func makeKey(action string, actor []byte, bucketStartNanos uint64, timeBucketNanos uint64) [32]byte {
 	var hash [32]byte
+
 	hasher := blake3.New(32, nil)
 	hasher.Write([]byte(action))
 	hasher.Write(actor)
-	binary.Write(hasher, binary.LittleEndian, bucketStart.UnixNano())
+	binary.Write(hasher, binary.LittleEndian, bucketStartNanos)
+	binary.Write(hasher, binary.LittleEndian, timeBucketNanos)
 
 	hasher.Sum(hash[:0])
 	return hash
