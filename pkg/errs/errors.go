@@ -72,7 +72,7 @@ func IsInternal(err error) bool {
 
 	switch err.(type) {
 	case *NotFoundError, *InvalidArgumentError,
-		*PermissionDeniedError, *AuthenticationRequiredError, *AlreadyExistsError:
+		*PermissionDeniedError, *AuthenticationRequiredError, *AlreadyExistsError, *TooManyRequestsError:
 		return false
 	default:
 		return true
@@ -135,4 +135,18 @@ func (err *AuthenticationRequiredError) Error() string {
 // AuthenticationRequired returns a new AuthenticationRequiredError
 func AuthenticationRequired(message string) *AuthenticationRequiredError {
 	return &AuthenticationRequiredError{message: message}
+}
+
+// TooManyRequestsError is a wrapper for an error when a client is sending too many requests
+type TooManyRequestsError struct {
+	// message string
+}
+
+func (err *TooManyRequestsError) Error() string {
+	return "Too many requests. Please try again later."
+}
+
+// TooManyRequests returns a new TooManyRequestsError
+func TooManyRequests() *TooManyRequestsError {
+	return &TooManyRequestsError{}
 }

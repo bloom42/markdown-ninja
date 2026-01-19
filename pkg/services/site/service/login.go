@@ -34,8 +34,8 @@ func (service *SiteService) Login(ctx context.Context, input site.LoginInput) (r
 		return
 	}
 
-	if !service.rateLimiter.RateLimit("SiteService.Login", httpCtx.Client.IP.AsSlice(), time.Hour, 20) {
-		err = errs.InvalidArgument("Too many requests. Please try again later.")
+	if !service.rateLimiter.IsAllowed("SiteService.Login", website.ID.Bytes(), httpCtx.Client.IP.AsSlice(), time.Hour, 30) {
+		err = errs.TooManyRequests()
 		return
 	}
 

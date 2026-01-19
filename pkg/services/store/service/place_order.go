@@ -32,8 +32,8 @@ func (service *StoreService) PlaceOrder(ctx context.Context, input store.PlaceOr
 		return
 	}
 
-	if !service.rateLimiter.RateLimit("StoreService.PlaceOrder", httpCtx.Client.IP.AsSlice(), time.Hour, 10) {
-		err = errs.InvalidArgument("Too many requests. Please try again later.")
+	if !service.rateLimiter.IsAllowed("StoreService.PlaceOrder", website.ID.Bytes(), httpCtx.Client.IP.AsSlice(), time.Hour, 30) {
+		err = errs.TooManyRequests()
 		return
 	}
 

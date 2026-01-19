@@ -34,6 +34,7 @@ const (
 	ErrorCodeInternal               apiErrorCode = "INTERNAL"
 	ErrorCodePermissionDenied       apiErrorCode = "PERMISSION_DENIED"
 	ErrorCodeAuthenticationRequired apiErrorCode = "AUTHENTICATION_REQUIRED"
+	ErrorCodeTooManyRequests        apiErrorCode = "TOO_MANY_REQUESTS"
 )
 
 // var jsonEncodingOptions = json.JoinOptions(json.FormatNilMapAsNull(true))
@@ -135,6 +136,9 @@ func SendError(ctx context.Context, w http.ResponseWriter, err error) {
 	case *errs.AuthenticationRequiredError:
 		code = ErrorCodeAuthenticationRequired
 		statusCode = http.StatusUnauthorized
+	case *errs.TooManyRequestsError:
+		code = ErrorCodeTooManyRequests
+		statusCode = http.StatusTooManyRequests
 	default:
 		code = ErrorCodeInternal
 		statusCode = http.StatusInternalServerError

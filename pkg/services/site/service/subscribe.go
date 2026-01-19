@@ -30,11 +30,6 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 	unverifiedContactAlreadyExists := false
 	logger := slogx.FromCtx(ctx)
 
-	if !service.rateLimiter.RateLimit("SiteService.Subscribe", httpCtx.Client.IP.AsSlice(), time.Hour, 10) {
-		err = errs.InvalidArgument("Too many requests. Please try again later.")
-		return
-	}
-
 	err = service.kernel.ValidateEmail(ctx, email, true)
 	if err != nil {
 		return
@@ -47,6 +42,11 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 
 	website, err := service.websitesService.FindWebsiteByDomain(ctx, service.db, hostname)
 	if err != nil {
+		return
+	}
+
+	if !service.rateLimiter.IsAllowed("SiteService.Subscribe", website.ID.Bytes(), httpCtx.Client.IP.AsSlice(), time.Hour, 30) {
+		err = errs.TooManyRequests()
 		return
 	}
 
