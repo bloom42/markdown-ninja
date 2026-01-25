@@ -15,7 +15,7 @@ require (
 	github.com/klauspost/compress v1.18.3
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pdfcpu/pdfcpu v0.11.1
-	github.com/skerkour/stdx-go v0.0.0-20260115085829-3511513e653e
+	github.com/skerkour/stdx-go v0.0.0-20260125072204-88e101806927
 	github.com/stripe/stripe-go/v81 v81.4.0
 	github.com/tetratelabs/wazero v1.11.0
 	github.com/yuin/goldmark v1.7.16
@@ -28,7 +28,7 @@ require (
 )
 
 require (
-	github.com/alecthomas/chroma/v2 v2.23.0 // indirect
+	github.com/alecthomas/chroma/v2 v2.23.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.4 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.17 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.17 // indirect
@@ -46,7 +46,7 @@ require (
 	github.com/aws/smithy-go v1.24.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
-	github.com/clipperhouse/uax29/v2 v2.3.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.4.0 // indirect
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
