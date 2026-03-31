@@ -275,6 +275,10 @@ func (service *OrganizationsService) UpdateSubscription(ctx context.Context, inp
 
 func (service *OrganizationsService) checkCanUpdateSubscription(ctx context.Context, organization organizations.Organization, newPlanID kernel.PlanID,
 	newExtraSlots int64) (err error) {
+	if service.blockSubscriptions && organization.Plan == kernel.PlanFree.ID && newPlanID != kernel.PlanFree.ID {
+		return errs.InvalidArgument("New subscriptions are currently disabled. Please contact support for further information.")
+	}
+
 	usageData, err := service.getOrganizationBillingUsage(ctx, service.db, organization)
 	if err != nil {
 		return

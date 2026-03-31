@@ -27,16 +27,17 @@ import (
 
 type Config struct {
 	// True if running as Saas and billing is required
-	BlockedCountries []string `json:"blocked_countries" yaml:"blocked_countries"`
-	Saas             bool     `json:"saas" yaml:"saas"`
-	HTTP             Http     `json:"http" yaml:"http"`
-	Database         Database `json:"database" yaml:"database"`
-	Emails           Emails   `json:"emails" yaml:"emails"`
-	Worker           Worker   `json:"worker" yaml:"worker"`
-	Logs             Logs     `json:"logs" yaml:"logs"`
-	S3               S3       `json:"s3" yaml:"s3"`
-	Jwt              Jwt      `json:"jwt" yaml:"jwt"`
-	Kms              Kms      `json:"kms" yaml:"kms"`
+	BlockedCountries   []string `json:"blocked_countries" yaml:"blocked_countries"`
+	BlockSubscriptions bool     `json:"block_subscriptions" yaml:"block_subscriptions"`
+	Saas               bool     `json:"saas" yaml:"saas"`
+	HTTP               Http     `json:"http" yaml:"http"`
+	Database           Database `json:"database" yaml:"database"`
+	Emails             Emails   `json:"emails" yaml:"emails"`
+	Worker             Worker   `json:"worker" yaml:"worker"`
+	Logs               Logs     `json:"logs" yaml:"logs"`
+	S3                 S3       `json:"s3" yaml:"s3"`
+	Jwt                Jwt      `json:"jwt" yaml:"jwt"`
+	Kms                Kms      `json:"kms" yaml:"kms"`
 
 	// 3rd party providers & services
 	// pingoo.io

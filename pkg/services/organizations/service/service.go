@@ -18,13 +18,14 @@ import (
 )
 
 type OrganizationsService struct {
-	repo         repository.OrganizationsRepository
-	db           db.DB
-	mailer       mailer.Mailer
-	queue        queue.Queue
-	stripeConfig config.Stripe
-	httpConfig   config.Http
-	isSelfHosted bool
+	repo               repository.OrganizationsRepository
+	db                 db.DB
+	mailer             mailer.Mailer
+	queue              queue.Queue
+	stripeConfig       config.Stripe
+	httpConfig         config.Http
+	isSelfHosted       bool
+	blockSubscriptions bool
 
 	kernel          kernel.PrivateService
 	websitesService websites.Service
@@ -43,13 +44,14 @@ func NewOrganizationsService(conf config.Config, db db.DB, mailer mailer.Mailer,
 	staffInvitationEmailTemplate := template.Must(template.New("organizations.StaffInvitationEmailTemplate").Parse(templates.StaffInvitationEmailTemplate))
 
 	return &OrganizationsService{
-		repo:         repo,
-		db:           db,
-		mailer:       mailer,
-		queue:        queue,
-		stripeConfig: *conf.Stripe,
-		httpConfig:   conf.HTTP,
-		isSelfHosted: !conf.Saas,
+		repo:               repo,
+		db:                 db,
+		mailer:             mailer,
+		queue:              queue,
+		stripeConfig:       *conf.Stripe,
+		httpConfig:         conf.HTTP,
+		isSelfHosted:       !conf.Saas,
+		blockSubscriptions: conf.BlockSubscriptions,
 
 		kernel:          kernel,
 		websitesService: nil,
