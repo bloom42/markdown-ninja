@@ -16,7 +16,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pdfcpu/pdfcpu v0.11.1
 	github.com/quic-go/quic-go v0.59.0
-	github.com/skerkour/stdx-go v0.0.0-20260331073426-08336c6b436a
+	github.com/skerkour/stdx-go v0.0.0-20260401151126-4ca9cebc685d
 	github.com/stripe/stripe-go/v81 v81.4.0
 	github.com/tetratelabs/wazero v1.11.0
 	github.com/yuin/goldmark v1.8.2

@@ -266,8 +266,11 @@ func (server *server) run(ctx context.Context) (err error) {
 		return err
 	}
 
+	var errHttp3Shutdown error
 	errHttpShutdown := <-shutdownErr
-	errHttp3Shutdown := <-http3ShutdownErr
+	if server.httpConfig.Tls {
+		errHttp3Shutdown = <-http3ShutdownErr
+	}
 
 	return errors.Join(errHttpShutdown, errHttp3Shutdown)
 }
