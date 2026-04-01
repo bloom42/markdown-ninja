@@ -13,10 +13,13 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 
 	"log/slog"
 
+	"github.com/quic-go/quic-go"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/httpx"
@@ -25,6 +28,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"golang.org/x/sync/errgroup"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/kms"
@@ -157,6 +161,7 @@ func (server *server) run(ctx context.Context) (err error) {
 	logger := slogx.FromCtx(ctx)
 	portStr := strconv.Itoa(int(server.httpConfig.Port))
 	shutdownErr := make(chan error)
+	http3ShutdownErr := make(chan error)
 
 	routes, err := server.routes(ctx)
 	if err != nil {
@@ -178,6 +183,7 @@ func (server *server) run(ctx context.Context) (err error) {
 	// Thus, we limit the size of requests to the maximum size of uploads (assets) + 10 MB for metadata
 	httpHandler := http.MaxBytesHandler(h2cHandler, kernel.MaxAssetSize+10_000_000)
 
+	var http3Server *http3.Server
 	httpServer := http.Server{
 		Addr:              server.httpConfig.Ip + ":" + portStr,
 		Handler:           httpHandler,
@@ -195,7 +201,19 @@ func (server *server) run(ctx context.Context) (err error) {
 		logger.Info("server: Shutting down HTTP server", slog.String("shutdown_timeout", shutdownTimeout.String()))
 		ctx, cancel := context.WithTimeout(ctx, shutdownTimeout)
 		defer cancel()
-		shutdownErr <- httpServer.Shutdown(ctx)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		wg.Go(func() {
+			shutdownErr <- httpServer.Shutdown(ctx)
+		})
+		if server.httpConfig.Tls {
+			wg.Add(1)
+			wg.Go(func() {
+				http3ShutdownErr <- http3Server.Shutdown(ctx)
+			})
+		}
+		wg.Wait()
 	}()
 
 	if server.httpConfig.Tls {
@@ -203,6 +221,19 @@ func (server *server) run(ctx context.Context) (err error) {
 		tlsConfig.GetCertificate = server.certManager.GetCertificate
 		tlsConfig.MinVersion = tls.VersionTLS13
 		httpServer.TLSConfig = tlsConfig
+
+		http3Server = &http3.Server{
+			Addr:      server.httpConfig.Ip + ":" + portStr,
+			Port:      int(server.httpConfig.Port),
+			TLSConfig: tlsConfig,
+			QUICConfig: &quic.Config{
+				Allow0RTT:      false,
+				MaxIdleTimeout: idleTimeout,
+			},
+			Handler:     routes,
+			IdleTimeout: idleTimeout,
+			Logger:      logger,
+		}
 	}
 
 	logger.Info("server: Starting HTTP server", slog.String("address", httpServer.Addr), slog.Bool("tls", server.httpConfig.Tls))
@@ -219,7 +250,14 @@ func (server *server) run(ctx context.Context) (err error) {
 	defer httpServerListener.Close()
 
 	if server.httpConfig.Tls {
-		err = httpServer.ServeTLS(httpServerListener, "", "")
+		var errGroup errgroup.Group
+		errGroup.Go(func() error {
+			return http3Server.ListenAndServe()
+		})
+		errGroup.Go(func() error {
+			return httpServer.ServeTLS(httpServerListener, "", "")
+		})
+		err = errGroup.Wait()
 	} else {
 		err = httpServer.Serve(httpServerListener)
 	}
@@ -229,6 +267,8 @@ func (server *server) run(ctx context.Context) (err error) {
 		return err
 	}
 
-	err = <-shutdownErr
-	return err
+	errHttpShutdown := <-shutdownErr
+	errHttp3Shutdown := <-http3ShutdownErr
+
+	return errors.Join(errHttpShutdown, errHttp3Shutdown)
 }

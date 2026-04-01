@@ -8,13 +8,14 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/config v1.32.13
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.13
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.98.0
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.60.2
 	github.com/fxamacker/cbor/v2 v2.9.1
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/klauspost/compress v1.18.5
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pdfcpu/pdfcpu v0.11.1
+	github.com/quic-go/quic-go v0.59.0
 	github.com/skerkour/stdx-go v0.0.0-20260331073426-08336c6b436a
 	github.com/stripe/stripe-go/v81 v81.4.0
 	github.com/tetratelabs/wazero v1.11.0
@@ -60,6 +61,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/mattn/go-runewidth v0.0.21 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/image v0.38.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

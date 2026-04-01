@@ -82,6 +82,9 @@ func (server *server) routes(ctx context.Context) (rootRouter chi.Router, err er
 	rootRouter.Use(chimiddleware.Timeout(900 * time.Second))
 	rootRouter.Use(middlewares.SetSecurityHeaders)
 	rootRouter.Use(middlewares.SetServerHeader)
+	if server.httpConfig.Tls {
+		rootRouter.Use(middlewares.AddAltSvcHeader())
+	}
 	rootRouter.Use(middlewares.CleanupHostHeader())
 	rootRouter.Use(chimiddleware.CleanPath)
 	rootRouter.Use(middlewares.Redirects(server.webappDomain, server.websitesRootDomain))

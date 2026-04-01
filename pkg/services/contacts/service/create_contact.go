@@ -37,7 +37,7 @@ func (service *ContactsService) CreateContact(ctx context.Context, input contact
 		return
 	}
 
-	// chack that contact with same email doesn't already exists
+	// check that contact with same email doesn't already exists
 	_, err = service.repo.FindContactByEmail(ctx, service.db, input.WebsiteID, email)
 	if err == nil {
 		err = contacts.ErrContactWithEmailAlreadyExists(email)

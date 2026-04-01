@@ -24,8 +24,8 @@ func IsNotFound(err error) bool {
 		return false
 	}
 
-	var e *NotFoundError
-	return errors.As(err, &e)
+	_, ok := errors.AsType[*NotFoundError](err)
+	return ok
 }
 
 // InvalidArgumentError is a wrapper for an error when an user provides an invalid input
@@ -92,15 +92,6 @@ func (err *PermissionDeniedError) Error() string {
 // PermissionDenied returns a new PermissionDeniedError
 func PermissionDenied(message string) *PermissionDeniedError {
 	return &PermissionDeniedError{message: message}
-}
-
-func IsPermissionDenied(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	var e *PermissionDeniedError
-	return errors.As(err, &e)
 }
 
 // AlreadyExistsError is a wrapper for an error when something already exists

@@ -18,6 +18,7 @@ RUN apt-get install -y --no-install-recommends \
     #  g++ musl musl-dev musl-tools clang libclang-dev lld cmake \
     # useful data. mailcap for mimetypes. tzdata for timezones.
     mailcap tzdata libpcre2-dev \
+    python3 python3-pip pipx \
     # mdninja-server specific dependencies
     postgresql-client-17 libimage-exiftool-perl graphviz
 
@@ -63,5 +64,6 @@ RUN git config --global init.defaultBranch main
 # setup node (again, as a normal user this time)
 RUN npm config set ignore-scripts true
 RUN npm config set min-release-age 7
+RUN npm config set prefix '~/.npm/'
 
 WORKDIR /
