@@ -202,18 +202,16 @@ func (server *server) run(ctx context.Context) (err error) {
 		ctx, cancel := context.WithTimeout(ctx, shutdownTimeout)
 		defer cancel()
 
-		var wg sync.WaitGroup
-		wg.Add(1)
-		wg.Go(func() {
+		var serverShutdownWaitGroup sync.WaitGroup
+		serverShutdownWaitGroup.Go(func() {
 			shutdownErr <- httpServer.Shutdown(ctx)
 		})
 		if server.httpConfig.Tls {
-			wg.Add(1)
-			wg.Go(func() {
+			serverShutdownWaitGroup.Go(func() {
 				http3ShutdownErr <- http3Server.Shutdown(ctx)
 			})
 		}
-		wg.Wait()
+		serverShutdownWaitGroup.Wait()
 	}()
 
 	if server.httpConfig.Tls {
