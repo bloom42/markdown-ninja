@@ -252,6 +252,7 @@ func (server *server) run(ctx context.Context) (err error) {
 	if server.httpConfig.Tls {
 		var errGroup errgroup.Group
 		errGroup.Go(func() error {
+			logger.Info("server: Starting HTTP3/QUIC server", slog.String("address", httpServer.Addr))
 			return http3Server.ListenAndServe()
 		})
 		errGroup.Go(func() error {
