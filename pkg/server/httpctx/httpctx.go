@@ -27,9 +27,8 @@ type Context struct {
 	Hostname  string
 	Headers   http.Header
 	// Url is always present but a pointer because http.Request.URL is a pointer
-	Url     *url.URL
-	Client  ClientData
-	CfRayID string
+	Url    *url.URL
+	Client ClientData
 
 	Response Response
 	Request  Request

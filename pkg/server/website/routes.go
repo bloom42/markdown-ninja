@@ -14,10 +14,6 @@ import (
 	"markdown.ninja/pkg/services/websites"
 )
 
-type websitesServer struct {
-	siteService site.Service
-}
-
 func Routes(ctx context.Context, siteService site.Service, contactsService contacts.Service, storeService store.Service) (router chi.Router) {
 	router = chi.NewRouter()
 	// server := websitesServer{

@@ -71,7 +71,6 @@ func SetHTTPContext(pingooClient *pingoo.Client) func(next http.Handler) http.Ha
 			}
 			httpCtx.Client.CountryCode = geoipInfo.Country
 			httpCtx.Client.ASN = geoipInfo.ASN
-			httpCtx.CfRayID = strings.TrimSpace(req.Header.Get("CF-ray"))
 
 			ifNoneMatchHeader := strings.TrimSpace(req.Header.Get(httpx.HeaderIfNoneMatch))
 			if ifNoneMatchHeader != "" {

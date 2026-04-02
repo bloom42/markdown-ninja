@@ -52,7 +52,6 @@ func DecodeRequest(w http.ResponseWriter, req *http.Request, dest any) (err erro
 
 	jsonDecoder := json.NewDecoder(req.Body)
 	jsonDecoder.DisallowUnknownFields()
-
 	err = jsonDecoder.Decode(dest)
 	if err != nil {
 		ctx := req.Context()

@@ -58,9 +58,7 @@ func generateSelfSignedCert() (*tls.Certificate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("certmanager: Unable to marshal private key: %w", err)
 	}
-	x509Key := pem.EncodeToMemory(&pem.Block{
-		Type: "PRIVATE KEY", Bytes: privateKeyBytes,
-	})
+	x509Key := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privateKeyBytes})
 
 	tlsCert, err := tls.X509KeyPair(x509Cert, x509Key)
 	if err != nil {
