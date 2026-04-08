@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/skerkour/stdx-go/opt"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/events"
@@ -55,7 +54,7 @@ func (service *SiteService) Unsubscribe(ctx context.Context, input site.Unsubscr
 
 	updateContactInput := contacts.UpdateContactInput{
 		ID:                     contact.ID,
-		SubscribedToNewsletter: opt.Bool(false),
+		SubscribedToNewsletter: new(false),
 	}
 	err = service.contactsService.UpdateContactInternal(ctx, service.db, &contact, updateContactInput)
 	if err != nil {

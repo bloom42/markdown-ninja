@@ -10,7 +10,6 @@ import (
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"github.com/skerkour/stdx-go/retry"
 	"github.com/stripe/stripe-go/v81"
@@ -238,7 +237,7 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 	// but otherwise we can't see them in the dashbaord...
 	updateContactInput := contacts.UpdateContactInput{
 		ID:               contact.ID,
-		Verified:         opt.Bool(true),
+		Verified:         new(true),
 		Country:          &country,
 		StripeCustomerID: stripeCustomerID,
 	}
@@ -291,8 +290,8 @@ func (service *StoreService) completeOrder(ctx context.Context, orderID guid.GUI
 			Data: store.JobSendOrderConfirmationEmail{
 				OrderID: order.ID,
 			},
-			RetryDelay: opt.Int64(120),
-			RetryMax:   opt.Int64(10),
+			RetryDelay: new(int64(120)),
+			RetryMax:   new(int64(10)),
 		}
 		errQueue := service.queue.Push(context.Background(), nil, job)
 		if errQueue != nil {

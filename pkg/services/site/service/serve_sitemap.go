@@ -13,7 +13,6 @@ import (
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/skerkour/stdx-go/memorycache"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/sitemap"
 	"github.com/skerkour/stdx-go/timex"
 	"github.com/zeebo/blake3"
@@ -93,12 +92,12 @@ func (service *SiteService) serveSitemap(ctx context.Context, res http.ResponseW
 	}
 	sitemapFile.Add(sitemap.URL{
 		Loc:     host + "/tags",
-		LastMod: opt.Time(modifiedAt.UTC().Truncate(time.Minute)),
+		LastMod: new(modifiedAt.UTC().Truncate(time.Minute)),
 	})
 	for _, tag := range tags {
 		sitemapFile.Add(sitemap.URL{
 			Loc:     host + "/tags/" + tag.Name,
-			LastMod: opt.Time(tag.UpdatedAt.UTC().Truncate(time.Minute)),
+			LastMod: new(tag.UpdatedAt.UTC().Truncate(time.Minute)),
 		})
 	}
 

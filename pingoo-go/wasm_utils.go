@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/retry"
 	"github.com/tetratelabs/wazero"
 	wazeroapi "github.com/tetratelabs/wazero/api"
@@ -72,7 +71,7 @@ func (client *Client) refreshPingooWasm(ctx context.Context) (err error) {
 
 	currentPingooWasmEtag := client.wasmEtag.Load()
 	if currentPingooWasmEtag == nil {
-		currentPingooWasmEtag = opt.String("")
+		currentPingooWasmEtag = new("")
 	}
 
 	pingooWasmRes, err := client.DownloadPingooWasm(ctx, *currentPingooWasmEtag)

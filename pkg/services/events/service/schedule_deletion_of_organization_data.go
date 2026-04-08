@@ -6,7 +6,6 @@ import (
 
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/events"
 )
@@ -19,8 +18,8 @@ func (service *Service) ScheduleDeletionOfOrganizationData(ctx context.Context, 
 		Data: events.JobDeleteOrganizationEvents{
 			OrganizationID: organizationID,
 		},
-		Timeout:    opt.Int64(1200),
-		RetryDelay: opt.Int64(3600),
+		Timeout:    new(int64(1200)),
+		RetryDelay: new(int64(3600)),
 	}
 	err = service.queue.Push(ctx, tx, job)
 	if err != nil {

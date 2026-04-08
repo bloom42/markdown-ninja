@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"
@@ -84,7 +83,7 @@ func (service *EmailsService) SendNewsletter(ctx context.Context, input emails.S
 			TestEmails:   testEmails,
 			SentAt:       now,
 		},
-		Timeout: opt.Int64(600),
+		Timeout: new(int64(600)),
 	}
 
 	err = service.queue.Push(ctx, nil, job)

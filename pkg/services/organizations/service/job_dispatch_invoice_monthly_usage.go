@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/skerkour/stdx-go/guid"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
@@ -47,8 +46,8 @@ func (service *OrganizationsService) JobDispatchInvoiceMonthlyUsage(ctx context.
 				IdempotencyKey: guid.NewTimeBased().String(),
 			},
 			ScheduledFor: &jobScheduledFor,
-			Timeout:      opt.Int64(300),
-			RetryDelay:   opt.Int64(300),
+			Timeout:      new(int64(300)),
+			RetryDelay:   new(int64(300)),
 		}
 		jobs = append(jobs, job)
 	}

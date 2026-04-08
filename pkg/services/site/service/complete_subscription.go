@@ -9,7 +9,6 @@ import (
 	"github.com/skerkour/stdx-go/countries"
 	"github.com/skerkour/stdx-go/crypto"
 	"github.com/skerkour/stdx-go/db"
-	"github.com/skerkour/stdx-go/opt"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/events"
@@ -71,7 +70,7 @@ func (service *SiteService) CompleteSubscription(ctx context.Context, input site
 		// session.UpdatedAt = now
 		updateContactInput := contacts.UpdateContactInput{
 			ID:                   contact.ID,
-			FailedSignupAttempts: opt.Int64(contact.FailedSignupAttempts + 1),
+			FailedSignupAttempts: new(contact.FailedSignupAttempts + 1),
 		}
 		err = service.contactsService.UpdateContactInternal(ctx, service.db, &contact, updateContactInput)
 		if err != nil {
@@ -91,11 +90,11 @@ func (service *SiteService) CompleteSubscription(ctx context.Context, input site
 	err = service.db.Transaction(ctx, func(tx db.Tx) (txErr error) {
 		updateContactInput := contacts.UpdateContactInput{
 			ID:                     contact.ID,
-			SubscribedToNewsletter: opt.Bool(true),
+			SubscribedToNewsletter: new(true),
 			Country:                &country,
-			FailedSignupAttempts:   opt.Int64(0),
-			SignupCodeHash:         opt.String(""),
-			Verified:               opt.Bool(true),
+			FailedSignupAttempts:   new(int64(0)),
+			SignupCodeHash:         new(""),
+			Verified:               new(true),
 		}
 		txErr = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)
 		if txErr != nil {

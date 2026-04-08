@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/skerkour/stdx-go/guid"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/services/emails"
@@ -53,7 +52,7 @@ func (service *EmailsService) JobSendPostAsNewsletter(ctx context.Context, input
 			Test:         false,
 			SentAt:       now,
 		},
-		Timeout: opt.Int64(600),
+		Timeout: new(int64(600)),
 	}
 	err = service.queue.Push(ctx, nil, job)
 	if err != nil {

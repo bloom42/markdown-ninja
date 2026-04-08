@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/emails"
 )
@@ -31,7 +30,7 @@ func (service *EmailsService) TaskSendScheduledNewsletters(ctx context.Context) 
 				Test:         false,
 				SentAt:       now,
 			},
-			Timeout: opt.Int64(600),
+			Timeout: new(int64(600)),
 		}
 
 		err = service.queue.Push(ctx, nil, job)

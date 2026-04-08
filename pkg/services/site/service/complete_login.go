@@ -9,7 +9,6 @@ import (
 	"github.com/skerkour/stdx-go/countries"
 	"github.com/skerkour/stdx-go/crypto"
 	"github.com/skerkour/stdx-go/db"
-	"github.com/skerkour/stdx-go/opt"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
 	"markdown.ninja/pkg/services/kernel"
@@ -93,7 +92,7 @@ func (service *SiteService) CompleteLogin(ctx context.Context, input site.Comple
 		updateContactInput := contacts.UpdateContactInput{
 			ID:       contact.ID,
 			Country:  &country,
-			Verified: opt.Bool(true),
+			Verified: new(true),
 		}
 		txErr = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)
 		if txErr != nil {

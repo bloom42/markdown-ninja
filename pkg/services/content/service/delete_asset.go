@@ -6,7 +6,6 @@ import (
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"
@@ -96,8 +95,8 @@ func (service *ContentService) deleteAssetInternal(ctx context.Context, tx db.Tx
 						StorageKey: service.getStorageKey(child),
 					},
 					// retry every 2 hours for 48 hours
-					RetryDelay: opt.Ptr(int64(2 * 3600)),
-					RetryMax:   opt.Int64(24),
+					RetryDelay: new(int64(2 * 3600)),
+					RetryMax:   new(int64(24)),
 				}
 				err = service.queue.Push(ctx, tx, job)
 				if err != nil {
@@ -121,8 +120,8 @@ func (service *ContentService) deleteAssetInternal(ctx context.Context, tx db.Tx
 				StorageKey: service.getStorageKey(assetToDelete),
 			},
 			// retry every 2 hours for 48 hours
-			RetryDelay: opt.Ptr(int64(2 * 3600)),
-			RetryMax:   opt.Int64(24),
+			RetryDelay: new(int64(2 * 3600)),
+			RetryMax:   new(int64(24)),
 		}
 		err = service.queue.Push(ctx, tx, job)
 		if err != nil {

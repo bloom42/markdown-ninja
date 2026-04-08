@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/skerkour/stdx-go/guid"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/set"
 	"markdown.ninja/pkg/services/kernel"
 )
@@ -73,11 +72,11 @@ var DefaultWebsiteNavigation = WebsiteNavigation{
 	Primary: []WebsiteNavigationItem{
 		{
 			Label: "Home",
-			Url:   opt.String("/"),
+			Url:   new("/"),
 		},
 		{
 			Label: "Blog",
-			Url:   opt.String("/blog"),
+			Url:   new("/blog"),
 		},
 	},
 	Secondary: []WebsiteNavigationItem{},

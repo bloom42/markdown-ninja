@@ -6,7 +6,6 @@ import (
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/services/content"
@@ -19,8 +18,8 @@ func (service *ContentService) DeleteWebsiteData(ctx context.Context, tx db.Quer
 		Data: content.JobDeleteAssetsDataWithPrefix{
 			Prefix: service.getStoragePrefixForWebsite(websiteID),
 		},
-		Timeout:    opt.Ptr(int64(600)),
-		RetryDelay: opt.Ptr(int64(3600)),
+		Timeout:    new(int64(600)),
+		RetryDelay: new(int64(3600)),
 	}
 	err = service.queue.Push(ctx, tx, job)
 	if err != nil {

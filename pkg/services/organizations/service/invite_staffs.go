@@ -10,7 +10,6 @@ import (
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/iterx"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"github.com/skerkour/stdx-go/slicesx"
 	"markdown.ninja/pingoo-go"
@@ -66,7 +65,7 @@ func (service *OrganizationsService) InviteStaffs(ctx context.Context, input org
 
 	validateEmailsRes, err := service.pingoo.LookupEmails(ctx, pingoo.LookupEmailsInput{
 		Emails:    emails,
-		MxRecords: opt.Bool(true),
+		MxRecords: new(true),
 	})
 	if err != nil {
 		err = fmt.Errorf("organizations.InviteStaffs: error looking up emails: %w", err)

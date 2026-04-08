@@ -15,7 +15,6 @@ import (
 
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/markdown"
@@ -212,7 +211,7 @@ func (service *EmailsService) JobSendNewsletter(ctx context.Context, input email
 
 	// we report data usage 1 minute after all the emails have been sent
 	sendUsageDataJob := queue.NewJobInput{
-		ScheduledFor: opt.Time(scheduledFor.Add(time.Minute)),
+		ScheduledFor: new(scheduledFor.Add(time.Minute)),
 		Data: organizations.JobSendUsageData{
 			OrganizationID: website.OrganizationID,
 		},

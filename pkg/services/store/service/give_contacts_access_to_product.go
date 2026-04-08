@@ -10,7 +10,6 @@ import (
 	"github.com/skerkour/stdx-go/countries"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/iterx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/slicesx"
 	"markdown.ninja/pingoo-go"
 	"markdown.ninja/pkg/errs"
@@ -91,7 +90,7 @@ func (service *StoreService) GiveContactsAccessToProduct(ctx context.Context, in
 				if !contact.Verified {
 					updateContactInput := contacts.UpdateContactInput{
 						ID:       contact.ID,
-						Verified: opt.Bool(true),
+						Verified: new(true),
 					}
 					txErr = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)
 					if txErr != nil {

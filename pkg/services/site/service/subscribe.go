@@ -9,7 +9,6 @@ import (
 	"github.com/skerkour/stdx-go/crypto"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"github.com/skerkour/stdx-go/randutil"
 	"markdown.ninja/pkg/errs"
@@ -79,10 +78,10 @@ func (service *SiteService) Subscribe(ctx context.Context, input site.SubscribeI
 		if unverifiedContactAlreadyExists {
 			updateContactInput := contacts.UpdateContactInput{
 				ID:                     contact.ID,
-				SubscribedToNewsletter: opt.Bool(true),
+				SubscribedToNewsletter: new(true),
 				Country:                &country,
-				FailedSignupAttempts:   opt.Int64(0),
-				SignupCodeHash:         opt.String(codeHash),
+				FailedSignupAttempts:   new(int64(0)),
+				SignupCodeHash:         new(codeHash),
 			}
 			txErr = service.contactsService.UpdateContactInternal(ctx, tx, &contact, updateContactInput)
 			if txErr != nil {

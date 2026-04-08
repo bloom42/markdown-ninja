@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/skerkour/stdx-go/log/slogx"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/queue"
 	"markdown.ninja/pkg/services/organizations"
 )
@@ -12,8 +11,8 @@ import (
 func (scheduler *Scheduler) organizationsDispatchSendUsageData(ctx context.Context) {
 	job := queue.NewJobInput{
 		Data:       organizations.JobDispatchSendUsageData{},
-		Timeout:    opt.Ptr(int64(300)),
-		RetryDelay: opt.Ptr(int64(300)),
+		Timeout:    new(int64(300)),
+		RetryDelay: new(int64(300)),
 	}
 	err := scheduler.queue.Push(ctx, nil, job)
 	if err != nil {
@@ -26,8 +25,8 @@ func (scheduler *Scheduler) organizationsDispatchSendUsageData(ctx context.Conte
 func (scheduler *Scheduler) organizationsDispatchInvoiceMonthlyUsage(ctx context.Context) {
 	job := queue.NewJobInput{
 		Data:       organizations.JobDispatchInvoiceMonthlyUsage{},
-		Timeout:    opt.Ptr(int64(300)),
-		RetryDelay: opt.Ptr(int64(300)),
+		Timeout:    new(int64(300)),
+		RetryDelay: new(int64(300)),
 	}
 	err := scheduler.queue.Push(ctx, nil, job)
 	if err != nil {

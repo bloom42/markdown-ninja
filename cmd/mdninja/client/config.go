@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/orderedmap"
 	"github.com/skerkour/stdx-go/yaml"
 	"markdown.ninja/pkg/services/websites"
@@ -70,7 +69,7 @@ func (client *Client) loadConfig(_ context.Context, configPath string) (conf con
 		conf.Ad = &ad
 	} else {
 		// empty string to set it as null
-		conf.Ad = opt.Ptr("")
+		conf.Ad = new("")
 	}
 
 	if conf.Announcement != nil {
@@ -78,7 +77,7 @@ func (client *Client) loadConfig(_ context.Context, configPath string) (conf con
 		conf.Announcement = &announcement
 	} else {
 		// empty string to set it as null
-		conf.Announcement = opt.Ptr("")
+		conf.Announcement = new("")
 	}
 
 	if len(conf.PageDirs) == 0 {

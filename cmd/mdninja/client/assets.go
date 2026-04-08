@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/skerkour/stdx-go/guid"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/kernel"
@@ -135,7 +134,7 @@ func (client *Client) uploadLocalWebsiteAsset(ctx context.Context, websiteID gui
 	uploadAssetInput := content.UploadAssetInput{
 		WebsiteID: websiteID,
 		Name:      assetName,
-		Folder:    opt.String(assetFolder),
+		Folder:    &assetFolder,
 		Data:      assetFile,
 	}
 	_, err = client.apiClient.UploadAsset(ctx, uploadAssetInput)
@@ -173,7 +172,7 @@ func (client *Client) uploadLocalProductAsset(ctx context.Context, websiteID, pr
 	uploadAssetInput := content.UploadAssetInput{
 		WebsiteID: websiteID,
 		Name:      assetName,
-		Folder:    opt.String(assetFolder),
+		Folder:    &assetFolder,
 		Data:      assetFile,
 		ProductID: &productID,
 	}

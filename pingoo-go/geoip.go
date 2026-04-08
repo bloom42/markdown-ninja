@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/skerkour/stdx-go/countries"
-	"github.com/skerkour/stdx-go/opt"
 	"github.com/skerkour/stdx-go/retry"
 	"markdown.ninja/pingoo-go/wasm"
 )
@@ -63,7 +62,7 @@ func (client *Client) refreshGeoipDatabase(ctx context.Context) (err error) {
 
 	currentGeoipDBEtag := client.geoipDBEtag.Load()
 	if currentGeoipDBEtag == nil {
-		currentGeoipDBEtag = opt.String("")
+		currentGeoipDBEtag = new("")
 	}
 
 	geoipDbRes, err := client.DownloadLatestGeoipDatabase(ctx, *currentGeoipDBEtag)
