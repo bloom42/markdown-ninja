@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/store"

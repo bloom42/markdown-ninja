@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
@@ -130,7 +130,7 @@ func computePageEtag(page *content.Page, siteModifiedAt time.Time, themeHash []b
 		return base64.RawURLEncoding.EncodeToString(hash[:])
 	}
 
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	binary.Write(hasher, binary.LittleEndian, page.UpdatedAt.Unix())
 	binary.Write(hasher, binary.LittleEndian, siteModifiedAt.Unix())
 	hasher.Write([]byte(page.Path))

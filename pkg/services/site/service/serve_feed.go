@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/feeds"
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/skerkour/stdx-go/memorycache"
 	"github.com/skerkour/stdx-go/timex"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
@@ -143,7 +143,7 @@ func (service *SiteService) serveFeed(ctx context.Context, res http.ResponseWrit
 func generateFeedEtag(website *websites.Website, modifiedAt time.Time) string {
 	var hash [32]byte
 
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	binary.Write(hasher, binary.LittleEndian, modifiedAt.Unix())
 	hasher.Write(website.ID[:])
 	hasher.Sum(hash[:0])

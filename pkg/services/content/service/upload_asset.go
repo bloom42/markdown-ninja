@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/content"
@@ -147,7 +147,7 @@ func (service *ContentService) UploadAsset(ctx context.Context, input content.Up
 		ProductID: input.ProductID,
 	}
 
-	assetHasher := blake3.New(32, nil)
+	assetHasher := blake3.New()
 	assetHasherForS3Integrity := sha256.New()
 	inputDataHasherReader := io.TeeReader(input.Data, assetHasher)
 	asset.Size, err = io.CopyN(assetHasherForS3Integrity, inputDataHasherReader, kernel.MaxAssetSize+1)

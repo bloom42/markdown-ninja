@@ -11,8 +11,8 @@ import (
 
 	"github.com/skerkour/stdx-go/base32"
 	"github.com/skerkour/stdx-go/crypto"
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 	"markdown.ninja/pkg/services/organizations"
@@ -101,7 +101,7 @@ func (service *OrganizationsService) verifyApiKey(storedApiKey organizations.Api
 }
 
 func (service *OrganizationsService) generateApiKeyHash(apiKeyID guid.GUID, version int16, secret []byte, organizationID guid.GUID) (hash [apiKeyHashSize]byte) {
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 
 	hasher.Write(apiKeyID.Bytes())
 	binary.Write(hasher, binary.LittleEndian, version)

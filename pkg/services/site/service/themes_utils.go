@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/yaml"
+	"github.com/zeebo/blake3"
 	"golang.org/x/net/html"
 	"markdown.ninja/pkg/services/websites"
 	"markdown.ninja/themes"
@@ -120,7 +120,7 @@ func loadTheme(themeName string, themeFS fs.FS, templateFuncs template.FuncMap) 
 
 	theme.IndexTemplate = indexTemplate
 
-	themeHasher := blake3.New(32, nil)
+	themeHasher := blake3.New()
 	err = hashThemeFiles(themeFS, themeHasher)
 	if err != nil {
 		return

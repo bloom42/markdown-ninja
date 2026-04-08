@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/skerkour/stdx-go/queue"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/markdown"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/content"

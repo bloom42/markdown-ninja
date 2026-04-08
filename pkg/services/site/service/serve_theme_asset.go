@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/httpx"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/websites"

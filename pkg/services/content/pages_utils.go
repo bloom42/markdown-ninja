@@ -4,13 +4,13 @@ import (
 	"encoding/binary"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
+	"github.com/zeebo/blake3"
 )
 
 func HashPageMetadata(pageType PageType, path string, date time.Time, sendAsNewsletter bool, language string, title string, description string, tags []string) [32]byte {
 	var hash [32]byte
 
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	hasher.Write([]byte(pageType))
 	hasher.Write([]byte(path))
 	binary.Write(hasher, binary.LittleEndian, date.UnixMilli())

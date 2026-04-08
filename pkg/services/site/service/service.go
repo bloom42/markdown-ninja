@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/klauspost/compress/zstd"
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/memorycache"
 	"github.com/skerkour/stdx-go/queue"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/cmd/mdninja-server/config"
 	"markdown.ninja/pkg/mailer"
 	"markdown.ninja/pkg/ratelimit"

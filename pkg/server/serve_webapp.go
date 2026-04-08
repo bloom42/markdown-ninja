@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/kernel"
 )
@@ -62,7 +62,7 @@ func (server *server) serveWebapp(res http.ResponseWriter, req *http.Request) {
 	}
 
 	var rawEtag [32]byte
-	etagHasher := blake3.New(32, nil)
+	etagHasher := blake3.New()
 	etagHasher.Write(initDataJson)
 	etagHasher.Write(server.webappIndexHtmlHash)
 	etagHasher.Sum(rawEtag[:0])

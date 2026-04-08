@@ -20,11 +20,11 @@ import (
 
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/db"
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/skerkour/stdx-go/proxyproto"
+	"github.com/zeebo/blake3"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"

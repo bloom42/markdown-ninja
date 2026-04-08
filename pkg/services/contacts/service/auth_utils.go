@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/jwt"
 	"markdown.ninja/pkg/server/httpctx"
 	"markdown.ninja/pkg/services/contacts"
@@ -96,7 +96,7 @@ func (service *ContactsService) generateSessionToken(contactID, sessionID guid.G
 }
 
 func generateSessionHash(contactID, sessionID guid.GUID, secret []byte) (out [sessionHashSize]byte) {
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	hasher.Write(contactID.Bytes())
 	hasher.Write(sessionID.Bytes())
 	hasher.Write(secret)

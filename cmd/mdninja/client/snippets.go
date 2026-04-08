@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/services/content"
 )
 

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/useragent"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/services/events"
 )
 
@@ -36,7 +36,7 @@ func getAnonymousID(salt string, input getAnonymousIdInput) guid.GUID {
 	// currently, the anoynmous identifier is the first 16 bytes (128 bits) of the BLAKE3 hash of
 	// the input data.
 	var hash [32]byte
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	hasher.Write(input.websiteID.Bytes())
 	hasher.Write([]byte(input.IpAddress.AsSlice()))
 	hasher.Write([]byte(input.UserAgent))

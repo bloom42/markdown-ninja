@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/opt"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/services/content"
 	"markdown.ninja/pkg/services/kernel"
 )
@@ -229,7 +229,7 @@ func (client *Client) loadLocalAssets(assetsDir string) (localAssets []localAsse
 		}
 		defer assetFile.Close()
 
-		assetHasher := blake3.New(32, nil)
+		assetHasher := blake3.New()
 
 		_, walkErr = io.Copy(assetHasher, assetFile)
 		if walkErr != nil {

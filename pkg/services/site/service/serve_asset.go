@@ -11,11 +11,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/skerkour/stdx-go/crypto/blake3"
 	"github.com/skerkour/stdx-go/guid"
 	"github.com/skerkour/stdx-go/httpx"
 	"github.com/skerkour/stdx-go/log/slogx"
 	"github.com/skerkour/stdx-go/memorycache"
+	"github.com/zeebo/blake3"
 	"markdown.ninja/pkg/errs"
 	"markdown.ninja/pkg/server/cachecontrol"
 	"markdown.ninja/pkg/server/httpctx"
@@ -150,7 +150,7 @@ func (service *SiteService) serveAsset(ctx context.Context, res http.ResponseWri
 func generateAssetEtag(asset *content.Asset, rangeHeader string) string {
 	var hash [32]byte
 
-	hasher := blake3.New(32, nil)
+	hasher := blake3.New()
 	hasher.Write(asset.Hash)
 	hasher.Write([]byte(rangeHeader))
 	hasher.Sum(hash[:0])
