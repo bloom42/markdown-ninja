@@ -11,7 +11,7 @@ import (
 func (service *ContentService) JobDeleteAssetData(ctx context.Context, input content.JobDeleteAssetData) (err error) {
 	err = retry.Do(func() error {
 		return service.storage.DeleteObject(ctx, input.StorageKey)
-	}, retry.Context(ctx), retry.Attempts(5), retry.Delay(1*time.Minute))
+	}, retry.Context(ctx), retry.Attempts(20), retry.Delay(1*time.Minute))
 
 	return
 }
